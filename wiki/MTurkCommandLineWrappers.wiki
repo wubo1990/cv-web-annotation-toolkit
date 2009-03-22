@@ -1,0 +1,68 @@
+#summary These command line tools simplify interaction with Amazon Mechanical Turk.
+
+= Introduction =
+
+Command line tools for Amazon Mechanical Turk are a great and easy way to work with Turk. They have minor difficulties: they assume a copy of scripts in every folder where the data is stored. These tools are installed once and work with input files in the current directory. These tools provide most common operations: submit, get results, approve. They are very simple and easy to extend.
+
+= Installation =
+
+ # Install Amazon Mechanical Turk Command line tools (say, to ~/projects/visual_turk/aws_tools/aws-mturk-clt-1.2.0/) 
+ # Check out the [http://code.google.com/p/cv-web-annotation-toolkit/source/browse/#svn/trunk/command_line_wrappers current version]. Place them into CODE_ROOT
+ # Edit your .bashrc and add:
+
+{{{
+export MTURK_CMD_HOME=~/projects/visual_turk/aws_tools/aws-mturk-clt-1.2.0/
+export JAVA_HOME=/usr
+export PATH=$PATH:${CODE_ROOT}
+}}}
+
+
+
+= File naming conventions =
+
+== input files ==
+./workload.input - the input file for HITs
+
+./workload.properties - the properties file (could be in ../ or ../../)
+
+./workload.question - the properties file (could be in ../ or ../../)
+
+== output files ==
+./workload.success
+./workload.results
+
+== grading files ==
+./workload.approve_file 
+./workload.reject_file
+./workload.redo_extend_hit - 
+
+= Function documentation =
+The functions mostly mirror the original SDK commands.
+
+MT_run.sh
+
+MT_run2.sh - searches for workload.properties and workload.questions in ../ and in ../../ ; This is very useful when the workload.input changes, but the other files don't.
+
+----
+
+MT_getResults.sh
+
+----
+
+MT_approveAndDeleteResults.sh - approves everything!
+
+MT_only_approve.sh - approves all assignments listed in workload.approve_file
+
+MT_only_reject.sh - rejects all assignments listed in workload.reject_file
+
+MT_delete_results.sh
+
+----
+
+MT_extendHits.sh - adds more time/of assignments to each HIT.
+
+MT_grantBonus.py - generates a script with 1 grant bonus command for every record.
+
+MT_submit_redo.sh - adds 1 more assignment to every HIT listed in workload.redo_extend_hit
+
+MText_resequence.py
