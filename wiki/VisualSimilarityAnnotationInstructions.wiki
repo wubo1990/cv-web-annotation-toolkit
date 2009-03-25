@@ -1,13 +1,26 @@
-#summary Instructions on what visual similarity is and how to annotate it. V0.1
+#summary Instructions on what visual similarity is and how to annotate it. V0.0.1
 
 = Visual similarity =
 
-Add your content here.
+"Things" can look similar based on color, texture, material, shape, etc. We need to know, how exactly particular images relate to each other.
 
 
 = Annotation =
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+Mark *all* options where the images are similar. If none of the options applies, you should
+*mark* nothing applies. If one image is terribly confusing, mark that image as confusing. Make sure to ask in the [http://www.tinychat.com/visualsimilarity Q&A chat] about it first.
+
+
+= Asking questions =
+
+ # Check back to this page to see if new clarifications are available.
+ # Ask about the image in the [http://www.tinychat.com/visualsimilarity Q&A chat]. Right click on the image in question and choose "copy image location". Then paste the URL into the Q&A chat together with your question.
+
+
+= Quality objective =
+
+We need data with *90%* agreement between people. Please think before clicking on the buttons and understand the task before working on it.
+
+= Rejection policy = 
+
+We will reject all assignments with agreement *below 90%* to other people.
