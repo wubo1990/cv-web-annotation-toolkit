@@ -1,0 +1,13 @@
+#summary Instructions on what visual similarity is and how to annotate it. V0.1
+
+= Visual similarity =
+
+Add your content here.
+
+
+= Annotation =
+
+Add your content here.  Format your content with:
+  * Text in *bold* or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages
