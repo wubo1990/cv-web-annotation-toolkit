@@ -1,0 +1,18 @@
+#summary Instructions on the annotation of boundary types
+
+= Introduction =
+
+= Boundary types =
+
+Mark *ALL* options that apply. When it's an object boundary, it is very likely to be a material boundary. An object boundary can also be depth boundary.
+
+ # *Texture/material boundary.* When the boundary is produced by the change from one material or texture to another material or texture (e.g.the glass cover and plastic border of a monitor).
+ # *Object boundary.* Where two nearby objects touch in the image. On one side of the boundary is one object, on the other side of the boundary is another object (e.g. boundary between plate and table).
+ # *Shadow boundary.* Shadows produce obvious boundaries.
+ # *Depth boundary.* The two sides of the boundary are close in the image, but they are far apart in the space.
+ # *None*  It would be wrong to classify this particular point as one of the options 1-4.
+
+
+= Quality objective =
+
+We need *90%* agreement among people. Submissions with lower agreement will be rejected.
