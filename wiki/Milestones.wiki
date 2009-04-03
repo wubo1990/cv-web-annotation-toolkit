@@ -1,0 +1,15 @@
+#summary Milestones
+
+= M1. Django 1.0 version of the server =
+  * Image concept
+  * Annotation concept
+  * Annotation session
+
+
+= M2. Basic annotation tool =
+  * Boxes, polygons
+  * Segmentation
+
+
+= M3. Hierarchical annotation =
+  * Box, then attributes, then segment
