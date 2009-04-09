@@ -1,0 +1,41 @@
+SELECT st.id, h.ext_hitid, st.*,mgr.*
+FROM `mturk_submittedtask` st, mturk_manualgraderecord mgr, mturk_mthit h
+WHERE st.id = mgr.submission_id and h.id=st.hit_id
+AND st.worker = 'A2LUPXTJWIJPKV'
+
+
+
+
+SELECT date( submitted ) dt, count( * )
+FROM `mturk_submittedtask`
+WHERE 1
+GROUP BY dt
+ORDER BY dt
+LIMIT 0 , 30 
+
+
+
+
++ DONE
+
+SELECT s.code, session_id, count( * )
+FROM `mturk_submittedtask`
+LEFT JOIN mturk_session s ON s.id = session_id
+GROUP BY session_id
+LIMIT 0 , 30 
+
+
++ DONE
+
+SELECT wrk, count( sid ) , sum( contribution ) sc
+FROM (
+
+SELECT st.worker wrk, st.session_id sid, count( st.hit_id ) contribution
+FROM `mturk_submittedtask` st, mturk_manualgraderecord mgr
+WHERE mgr.submission_id = st.id
+AND mgr.quality >9
+GROUP BY worker, st.session_id
+)tmp
+GROUP BY wrk
+ORDER BY sc DESC
+LIMIT 0 , 30

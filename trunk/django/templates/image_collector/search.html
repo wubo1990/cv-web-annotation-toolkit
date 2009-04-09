@@ -1,0 +1,69 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>Image collector</title>
+
+
+<script language="javascript" src="/code/js/prototype.js" > </script>
+
+
+
+<script language="javascript">
+var search_updater;
+function do_find(page){
+    search_updater= new Ajax.Updater('search_results', '/ic/run_search/', {
+         parameters: { 
+	    query: $('search_box').value,
+	    page: page
+	    }
+          });
+    return true;
+}
+
+
+function flip_selected(imgid,source){
+   id='pic_'+source+'_'+imgid;
+   id2='updater_pic_'+source+'_'+imgid;
+   if($(id).className=='OFF'){
+   $(id).removeClassName("OFF");
+   $(id).addClassName("ON");
+   }else{
+   $(id).removeClassName("ON");
+   $(id).addClassName("OFF");
+   }
+   $(id2).innerHTML="?"
+   var cmd_updater= new Ajax.Updater(id2, '/ic/mark_image/'+source+'/'+imgid+'/'+$(id).className+'/')
+
+}
+</script>
+
+
+<style>
+
+td.ON {border-style: solid double;background-color: #CCC};
+td.OFF {border: 0 background-color: transparent};
+
+body {background-color: #ffffff};
+
+</style>
+
+</head>
+
+
+<body>
+
+<table>
+<tr><td colspan=2>
+       <div id="search_window">
+              <table><tr>
+	      <td>Query</td>
+	      <td><input id="search_box" type="text"></input></td>
+	      <td><a id="find_images" href="#" onclick="return do_find(1)">Find</a></td></tr></table>
+       </div>
+</td></tr>
+<tr><td><div id="search_results">?</div></td><td><div id="control"></div></td></tr>
+</table>
+
+
+</body>
+</html>

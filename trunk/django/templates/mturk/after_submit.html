@@ -1,0 +1,21 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<script language="javascript" src="/code/js/prototype.js" > </script>
+</head>
+
+<body>
+
+<form id="MT_form" name="MT_form" method="POST" action="{{submit_target}}">
+
+<input type=text name="assignmentId" id="assignmentId" value="{{assignmentId}}">
+<input type=text name="hitId" id="hitId" value="ignored">
+<input type=text name="extid" id="extid" value="{{extid}}">
+<input type=submit>
+
+</form>
+<script>
+$('MT_form').submit();
+</script>
+</body>
+</html>

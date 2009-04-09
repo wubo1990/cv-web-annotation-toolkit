@@ -1,0 +1,73 @@
+{% load time_extras %}
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>prototype</title>
+<script language="javascript">AC_FL_RunContent = 0;</script>
+<script src="/code/js/AC_RunActiveContent.js" language="javascript"></script>
+<script language="javascript" src="/code/js/prototype.js" > </script>
+</head>
+
+<body bgcolor="#ffffff">
+page number:
+{% if has_previous %}
+<a href="../p{{previous}}/">{{previous}}</a>
+{% endif %}
+{{page}}
+{% if has_next %}
+<a href="../p{{next}}/">{{next}}</a>
+{% endif %} | {{num_pages}}
+<br>
+{% for p in page_range %}
+<a href="../p{{p}}/">{{p}}</a> 
+{% endfor %}
+
+<hr/>
+{% for s in object_list %}
+Started: {{s.hit.submitted|human_date}}  {{s.hit.submitted|relative_using_date}}
+<br>
+Finished: {{s.submitted|human_date}}  {{s.submitted|relative_using_date}}
+<br>
+Delay: {{ s.get_delay }}
+<br>
+
+Filename: {{ s.hit.get_filename }}
+<br>
+
+
+<iframe height=800 width=800 src="{{s.get_view_url}}&{{s.hit.parameters}}&annotationURL=mt/submission_data_xml/{{s.id}}/{{s.hit.ext_hitid}}/"></iframe>
+<br/>
+{% if s.get_parsed.comments %}
+<b>Comment: </b>{{ s.get_parsed.comments }} <br/>
+{% endif %}
+<a href="/mt/submission_data_xml/{{s.id}}/{{s.hit.ext_hitid}}/">raw</a>;
+<hr/>
+{% endfor %}
+
+<noscript>
+Error. Javascript is required.
+</noscript>
+
+{% if has_previous %}
+<a href="../p{{previous}}/">{{previous}}</a>
+{% endif %}
+{{page}}
+{% if has_next %}
+<a href="../p{{next}}/">{{next}}</a>
+{% endif %} | {{num_pages}}
+<br>
+{% for p in page_range %}
+<a href="../p{{p}}/">{{p}}</a> 
+{% endfor %}
+
+{% if refresh_rate %}
+<script type="text/JavaScript">
+<!--
+setTimeout("document.location.reload(true)",{{refresh_rate}});
+//   -->
+</script>
+{% endif %}
+
+
+</body>
+</html>

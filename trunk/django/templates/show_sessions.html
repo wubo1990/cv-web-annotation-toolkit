@@ -1,0 +1,25 @@
+
+Sessions:
+
+<table width="90%">
+<tr>
+<th>Session</ht>
+<th>Task</ht>
+<th># Submitted Hits</ht>
+<th># Completed Hits</ht>
+<th># Assigned</ht>
+<th># Workers</ht>
+<th># GradeRecords</ht>
+</tr>
+{% for session in sessions %}
+<tr>
+  <td><a href="/admin/mturk/session/{{ session.id }}/">{{ session }}</a></td>
+  <td><a href="/admin/mturk/task/{{ session.task_def.id }}/">{{ session.task_def }}</a></td>
+  <td>{{ session.mthit_set.count }}</td>
+  <td><a href="/mt/results/{{session}}/">{{ session.submittedtask_set.count }}</a></td>
+  <td>{{ session.assignedtask_set.count }}</td>
+  <td>{{ session.worker_set.count }}</td>
+  <td>{{ session.goldstandardgraderecord_set.count }}</td>
+</tr>
+{% endfor %}
+</table>
