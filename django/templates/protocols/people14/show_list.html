@@ -1,0 +1,84 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>prototype</title>
+<script language="javascript">AC_FL_RunContent = 0;</script>
+<script src="/code/js/AC_RunActiveContent.js" language="javascript"></script>
+<script language="javascript" src="/code/js/prototype.js" > </script>
+</head>
+
+<body bgcolor="#ffffff">
+page number:
+{% if has_previous %}
+<a href="../p{{previous}}/">{{previous}}</a>
+{% endif %}
+{{page}}
+{% if has_next %}
+<a href="../p{{next}}/">{{next}}</a>
+{% endif %} | {{num_pages}}
+{% for p in page_range %}
+<a href="../p{{p}}/">{{p}}</a> 
+{% endfor %}
+
+<hr/>
+{% for s in object_list %}
+
+<script language="javascript">
+query_args='{{s.hit.parameters}}';
+query_args=query_args+'&datalist=/mt/submission_data/{{s.id}}/{{s.hit.ext_hitid}}/';
+//alert(query_args)
+//query_args=+"&mode=AmazonMT";
+
+
+
+	if (AC_FL_RunContent == 0) {
+		alert("This page requires AC_RunActiveContent.js.");
+	} else {
+		AC_FL_RunContent(
+			'codebase', 'http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0',
+			'width', '680',
+			'height', '600',
+			'src', '/code/people14_display',
+			'quality', 'high',
+			'pluginspage', 'http://www.macromedia.com/go/getflashplayer',
+			'align', 'middle',
+			'play', 'true"',
+			'loop', 'true',
+			'scale', 'showall',
+			'wmode', 'window',
+			'devicefont', 'false',
+			'id', 'people14_display',
+			'bgcolor', '#ffffff',
+			'name', 'people14_display',
+			'menu', 'true',
+			'allowFullScreen', 'false',
+			'allowScriptAccess','always',
+			'movie', '/code/people14_display',
+			'salign', '',
+			'FlashVars', query_args
+			); //end AC code
+	}
+</script>
+{{ s.get_parsed.comments }}<br/>
+<a href="/mt/submission_data/{{s.id}}/{{s.hit.ext_hitid}}/">raw</a>;
+<hr/>
+{% endfor %}
+
+<noscript>
+Error. Javascript is required.
+</noscript>
+
+{% if has_previous %}
+<a href="../p{{previous}}/">{{previous}}</a>
+{% endif %}
+{{page}}
+{% if has_next %}
+<a href="../p{{next}}/">{{next}}</a>
+{% endif %} | {{num_pages}}
+{% for p in page_range %}
+{{p}} 
+{% endfor %}
+
+
+</body>
+</html>

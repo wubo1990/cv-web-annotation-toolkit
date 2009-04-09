@@ -1,0 +1,154 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>prototype</title>
+<script language="javascript">AC_FL_RunContent = 0;</script>
+<script src="/code/js/AC_RunActiveContent.js" language="javascript"></script>
+<script language="javascript" src="/code/js/prototype.js" > </script>
+</head>
+
+<body bgcolor="#ffffff">
+<form id='grading_form'>
+No work - no data submitted, unless the image is empty<br/>
+Poor - the annotator was negligent/made very clear mistakes. <br/>
+Visible errors - some minor, but visible errors. The errors are possibly due to misunderstanding<br/>
+Good - fair annotation. This is a reasonably expected annotation. (No annotation for empty images)<br/>
+Exceptional - some really outstanding annotation. E.g. very constructive comment.<br/>
+
+<hr/>
+{% if has_previous %}
+<a href="../p{{previous}}/">{{previous}}</a>
+{% endif %}
+{{page}}
+{% if has_next %}
+<a href="../p{{next}}/">{{next}}</a>
+{% endif %} | {{num_pages}}
+{% for p in page_range %}
+{{p}} 
+{% endfor %}
+
+<hr/>
+<table>
+
+
+
+{% for s in object_list %}
+<tr><td rowspan="4">
+<script language="javascript">
+query_args='{{s.hit.parameters}}';
+query_args=query_args+'&datalist=/mt/submission_data/{{s.id}}/{{s.hit.ext_hitid}}/';
+//alert(query_args)
+//query_args=+"&mode=AmazonMT";
+
+
+
+	if (AC_FL_RunContent == 0) {
+		alert("This page requires AC_RunActiveContent.js.");
+	} else {
+		AC_FL_RunContent(
+			'codebase', 'http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0',
+			'width', '680',
+			'height', '600',
+			'src', '/code/people14_display',
+			'quality', 'high',
+			'pluginspage', 'http://www.macromedia.com/go/getflashplayer',
+			'align', 'middle',
+			'play', 'true"',
+			'loop', 'true',
+			'scale', 'showall',
+			'wmode', 'window',
+			'devicefont', 'false',
+			'id', 'people14_display',
+			'bgcolor', '#ffffff',
+			'name', 'people14_display',
+			'menu', 'true',
+			'allowFullScreen', 'false',
+			'allowScriptAccess','always',
+			'movie', '/code/people14_display',
+			'salign', '',
+			'FlashVars', query_args
+			); //end AC code
+	}
+</script>
+</td><td>
+<!--<b>Worker: </b>n/a -- s.worker --<br/>-->
+<b>Comment: </b>{{ s.get_parsed.comments }}</td></tr>
+<tr>
+<td>torso:{{s.get_parsed.shapes.0.torso}} (<a href="/mt/submission_data/{{s.id}}/{{s.hit.ext_hitid}}/">full</a>)</td>
+</tr>
+<tr>
+<td>
+<select id="quality_{{s.id}}" size="5" >
+<option value="0">No work</option>
+<option value="3">Poor</option>
+<option value="7">Visible errors</option>
+<option value="10" selected="selected">Good</option>
+<option value="15">Exceptional</option>
+</select>
+
+</td>
+</tr>
+<tr>
+<td>
+Feedback:<textarea rows="5" cols="50" name="message_{{s.id}}"></textarea>
+</td>
+</tr>
+<tr border=1></tr>
+
+{% endfor %}
+
+</table>
+<noscript>
+Error. Javascript is required.
+</noscript>
+
+<hr/>
+<table>
+{% for s in object_list %}
+<tr><td>
+<div id='upd_{{s.id}}'>upd_{{s.id}}</div>
+{% endfor %}
+</table>
+<hr/>
+
+<script>
+var all_submissions=[
+{% for s in object_list %}
+'{{s.id}}',
+{% endfor %}
+];
+
+function submit_results(){
+   for(i=0;i<all_submissions.length;i++)
+   {
+      sID=(all_submissions[i]);
+      new Ajax.Updater('upd_'+sID, '/mt/grading_submit/'+sID+'/', {
+         parameters: { 
+	    quality: $('grading_form')['quality_'+sID].value,
+	    feedback : $('grading_form')['message_'+sID].value
+	    }
+          });
+
+   }
+   $('submit_div').style.display='none';
+}
+</script>
+
+{% if has_previous %}
+<a href="../p{{previous}}/">{{previous}}</a>
+{% endif %}
+{{page}}
+{% if has_next %}
+<a href="../p{{next}}/">{{next}}</a>
+{% endif %} | {{num_pages}}
+{% for p in page_range %}
+<a href="../p{{p}}/">{{p}}</a>
+{% endfor %}
+<hr/>
+
+</form>
+<div id="submit_div">
+<input type="button" onclick="javascrip:submit_results()" value="submit">
+</div>
+</body>
+</html>
