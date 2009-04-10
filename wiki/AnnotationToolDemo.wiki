@@ -3,7 +3,7 @@
 
 = Introduction =
 
-The annotation tool makes it easy to annotate image over Web. This is useful for Mechanical Turk and for other uses. The tool takes an XML description of the user interface, produces required buttons for user interaction. When the input is finished the tool generates the XML with the annotation.
+The annotation tool makes it easy to annotate image over Web. This is useful for Mechanical Turk and other uses. The tool takes an XML description of the user interface and produces required buttons for user interaction. When the input is finished, the tool generates the XML with the annotation.
 
 = Example 1 =
 
