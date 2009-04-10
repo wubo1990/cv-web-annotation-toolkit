@@ -1,5 +1,5 @@
 #summary Basic use of the annotation tool
-#labels Examples
+#labels Examples,WebTool
 
 = Introduction =
 
@@ -17,3 +17,6 @@ After all input is finished, hit the submit button. The tool will generate an XM
 
 The ability to input data is nice, but we sometimes want to take a look at the result. Conveniently, the tool can show the annotations on the image. In the
 [http://vision-app1.cs.uiuc.edu:8001/code/generic2.html?swf=label_generic&swf_w=700&swf_h=700&img_base=http://vision-app1.cs.uiuc.edu:8001/&video=VOC2008&frame=2007_003143&task=car&mode=display&annotationID=demo_annotation3 second example] we took our annotations and saved them in the file (demo_annotation3.xml). The tool will load the image, task definition and the result from the server. 
+
+----
+Questions? Send me an e-mail. 
