@@ -83,6 +83,7 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'annotation.urls'
 
 DATASETS_ROOT = '/var/datasets/'
+SEGMENTATION_ROOT = DATASETS_ROOT+'segmentations/'
 
 MTURK_WORK = '/var/mturk/autosubmit/'
 MTURK_ENV = '/var/mturk/scripts/'
@@ -102,14 +103,13 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.admin',
     'annotation.mturk',
-
+    'annotation.datastore',
     #'annotation.annotation_store',
-    #'annotation.datasets',
     #'annotation.image_collector',
 )
 
 
-HOST_NAME_FOR_MTURK="http://vm6.willowgarage.com:8080/"
+HOST_NAME_FOR_MTURK="http://vision-app1.cs.uiuc.edu:8000/"
 
 ## number of hits to show per page
 NUM_HITS_PER_PAGE = 20
