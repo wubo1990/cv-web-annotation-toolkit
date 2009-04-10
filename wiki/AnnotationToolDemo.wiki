@@ -7,7 +7,7 @@ The annotation tool makes it easy to annotate image over Web. This is useful for
 
 = Example 1 =
 
-The [http://vision-app1.cs.uiuc.edu:8001/code/generic2.html?swf=label_generic&swf_w=700&swf_h=700&img_base=http://vision-app1.cs.uiuc.edu:8001/&video=VOC2008&frame=2007_003143&task=car&mode=demo first example] shows a basic interface of the tool with its core features. The interface allows to segment the sky and the road; mark people people and cars.
+The [http://vision-app1.cs.uiuc.edu:8080/code/generic2.html?swf=label_generic&swf_w=700&swf_h=700&img_base=http://vision-app1.cs.uiuc.edu:8080/&video=VOC2008&frame=2007_003143&task=car&mode=demo first example] shows a basic interface of the tool with its core features. The interface allows to segment the sky and the road; mark people people and cars.
 
 The cars are interesting. After marking several cars, the interface zooms in to each one and we can mark additional parts of the car. Notice how we can mark car attributes and use different tools to mark the mirrors and the doors.
 
@@ -18,7 +18,7 @@ There is little magic in the XML files used by the tool. The interface in the ex
 = Example 2 = 
 
 The ability to input data is nice, but we sometimes want to take a look at the result. Conveniently, the tool can show the annotations on the image. In the
-[http://vision-app1.cs.uiuc.edu:8001/code/generic2.html?swf=label_generic&swf_w=700&swf_h=700&img_base=http://vision-app1.cs.uiuc.edu:8001/&video=VOC2008&frame=2007_003143&task=car&mode=display&annotationID=demo_annotation3 second example] we took our annotations and saved them in the file ([http://vision-app1.cs.uiuc.edu:8001/annotations/demo_annotation3.xml demo_annotation3.xml]). The tool will load the image, task definition and the result from the server. 
+[http://vision-app1.cs.uiuc.edu:8080/code/generic2.html?swf=label_generic&swf_w=700&swf_h=700&img_base=http://vision-app1.cs.uiuc.edu:8080/&video=VOC2008&frame=2007_003143&task=car&mode=display&annotationID=demo_annotation3 second example] we took our annotations and saved them in the file ([http://vision-app1.cs.uiuc.edu:8001/annotations/demo_annotation3.xml demo_annotation3.xml]). The tool will load the image, task definition and the result from the server. 
 
 The XML format is simple as well. An interesting part is the segmentation format. The segmentation masks are stored separately and only references are kept inside the XML.
 
