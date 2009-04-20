@@ -24,6 +24,12 @@ if os.path.exists('~/.myhost'):
 		use_custom_config = 0;
 		config_mode = 'laptop';
 
+if os.path.exists('/var/django2/code/'):
+	DJ_CODE_RT='/var/django2/code/'
+elif os.path.exists('/Users/syrnick/projects/cv_web_tk/code/django/web_annotations_server/'):
+	DJ_CODE_RT='/Users/syrnick/projects/cv_web_tk/code/django/web_annotations_server/';
+
+
 
 DATABASE_ENGINE = 'mysql'           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'ado_mssql'.
 DATABASE_NAME = 'annotations_v2'             # Or path to database file if using sqlite3.
@@ -80,7 +86,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.doc.XViewMiddleware',
 )
 
-ROOT_URLCONF = 'annotation.urls'
+ROOT_URLCONF = 'web_annotations_server.urls'
 
 DATASETS_ROOT = '/var/datasets/'
 SEGMENTATION_ROOT = DATASETS_ROOT+'segmentations/'
@@ -102,8 +108,8 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.admin',
-    'annotation.mturk',
-    'annotation.datastore',
+    'web_annotations_server.mturk',
+    'web_annotations_server.datastore',
     #'annotation.annotation_store',
     #'annotation.image_collector',
 )
