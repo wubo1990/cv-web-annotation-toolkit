@@ -1,4 +1,5 @@
 from django.conf.urls.defaults import *
+from django.conf import settings
 
 from django.contrib import admin
 admin.autodiscover()
@@ -6,7 +7,7 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
 
-    (r'^code/(?P<path>.*)$', 'django.views.static.serve', {'document_root': '/var/django2/annotation/mturk/code/'}),
+    (r'^code/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.DJ_CODE_RT+'mturk/code/'}),
     (r'^frames/(?P<path>.*)$', 'django.views.static.serve', {'document_root': '/var/datasets/'}),
     (r'^annotations/(?P<path>.*)$', 'django.views.static.serve', {'document_root': '/var/datasets/annotations/'}),
 
@@ -16,7 +17,7 @@ urlpatterns = patterns('',
 
     #(r'^ds/', include('datasets.urls')),
 
-    #(r'^ic/', include('image_collector.urls')),
+    (r'^ic/', include('image_collector.urls')),
 
 
 
