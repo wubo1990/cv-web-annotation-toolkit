@@ -6,12 +6,13 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
 
-    (r'^code/(?P<path>.*)$', 'django.views.static.serve', {'document_root': '/var/django/annotation/mturk/code/'}),
+    (r'^code/(?P<path>.*)$', 'django.views.static.serve', {'document_root': '/var/django2/annotation/mturk/code/'}),
     (r'^frames/(?P<path>.*)$', 'django.views.static.serve', {'document_root': '/var/datasets/'}),
     (r'^annotations/(?P<path>.*)$', 'django.views.static.serve', {'document_root': '/var/datasets/annotations/'}),
 
 
     (r'^mt/', include('mturk.urls')),
+    (r'^datastore/', include('datastore.urls')),
 
     #(r'^ds/', include('datasets.urls')),
 
@@ -32,6 +33,8 @@ urlpatterns = patterns('',
     ('^admin/mturk/session/(\d+)/delete/$', 'mturk.adminview.delete_session'),
     ('^admin/mturk/task/(\d+)/$', 'mturk.adminview.edit_task'),
     ('^admin/mturk/task/(\d+)/delete/$', 'mturk.adminview.delete_task'),
+
+
 
     # Uncomment this for admin:
     (r'^admin/(.*)', admin.site.root)

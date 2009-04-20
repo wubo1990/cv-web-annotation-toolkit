@@ -13,6 +13,8 @@ from boto.mturk.connection import MTurkConnection
 from boto.mturk.question import ExternalQuestion
 from boto.mturk.qualification import Qualifications, PercentAssignmentsApprovedRequirement
 
+from django.views.static import serve
+import django
 
 
 from models import *
