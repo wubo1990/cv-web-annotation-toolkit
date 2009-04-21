@@ -1,0 +1,50 @@
+{% load annotation_formatting %}
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>Data items</title>
+<script language="javascript" src="/code/js/prototype.js" > </script>
+</head>
+
+<body bgcolor="#ffffff">
+
+
+<img src="{{object.url}}"> 
+
+{% for ann_type in object.by_type.items %}
+<hr/>
+<b>{{ann_type.0}}</b> <a href="../../new_annotation/{{object.id}}/{{ann_type.0}}/">add </a> <br/>
+
+{% for a in ann_type.1 %}
+
+{{a|render_annotation_mini}}<br/>
+
+
+{% endfor %}
+
+{% endfor %}
+
+
+<hr/>
+{% for ann_type in empty_annotation_types %}
+
+<a href="../../new_annotation/{{object.id}}/{{ann_type.1.name}}/">add {{ann_type.0}}</a> 
+
+{% endfor %}
+
+<noscript>
+Error. Javascript is required.
+</noscript>
+
+
+{% if refresh_rate %}
+<script type="text/JavaScript">
+<!--
+setTimeout("document.location.reload(true)",{{refresh_rate}});
+//   -->
+</script>
+{% endif %}
+
+
+</body>
+</html>

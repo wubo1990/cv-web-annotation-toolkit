@@ -6,12 +6,16 @@ from django.http import HttpResponse
 from django.shortcuts import render_to_response,get_object_or_404 
 
 from models import *
-import flickrapi
 
-api_key = '931ed015f47760957ace73390eb3ac1d'
+try:
+    import flickrapi
 
-flickr = flickrapi.FlickrAPI(api_key)
+    api_key = '931ed015f47760957ace73390eb3ac1d'
 
+    flickr = flickrapi.FlickrAPI(api_key)
+except:
+    flickr=None;
+    print "FLICKR API NOT FOUND"
 
 
 
