@@ -1,0 +1,137 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<script language="javascript">AC_FL_RunContent = 0;</script>
+<script src="js/AC_RunActiveContent.js" language="javascript"></script>
+</head>
+
+<body bgcolor="#ffffff">
+
+<script language="javascript" src="js/prototype.js" > </script>
+
+
+
+<div id="flash_div"></div>
+
+<noscript>
+Error. Javascript is required.
+</noscript>
+<script language="javascript">
+
+//
+// This method Gets URL Parameters (GUP)
+//
+function gup( name )
+{
+  var regexS = "[\\?&]"+name+"=([^&#]*)";
+  var regex = new RegExp( regexS );
+  var tmpURL = window.location.href;
+  var results = regex.exec( tmpURL );
+  if( results == null )
+    return "";
+  else
+    return results[1];
+}
+
+//
+// This method decodes the query parameters that were URL-encoded
+//
+function decode(strToDecode)
+{
+  var encoded = strToDecode;
+  return unescape(encoded.replace(/\+/g,  " "));
+}
+
+
+
+
+
+    //
+    // Check if the worker is PREVIEWING the HIT or if they've ACCEPTED the HIT
+    //
+
+
+//alert(document.location);
+query_args=document.location.toString();
+query_args=query_args.split("?")[1];
+args_list=query_args.split("&");
+rating=""
+swf=""
+swf_w='600';
+swf_h='400';
+
+no_mode_in_query=1;
+
+for (i = 0; i <= args_list.length; i++)
+{
+	arg=args_list[i];
+	if(arg){
+	arg_pair=arg.split("=");
+	arg_n=arg_pair[0];
+	arg_v=arg_pair[1];
+	if( arg_n=="swf"){
+	        swf=arg_v;
+	}else if( arg_n=="swf"){
+	        swf=arg_v;
+	}else if( arg_n=="swf_w"){
+	        swf_w=arg_v;
+	}else if( arg_n=="swf_h"){
+	        swf_h=arg_v;
+	}else if( arg_n=="rating"){
+	        rating=arv_v;
+	}else if( arg_n=="mode"){
+	        no_mode_in_query=0;
+		mode_value=arg_v;
+	}
+	}
+}
+
+task_name=gup("task");
+flash_name=gup("swf");
+
+
+if ( no_mode_in_query){
+    query_args=query_args+"&mode="+mode_value
+}
+
+submitURL="";
+if(mode_value=="AmazonMTsandbox"){
+	submitURL="http://workersandbox.mturk.com/mturk/externalSubmit";
+}else if(mode_value=="AmazonMTproduction"){
+	submitURL="http://www.mturk.com/mturk/externalSubmit";
+}
+
+
+	if (AC_FL_RunContent == 0) {
+		alert("This page requires AC_RunActiveContent.js.");
+	} else {
+	  $('flash_div').innerHTML=
+		AC_FL_RunContent2(
+			'codebase', 'http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0',
+			'width', swf_w,
+			'height', swf_h,
+			'src', swf,
+			'quality', 'high',
+			'pluginspage', 'http://www.macromedia.com/go/getflashplayer',
+			'align', 'middle',
+			'play', 'true"',
+			'loop', 'true',
+			'scale', 'showall',
+			'wmode', 'window',
+			'devicefont', 'false',
+			'id', 'annotation_gui',
+			'bgcolor', '#ffffff',
+			'name', 'annotation_gui',
+			'menu', 'true',
+			'allowFullScreen', 'false',
+			'allowScriptAccess','always',
+			'movie', swf,
+			'salign', '',
+			'FlashVars', query_args
+			); //end AC code
+
+			}
+</script>
+
+</body>
+</html>

@@ -98,7 +98,7 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    "/var/django2/annotation/templates/",
+    DJ_CODE_RT+"templates/",
     #"/var/lib/python-support/python2.5/django/contrib/admin/templates/",
 )
 
@@ -110,6 +110,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'web_annotations_server.mturk',
     'web_annotations_server.datastore',
+    'web_annotations_server.annotations',
     #'annotation.annotation_store',
     #'annotation.image_collector',
 )
