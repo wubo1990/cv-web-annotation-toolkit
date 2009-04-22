@@ -45,12 +45,9 @@ class Annotation(models.Model):
     canonic_url=models.URLField(blank=True);
 
 
-    rel_reference = models.ManyToManyField(self, through='AnnotationReferenceRelation',symmetrical=False)
+    rel_reference = models.ManyToManyField('self', symmetrical=False)
 
 
-class AnnotationReferenceRelation(models.Model):
-    reference_annotation=models.ForeignKey(Annotation)
-    detail_annotation=models.ForeignKey(Annotation)
 
 
 	

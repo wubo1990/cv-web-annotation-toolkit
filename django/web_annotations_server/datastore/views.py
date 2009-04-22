@@ -8,7 +8,7 @@ from django.views.generic.simple import redirect_to
 from datastore.models import *
 from django.contrib.auth.decorators import login_required
 
-import os
+import os,urllib
 
 def save_segmentation(request,segmentation_id):
 	print "Save segmentation"
@@ -35,7 +35,11 @@ def load_segmentation(request,segmentation_id):
 	return HttpResponse(content,mimetype="text/plain")
 
 
+@login_required
 def register_images(request,dataset_name):
+	if not request.user.has_perm('datastore.dataitem.add'):
+		return HttpResponse('You are not authorized to add data items')
+
 	dataset_path=os.path.join(settings.DATASETS_ROOT,dataset_name);
 	dataset=get_object_or_404(Dataset,name=dataset_name);
 	if len(dataset.dataitem_set.all())>0:
@@ -55,7 +59,10 @@ def load_annotation(request,annotation_id):
 def save_annotation(request,data_item_ref,ann_type,annotation_data):
 	return HttpResponse("not implemented");
 
-def show_data_items(request,dataset_name,page):
+def show_data_items(request,dataset_name,page=None):
+	if not page:
+		return redirect_to(request,"p1/");
+
 	ds = get_object_or_404(Dataset,name=dataset_name)
     	results=ds.dataitem_set.all();
 	return object_list(request,queryset=results, paginate_by=20, page=page,
@@ -73,6 +80,12 @@ def show_data_item(request,item_id):
 		
 	types_dict={};
 	for t in di.annotation_set.all():
+		#print t,t.rel_reference.all().count(),t.annotation_type.name,
+		#for r in t.rel_reference.all():
+		#	print r.annotation_type.name,
+		#print ""
+		if t.rel_reference.all().count()>0:
+			continue
 		if t.annotation_type.name not in types_dict:
 			types_dict[t.annotation_type.name]=[t]
 			del empty_ann_types[t.annotation_type.name]
@@ -88,14 +101,28 @@ def get_annotation(request,item_id):
 
 @login_required
 def new_annotation(request,item_id,annotation_type):
+	if not request.user.has_perm('datastore.annotation.add'):
+		return HttpResponse('You are not authorized to add annotation')
+
 	ann_type = get_object_or_404(AnnotationType,name=annotation_type);
 	data_item = get_object_or_404(DataItem,id=item_id);
 
 	if request.method=="POST":
+		print request.POST
 		if "sites" in request.POST:
 			val=request.POST["sites"]
-		else:
+			val="<?xml version='1.0'?>\n"+urllib.unquote(val);
+			print val
+		elif "annotation_value" in request.POST:
 			val= request.POST["annotation_value"]
+		elif "av_fields" in request.POST:
+			fnames= request.POST["av_fields"]
+			val=""
+			for fn in fnames.split(","):
+				if val:
+					val=val+"&"+fn+"="+request.POST[fn];
+				else:
+					val=fn+"="+request.POST[fn];
 		print val
 		annotation=Annotation(ref_data=data_item,annotation_type=ann_type,author=request.user,data=val);
 		annotation.save();
@@ -103,4 +130,40 @@ def new_annotation(request,item_id,annotation_type):
 	else:
 		return render_to_response('datastore/annotate_internal_'+ann_type.category+'.html',
 					  {'object':data_item,'ann_type':ann_type });
+
+
+
+@login_required
+def new_related_annotation(request,item_id,ref_annotation_id,new_annotation_type):
+	if not request.user.has_perm('datastore.annotation.add'):
+		return HttpResponse('You are not authorized to add annotation')
+
+	ann_type = get_object_or_404(AnnotationType,name=new_annotation_type);
+	data_item = get_object_or_404(DataItem,id=item_id);
+	ref_ann = get_object_or_404(Annotation,id=ref_annotation_id);
+
+	if request.method=="POST":
+		if "sites" in request.POST:
+			val=request.POST["sites"]
+		elif "annotation_value" in request.POST:
+			val= request.POST["annotation_value"]
+		elif "av_fields" in request.POST:
+			fnames= request.POST["av_fields"]
+			val=""
+			for fn in fnames.split(","):
+				if val:
+					val=val+"&"+fn+"="+request.POST[fn];
+				else:
+					val=fn+"="+request.POST[fn];
+			
+		print val
+		annotation=Annotation(ref_data=data_item,annotation_type=ann_type,author=request.user,data=val);
+		annotation.save();
+		annotation.rel_reference.add(ref_ann);
+		annotation.save();
+
+		return redirect_to(request,"../../../../../../dataitem/%s"% data_item.id,permanent=False);
+	else:
+		return render_to_response('datastore/annotate_internal_'+ann_type.category+'.html',
+					  {'object':data_item,'ann_type':ann_type, 'ref_annotation':ref_ann });
 

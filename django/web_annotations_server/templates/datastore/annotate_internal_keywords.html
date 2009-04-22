@@ -1,3 +1,4 @@
+{% load annotation_formatting %}
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
@@ -11,7 +12,9 @@
 
 <table>
 <tr><td>Image:</td><td>
-<img src="{{object.url}}"> </td></tr>
+<img src="{{object.url}}"> </td>
+{% if ref_ann %}<td>{{ref_ann|render_annotation_mini}}</td>{% endif %}
+</tr>
 <tr><td>
 Keywords <br/>(comma-separated):</td><td>
 <textarea name="annotation_value" rows=15 cols=80></textarea></td></tr>
