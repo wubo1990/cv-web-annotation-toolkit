@@ -17,7 +17,7 @@
 
 {% for a in ann_type.1 %}
 
-{{a|render_annotation_mini}}<br/>
+{{a|render_annotation_mini}} [add <a href="a/{{a.id}}/add/comment/">comment</a> <a href="a/{{a.id}}/add/quality/">quality</a>]<br/>
 
 
 {% endfor %}

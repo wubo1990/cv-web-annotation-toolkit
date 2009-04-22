@@ -37,6 +37,12 @@ urlpatterns = patterns('',
 
 
 
+
+    (r'^logout/$','django.contrib.auth.views.logout'),
+    (r'^accounts/login/$', 'django.contrib.auth.views.login'),
+
+
+
     # Uncomment this for admin:
     (r'^admin/(.*)', admin.site.root)
 
