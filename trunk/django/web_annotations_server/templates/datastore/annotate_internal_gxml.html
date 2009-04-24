@@ -13,8 +13,9 @@
 <form id="MT_form" name="MT_form" method="POST">
 <input type="hidden" name="sites" id="sites" value="">
 
-Instructions are <a id="a_instructions" href="{{ann_type.explanation}}" target="wnd_instructions">here</a>!!<br/>
-<!-- <b>Instructions have been updated!</b><br/>-->
+{% if ann_type.explanation %}
+Instructions are <a id="a_instructions" href="{{ann_type.explanation}}" target="wnd_instructions">here</a>!<br/>
+{% endif %}
 
 <div id="flash_div"></div>
 

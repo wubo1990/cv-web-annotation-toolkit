@@ -8,16 +8,26 @@
 
 <body bgcolor="#ffffff">
 
+<table>
+<tr><td colspan=2 align=center><b>{{object.annotation_type.name}}</b>({{object.annotation_type.category}})</td></tr>
+<tr><td width="70%">
+{{object|render_annotation_mini}} [add <a href="add/comment/">comment</a> <a href="add/quality/">quality</a>]<br/>
+</td>
+<td width=100>
+Reference:
+<img src="{{object.ref_data.url}}" width=100 > 
+</td></tr>
+</table>
 
-<img src="{{object.url}}" width=640> 
-
-{% for ann_type in object.by_type.items %}
+{% for ann_rel in object.annotation_set.all %}
 <hr/>
+
+{{ann_rel|render_annotation_mini}}<br/>
 <b>{{ann_type.0}}</b> <a href="../../new_annotation/{{object.id}}/{{ann_type.0}}/">add </a> <br/>
 
 {% for a in ann_type.1 %}
 
-{{a|render_annotation_mini}} <a href="../../show/annotation/{{a.id}}/">&gt;&gt;</a>[add <a href="{{a.id}}/add/comment/">comment</a> <a href="{{a.id}}/add/quality/">quality</a>]<br/>
+{{a|render_annotation_mini}} [add <a href="a/{{a.id}}/add/comment/">comment</a> <a href="a/{{a.id}}/add/quality/">quality</a>]<br/>
 
 
 {% endfor %}

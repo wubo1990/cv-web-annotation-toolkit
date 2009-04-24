@@ -8,16 +8,26 @@ urlpatterns = patterns('',
     (r'^load_segmentation/(?P<segmentation_id>[\w-]+)/', 'datastore.views.load_segmentation'),
 
     (r'^register_images/(?P<dataset_name>[\w-]+)/', 'datastore.views.register_images'),
+    (r'^register_voc_boxes/(?P<dataset_name>[\w-]+)/', 'datastore.views.register_voc_boxes'),
+    (r'^register_labelme_boxes/(?P<dataset_name>[\w-]+)/', 'datastore.views.register_labelme_boxes'),
 
     (r'^data/(?P<dataset_name>[\w-]+)/$', 'datastore.views.show_data_items'),
     (r'^data/(?P<dataset_name>[\w-]+)/p(?P<page>[\w]+)/$', 'datastore.views.show_data_items'),
 
     (r'^dataitem/(?P<item_id>[\w]+)/$', 'datastore.views.show_data_item'),
 
+
+
     (r'^annotation/(?P<item_id>[\w]+)/$', 'datastore.views.get_annotation'),
+    (r'^annotation/(?P<ref_annotation_id>[\w]+)/add/(?P<new_annotation_type>[\w]+)/$', 'datastore.views.new_related_annotation'),
+
+    (r'^show/annotation/(?P<item_id>[\w]+)/$', 'datastore.views.show_annotation'),
+    (r'^show/annotation/(?P<ref_annotation_id>[\w]+)/add/(?P<new_annotation_type>[\w]+)/$', 'datastore.views.new_related_annotation',{'depth':2,'item_id':None}),
+
 
     (r'^new_annotation/(?P<item_id>[\w]+)/(?P<annotation_type>[\w]+)/$', 'datastore.views.new_annotation'),
 
-    (r'^dataitem/(?P<item_id>[\w]+)/a/(?P<ref_annotation_id>[\w]+)/add/(?P<new_annotation_type>[\w]+)/$', 'datastore.views.new_related_annotation'),
+    (r'^dataitem/(?P<item_id>[\w]+)/(?P<ref_annotation_id>[\w]+)/add/(?P<new_annotation_type>[\w]+)/$', 'datastore.views.new_related_annotation',{'depth':3}),
+
 
 )

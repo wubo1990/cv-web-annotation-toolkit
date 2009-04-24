@@ -16,6 +16,20 @@ class DataItem(models.Model):
     def __str__(self):
         return "%s(%d,%s)" % (self.ds.name,self.id,self.url)
 
+
+    def get_name_parts(self):
+        str_img=self.url.split("/")
+        str_img_file=str_img[-1].split(".")[0];
+        path_components=str_img[3:len(str_img)-1];
+        if path_components:
+            str_img_path=reduce(lambda a,b:a+"/"+b,path_components);
+            str_img=str_img_path+"/"+str_img_file
+        else:
+            str_img_path="";
+            str_img=str_img_file;
+
+        return (str_img,str_img_path,str_img_file);
+
 class AnnotationType(models.Model):
     category=models.SlugField();
     name=models.SlugField();
@@ -45,7 +59,7 @@ class Annotation(models.Model):
     canonic_url=models.URLField(blank=True);
 
 
-    rel_reference = models.ManyToManyField('self', symmetrical=False)
+    rel_reference = models.ManyToManyField('self', symmetrical=False,blank=True)
 
 
 
