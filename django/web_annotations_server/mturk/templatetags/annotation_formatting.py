@@ -6,9 +6,12 @@ register = template.Library()
 from django.utils.safestring import mark_safe
 
 
+@register.filter
+def render_annotation_full(a):
+  return render_annotation_mini(a,500,500)
 
 @register.filter
-def render_annotation_mini(a):
+def render_annotation_mini(a,w=None,h=None):
   """
   print dir(a.rel_reference)
   print dir(a)
@@ -28,8 +31,7 @@ def render_annotation_mini(a):
   if a.annotation_type.category=="text":
     return a.data+has_ref_str;
   if a.annotation_type.category=="gxml":
-    str_img=a.ref_data.url.split("/")[-1];
-    str_img=str_img.split(".")[0];
+    (str_img,str_img_path,str_img_file)=a.ref_data.get_name_parts();    
     
     metadata=a.annotation_type.annotation_metadata.split("&");
     task=""
@@ -37,7 +39,12 @@ def render_annotation_mini(a):
       if k=="task":
         task=v;
 
-    str_gxml="<iframe id='show_ann_%d' width='350' height='350' src='/code/gxml_show.html?swf=label_generic&swf_w=300&swf_h=300&img_base=%s&video=%s&frame=%s&task=%s&mode=display&annotationURL=/datastore/annotation/%d/'></iframe>" % (a.id,"/",a.ref_data.ds.name,str_img,task,a.id)
+    if not w:
+      w=350;
+    if not h:
+      h=350;
+
+    str_gxml="<iframe id='show_ann_%d' width='%d' height='%d' marginheight='0' marginwidth='0' src='/code/gxml_show.html?swf=label_generic&swf_w=%d&swf_h=%d&img_base=%s&video=%s&frame=%s&task=%s&mode=display&annotationURL=/datastore/annotation/%d/'></iframe>" % (a.id,w,h,w,h,"/",a.ref_data.ds.name,str_img,task,a.id)
     return mark_safe(str_gxml+has_ref_str)
   if a.annotation_type.category=="grade10":
     h={}
