@@ -11,6 +11,13 @@ from django.contrib.auth.decorators import login_required
 import os,urllib
 from xml.dom import minidom
 
+try:
+	import Image
+except:	
+	Image=None
+
+
+
 def save_segmentation(request,segmentation_id):
 	print "Save segmentation"
 	print segmentation_id;
@@ -63,7 +70,11 @@ def register_images(request,dataset_name):
 def xget(o,tagname):
 	return o.getElementsByTagName(tagname);
 def xget_v(o,tagname):
-	return o.getElementsByTagName(tagname)[0].firstChild.nodeValue;
+	fc=o.getElementsByTagName(tagname)[0].firstChild
+	if fc:
+		return	fc.nodeValue;
+	else:	
+		return None
 def xget_v2(o,tagnames):
 	return map(lambda t:xget_v(o,t),tagnames);
 
@@ -141,6 +152,10 @@ def register_labelme_boxes(request,dataset_name):
 	annotation_type="labelme_boxes"
 	ann_type = get_object_or_404(AnnotationType,name=annotation_type);
 
+	if not Image:
+		return HttpResponse("Error. Server installation of python Image library is missing");
+
+
 	dataset_path=os.path.join(settings.DATASETS_ROOT,dataset_name);
 	annotation_path=os.path.join(settings.DATASETS_ROOT,dataset_name+"_annotations");
 	dataset=get_object_or_404(Dataset,name=dataset_name);
@@ -161,13 +176,19 @@ def register_labelme_boxes(request,dataset_name):
 		xmldoc = minidom.parse(annotation_filename);
 		object_tags=xget(xmldoc,"object");
 		image_filename=os.path.join(dataset_path,str_img_path,str_img_file+".jpg");
-		im = imread(image_filename);
-		img_w = img.width;
-		img_h = img.height;
-
-		print object_tags
+		print image_filename
+		#im = imread(image_filename);
+		im = Image.open(image_filename);
+		(img_w,img_h) = im.size;
+		scale=min(500.0/img_w,500.0/img_h);
+		dX=(500-img_w*scale)/2;
+		dY=(500-img_h*scale)/2;
+		iSqn=1;
+		
 		for o in object_tags:
 			object_name = xget_v(o,"name")
+			if not object_name:
+				continue
 			polygon=xget(o,"polygon")[0];
 			points=xget(polygon,"pt");
 			points_new=[];
@@ -175,23 +196,10 @@ def register_labelme_boxes(request,dataset_name):
 				x=float(xget_v(pt,"x"))
 				y=float(xget_v(pt,"y"))
 				points_new.append([x,y]);
-			(xmin,ymin)=reduce(lambda (x,y),(x2,y2):(min(x,x2),min(y,y2)),points_new);
-			(xmax,ymax)=reduce(lambda (x,y),(x2,y2):(max(x,x2),max(y,y2)),points_new);
-			print object_name, xmin,ymin, xmax,ymax
+			(o_xmin,o_ymin)=reduce(lambda (x,y),(x2,y2):(min(x,x2),min(y,y2)),points_new);
+			(o_xmax,o_ymax)=reduce(lambda (x,y),(x2,y2):(max(x,x2),max(y,y2)),points_new);
+			print object_name, o_xmin,o_ymin, o_xmax,o_ymax
 
-		continue
-		img_size=xget(xmldoc,"size")[0];
-		img_w=float(xget_v(img_size,"width"));
-		img_h=float(xget_v(img_size,"height"));
-		scale=min(500/img_w,500/img_h);
-		dX=(500-img_w*scale)/2;
-		dY=(500-img_h*scale)/2;
-		#print img_w,scale
-		iSqn=1;
-		for o in object_tags:
-			object_name=xget_v(o,"name");
-			bbox=xget(o,"bndbox")[0];
-			(o_xmin,o_xmax,o_ymin,o_ymax)=xget_v2(bbox,["xmin","xmax","ymin","ymax"])
 			xmin=float(o_xmin)*scale+dX;
 			xmax=float(o_xmax)*scale+dX;
 			ymin=float(o_ymin)*scale+dY;
@@ -208,11 +216,9 @@ def register_labelme_boxes(request,dataset_name):
 			full_annotation+=object_xml
 
 		full_annotation+="</annotation></results>"
-		print full_annotation
-		#annotation=Annotation(ref_data=dt_item,annotation_type=ann_type,author=request.user,data=full_annotation);
-		#annotation.save();
-		#return resp
-
+		#print full_annotation
+		annotation=Annotation(ref_data=dt_item,annotation_type=ann_type,author=request.user,data=full_annotation);
+		annotation.save();
 			     
 	resp.write("Done importing LabelMe annotations as boxes");
 	return resp
