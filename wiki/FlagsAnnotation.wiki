@@ -2,7 +2,7 @@
 
 Flags are a simple way to report a problem with the annotaitons. Only 1 click is required.
 
-There are 3 flags with the following meaning:
+There are 3 flags:
 
  * *red* something is really wrong here
  * *blue* there are some minor issues with the image
