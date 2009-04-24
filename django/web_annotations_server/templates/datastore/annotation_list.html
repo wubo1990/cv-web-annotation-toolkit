@@ -1,0 +1,56 @@
+{% load time_extras %}
+{% load annotation_formatting %}
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>Data items</title>
+<script language="javascript" src="/code/js/prototype.js" > </script>
+</head>
+
+<body bgcolor="#ffffff">
+page number:
+{% if has_previous %}
+<a href="../p{{previous}}/">{{previous}}</a>
+{% endif %}
+{{page}}
+{% if has_next %}
+<a href="../p{{next}}/">{{next}}</a>
+{% endif %} | {{num_pages}}
+<br>
+{% for p in page_range %}
+<a href="../p{{p}}/">{{p}}</a> 
+{% endfor %}
+
+<hr/>
+{% for a in object_list %}
+{{a|render_annotation_large}} [add <a href="a/{{a.id}}/add/comment/">comment</a> <a href="a/{{a.id}}/add/quality/">quality</a> {{a|do_flags}} ]
+<hr/>
+{% endfor %}
+
+<noscript>
+Error. Javascript is required.
+</noscript>
+
+{% if has_previous %}
+<a href="../p{{previous}}/">{{previous}}</a>
+{% endif %}
+{{page}}
+{% if has_next %}
+<a href="../p{{next}}/">{{next}}</a>
+{% endif %} | {{num_pages}}
+<br>
+{% for p in page_range %}
+<a href="../p{{p}}/">{{p}}</a> 
+{% endfor %}
+
+{% if refresh_rate %}
+<script type="text/JavaScript">
+<!--
+setTimeout("document.location.reload(true)",{{refresh_rate}});
+//   -->
+</script>
+{% endif %}
+
+
+</body>
+</html>
