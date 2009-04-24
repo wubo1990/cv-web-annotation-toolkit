@@ -1,13 +1,15 @@
 #summary Some internal data importing functions of the annotation server.
 
 
-http://128.174.241.84:8080/datastore/register_images/LabelMe/
+{{{http://128.174.241.84:8080/datastore/register_images/<dsname>/}}}
+
+(e.g. http://128.174.241.84:8080/datastore/register_images/LabelMe/)
 
 We assume that the images are already in the /var/datasets/LabelMe/. We traverse the folder recursively and add every file as DataItem object.
 
 ----
 
-http://128.174.241.84:8080/datastore/register_voc_boxes/<dsname>/
+{{{http://128.174.241.84:8080/datastore/register_voc_boxes/<dsname>/}}}
 
 (e.g. http://128.174.241.84:8080/datastore/register_voc_boxes/VOC2008/)
 
