@@ -1,0 +1,29 @@
+#summary Annotation server installation instructions.
+
+*Note:* This instructions are rough. They haven't been tested on a blank machine.
+
+= Prerequisites =
+
+ * mysql
+ * python 2.5
+ * PIL (python imaging library) for some image stuff 
+ * django 1.0.2
+ * boto (for Mechanical Turk integration)
+
+= Data locations = 
+
+Please create all these folders:
+
+ * {{{/var/datasets/<dsname>/}}} - images (can have internal folder structure) 
+ * {{{/var/datasets/tasks/}}}  - task definitions. (xml files for the annotation interface)
+ * {{{/var/datasets/segmentations/}}}  - compressed segmentations storage. The bitmaps are compressed with zlib and encoded into plain text (each byte goes to two chars: 4 bits are encoded with A-P, A=0, P=15).
+
+= Django server installation = 
+
+ * Get the source code from the SVN (from code/django/web_annotations_server). 
+ * Get http://vision.cs.uiuc.edu/~largescale/js.tgz and unpack it into {{{code/django/web_annotations_server/mturk/code/}}}. I'd love to have it in the SVN, but the licenses are a mess.
+ * Look into settings.py and set DJ_CODE_RT, DATASETS_ROOT
+ * Create mysql user and database listed in settings.py. Grant all permissions to the user on the specified database.
+ * Do: {{python2.5 manage.py syncdb}}} 
+ * Do: {{python2.5 manage.py runserver 127.0.0.1:8080}}}
+ * Go to: http://127.0.0.1/admin/
