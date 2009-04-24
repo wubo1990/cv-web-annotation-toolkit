@@ -4,15 +4,10 @@
 
 = Accounts =
 
-Super user account can access the admin interface (/admin/) and do anything with the data: 
+|| Username || Password || Description ||
+||demo_admin || admin13579 || Super user account can access the admin interface (/admin/) and do anything with the data|| 
+||demo_guest || guest24680 || Limited access account can only view the data, but "add" operations are not permitted. ||
 
-user: demo_admin
-pwd: admin13579
-
-Limited access account can only view the data, but "add" operations are not permitted.
-
-user: demo_guest
-pwd: guest24680
 
 To logout from the current user go to: 
 http://128.174.241.84:8080/logout/
@@ -57,4 +52,3 @@ Annotations can be added, but not erased. Unnecessary annotations will eventuall
 || voc2008_boxes || Bounding boxes corresponding to VOC2008 annotations ||
 || LabelMe_boxes || Bounding boxes for LabelMe objects ||
 || sentences  || plain text annotation ||
-
