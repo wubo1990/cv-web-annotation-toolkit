@@ -5,6 +5,9 @@ register = template.Library()
 
 from django.utils.safestring import mark_safe
 
+@register.filter
+def render_annotation_large(a):
+  return render_annotation_mini(a,800,800)
 
 @register.filter
 def render_annotation_full(a):
@@ -65,8 +68,15 @@ def render_annotation_mini(a,w=None,h=None):
   return "%s" % a.annotation_type.category
 
 render_annotation_mini.is_safe=True;
+render_annotation_large.is_safe=True;
+render_annotation_full.is_safe=True;
 
-
-
+@register.filter
+def do_flags(a):
+  str=" ";
+  for flag in ["white","blue","red"]:
+    str+="<a href='/datastore/annotation/%d/flag/%s/' target='_rcd_flag'><img src='/code/images/ico/flag_%s.gif'><a/>" % (a.id,flag,flag)
+  str+=" ";
+  return mark_safe(str);
 
 

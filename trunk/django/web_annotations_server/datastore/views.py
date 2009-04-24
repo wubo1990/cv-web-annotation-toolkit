@@ -12,7 +12,10 @@ import os,urllib
 from xml.dom import minidom
 
 try:
-	import Image
+	try:
+		import Image
+	except:
+		from PIL import Image
 except:	
 	Image=None
 
@@ -242,6 +245,37 @@ def show_data_items(request,dataset_name,page=None):
 			template_name='datastore/dataitem_list.html');
 
 
+def show_dataset_annotations(request,dataset_name,annotation_type,page=None):
+	if not page:
+		return redirect_to(request,"p1/");
+
+	ds = get_object_or_404(Dataset,name=dataset_name)
+	ann_type = get_object_or_404(AnnotationType,name=annotation_type)
+
+	results=ann_type.annotation_set.filter(ref_data__ds__id=ds.id).filter(is_active=True);
+	print results,page
+	return object_list(request,queryset=results, paginate_by=20, page=page,
+			template_name='datastore/annotation_list.html');
+
+
+def show_flagged_annotations(request,dataset_name,annotation_type,flag_name,page=None):
+	if not page:
+		return redirect_to(request,"p1/");
+
+	ds = get_object_or_404(Dataset,name=dataset_name)
+	ann_type = get_object_or_404(AnnotationType,name=annotation_type)
+	flag_ann_type = get_object_or_404(AnnotationType,name="flags")
+
+	#flag_ann_type.annotation_set.reannotation
+	print flag_ann_type.id
+	#results=Annotation.objects.filter(annotation__annotation_type=flag_ann_type);
+	results=Annotation.objects.filter(data=flag_name,annotation_type__id=flag_ann_type.id,ref_data__ds__id=ds.id,is_active=True) ; #15722)
+	#results=ann_type.annotation_set.filter(ref_data__ds__id=ds.id).filter(is_active=True);
+	print results,page
+	return object_list(request,queryset=results, paginate_by=20, page=page,
+			template_name='datastore/annotation_list2.html');
+
+
 def show_data_item(request,item_id):
 	di = get_object_or_404(DataItem,id=item_id);
 	types=AnnotationType.objects.all();
@@ -303,6 +337,20 @@ def new_annotation(request,item_id,annotation_type):
 	else:
 		return render_to_response('datastore/annotate_internal_'+ann_type.category+'.html',
 					  {'object':data_item,'ann_type':ann_type });
+
+@login_required
+def flag_annotation(request,annotation_id,flag):
+	if not request.user.has_perm('datastore.annotation.add'):
+		return render_to_response('registration/not_authorized.html')
+
+	ann_type = get_object_or_404(AnnotationType,name="flags");
+	ref_annotation = get_object_or_404(Annotation,id=annotation_id);
+
+	annotation=Annotation(ref_data=ref_annotation.ref_data,annotation_type=ann_type,author=request.user,data=flag);
+	annotation.save();
+	annotation.rel_reference.add(ref_annotation);
+	annotation.save();
+	return render_to_response('datastore/flag.html')
 
 
 def show_annotation(request,item_id):
