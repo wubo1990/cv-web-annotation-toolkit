@@ -1,0 +1,60 @@
+#summary First demo of the annotation storage server.
+#labels Demo
+
+
+= Accounts =
+
+Super user account can access the admin interface (/admin/) and do anything with the data: 
+
+user: demo_admin
+pwd: admin13579
+
+Limited access account can only view the data, but "add" operations are not permitted.
+
+user: demo_guest
+pwd: guest24680
+
+To logout from the current user go to: 
+http://128.174.241.84:8080/logout/
+
+= Server parts =
+
+== Admin interface ==
+
+Admin URL: http://128.174.241.84:8080/admin/
+
+Built-in admin interface allows to add users, groups and permissions. The admin interface allows to see and edit any data item as it is stored in the database. *Datasets* and *Annotation types* can be edited using admin interface.
+
+== Annotation display  ==
+
+ * Browsing images: http://128.174.241.84:8080/datastore/data/VOC2008/
+ * Browsing a single image annotations: http://128.174.241.84:8080/datastore/dataitem/3/
+ * Single annotation display: http://128.174.241.84:8080/datastore/show/annotation/3/
+
+In the image browsing mode, the images are displayed 20 per page. Each image has a link to see the annotations associated with it. The annotations for the image are grouped by the type. Each annotation is displayed separately.  A link (">>") goes to the detailed view of this annotation. "(+)" marks annotations with extra annotations attached to them (e.g. with quality judgments or comments).
+
+Add annotations link goes to the page to add a new annotation. 
+
+Any annotation allows to add a quality mark and a comment. These are implemented to allow quality judgments associated with any annotation in the system.
+
+Annotations can be added, but not erased. Unnecessary annotations will eventually be de-activated to remove them from display, but keep in the database.
+
+
+
+= Datasets = 
+
+ # *VOC2008* is the training and validation subset of the VOC2008 dataset.
+ # *LabelMe* is a small subset of the LabelMe dataset.
+
+
+= Annotation types =
+
+(see also http://128.174.241.84:8080/admin/datastore/annotationtype/)
+
+|| Type || Explanation ||
+|| quality || 1-10 quality score for the annotation ||
+|| comment || plain text comment ||
+|| voc2008_boxes || Bounding boxes corresponding to VOC2008 annotations ||
+|| LabelMe_boxes || Bounding boxes for LabelMe objects ||
+|| sentences  || plain text annotation ||
+
