@@ -43,7 +43,7 @@ To browse the flagged annotations, one can go to
 http://vision-app1.cs.uiuc.edu:8080/datastore/show/flagged_annotations/<dataset>/<annotation_type>/<flag>/p1/
 
 (e.g. 
-http://vision-app1.cs.uiuc.edu:8080/datastore/show/flagged_annotations/VOC2008/voc2008_boxes/red/p1/ )
+http://vision-app1.cs.uiuc.edu:8080/datastore/show/flagged_annotations/VOC2008/voc2008_boxes/red/p1/ and http://vision-app1.cs.uiuc.edu:8080/datastore/show/flagged_annotations/VOC2008/voc2008_boxes/blue/p1/)
 
 There are currently 3 [FlagsAnnotation flags]: red (something is really wrong with the annotation), blue(some improvements are possible) and white(the annotation/image shouldn't be considered at all).
 
