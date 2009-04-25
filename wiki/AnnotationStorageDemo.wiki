@@ -34,6 +34,19 @@ Any annotation allows to add a quality mark and a comment. These are implemented
 
 Annotations can be added, but not erased. Unnecessary annotations will eventually be de-activated to remove them from display, but keep in the database.
 
+== Flagging == 
+
+We use flags to mark objects that require additional attention. To mark an annotation with a flag, one can simply click on the flag icon next to the annotation. 
+
+To browse the flagged annotations, one can go to
+
+http://vision-app1.cs.uiuc.edu:8080/datastore/show/flagged_annotations/<dataset>/<annotation_type>/<flag>/p1/
+
+(e.g. 
+http://vision-app1.cs.uiuc.edu:8080/datastore/show/flagged_annotations/VOC2008/voc2008_boxes/red/p1/ )
+
+There are currently 3 [FlagsAnnotation flags]: red (something is really wrong with the annotation), blue(some improvements are possible) and white(the annotation/image shouldn't be considered at all).
+
 
 
 = Datasets = 
