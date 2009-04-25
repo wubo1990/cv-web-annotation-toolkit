@@ -337,6 +337,9 @@ def new_annotation(request,item_id,annotation_type):
 	else:
 		return render_to_response('datastore/annotate_internal_'+ann_type.category+'.html',
 					  {'object':data_item,'ann_type':ann_type });
+@login_required
+def unflag_annotation(request,annotation_id,flag):
+	return HttpResponse("ERR:not implemented");
 
 @login_required
 def flag_annotation(request,annotation_id,flag):

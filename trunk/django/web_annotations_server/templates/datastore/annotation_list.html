@@ -23,7 +23,9 @@ page number:
 
 <hr/>
 {% for a in object_list %}
-{{a|render_annotation_large}} [add <a href="a/{{a.id}}/add/comment/">comment</a> <a href="a/{{a.id}}/add/quality/">quality</a> {{a|do_flags}} ]
+{{a.ref_data.url}}<br/>
+{{a|render_annotation_large}}<br/>
+{{a|do_flags}}  [add <a href="a/{{a.id}}/add/comment/">comment</a> <a href="a/{{a.id}}/add/quality/">quality</a>] 
 <hr/>
 {% endfor %}
 
