@@ -8,7 +8,7 @@ from django.views.generic.simple import redirect_to
 from datastore.models import *
 from django.contrib.auth.decorators import login_required
 
-import os,urllib
+import os,sys,time,urllib
 from xml.dom import minidom
 
 try:
@@ -337,23 +337,46 @@ def new_annotation(request,item_id,annotation_type):
 	else:
 		return render_to_response('datastore/annotate_internal_'+ann_type.category+'.html',
 					  {'object':data_item,'ann_type':ann_type });
-@login_required
-def unflag_annotation(request,annotation_id,flag):
-	return HttpResponse("ERR:not implemented");
 
 @login_required
 def flag_annotation(request,annotation_id,flag):
-	if not request.user.has_perm('datastore.annotation.add'):
-		return render_to_response('registration/not_authorized.html')
-
 	ann_type = get_object_or_404(AnnotationType,name="flags");
 	ref_annotation = get_object_or_404(Annotation,id=annotation_id);
+
+	if not request.user.has_perm('datastore.annotation.add'):
+		return render_to_response('datastore/flag.html',{'state':'off','flag':flag,'ref':ref_annotation})
 
 	annotation=Annotation(ref_data=ref_annotation.ref_data,annotation_type=ann_type,author=request.user,data=flag);
 	annotation.save();
 	annotation.rel_reference.add(ref_annotation);
 	annotation.save();
-	return render_to_response('datastore/flag.html')
+	return render_to_response('datastore/flag.html',{'state':'on','flag':flag,'annotation':annotation,'ref':ref_annotation})
+
+
+@login_required
+def unflag_annotation(request,annotation_id,flag):
+	ann_type = get_object_or_404(AnnotationType,name="flags");
+	ref_annotation = get_object_or_404(Annotation,id=annotation_id);
+
+	if not request.user.has_perm('datastore.annotation.delete'):
+		no_general_auth=True
+	else:
+		no_general_auth=False
+
+	has_active=False;
+	for a in Annotation.objects.filter(annotation_type__id=ann_type.id, data=flag, rel_reference__id=ref_annotation.id,is_active=True).all():
+		print a.is_active
+		if no_general_auth:
+			if not a.author.id==request.user.id:
+				has_active=True
+				continue
+		a.is_active=False;
+		a.save();
+
+	if has_active:
+		return render_to_response('datastore/flag.html',{'state':'on','flag':flag,'ref':ref_annotation})
+	else:
+		return render_to_response('datastore/flag.html',{'state':'off','flag':flag,'ref':ref_annotation})
 
 
 def show_annotation(request,item_id):

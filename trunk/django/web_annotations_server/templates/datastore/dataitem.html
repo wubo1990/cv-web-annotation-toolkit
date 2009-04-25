@@ -4,6 +4,8 @@
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
 <title>Data items</title>
 <script language="javascript" src="/code/js/prototype.js" > </script>
+<script language="javascript" src="/code/js/flags.js" > </script>
+<link rel="stylesheet" type="text/css" href="/code/css/flags.css" />
 </head>
 
 <body bgcolor="#ffffff">
@@ -17,7 +19,7 @@
 
 {% for a in ann_type.1 %}
 
-{{a|render_annotation_mini}} <a href="../../show/annotation/{{a.id}}/">&gt;&gt;</a>[add <a href="{{a.id}}/add/comment/">comment</a> <a href="{{a.id}}/add/quality/">quality</a>]<br/>
+{{a|render_annotation_mini}} <a href="../../show/annotation/{{a.id}}/">&gt;&gt;</a> {{a|do_flags}}  [add <a href="{{a.id}}/add/comment/">comment</a> <a href="{{a.id}}/add/quality/">quality</a>]<br/>
 
 
 {% endfor %}

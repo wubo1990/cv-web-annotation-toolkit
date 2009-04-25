@@ -1,6 +1,8 @@
 
 import time, datetime
 from django import template
+from datastore.models import Annotation,AnnotationType
+
 register = template.Library()
 
 from django.utils.safestring import mark_safe
@@ -73,10 +75,19 @@ render_annotation_full.is_safe=True;
 
 @register.filter
 def do_flags(a):
-  str=" ";
+  #str=" ";
+  #for flag in ["white","blue","red"]:
+  #  str+="<a href='/datastore/annotation/%d/flag/%s/' target='_rcd_flag'><img src='/code/images/ico/flag_%s.gif'><a/>" % (a.id,flag,flag)
+  #str+=" ";
+  flags_id=AnnotationType.objects.get(name="flags").id;
+  str="\n<table><tr><script>\n";
   for flag in ["white","blue","red"]:
-    str+="<a href='/datastore/annotation/%d/flag/%s/' target='_rcd_flag'><img src='/code/images/ico/flag_%s.gif'><a/>" % (a.id,flag,flag)
-  str+=" ";
+    if Annotation.objects.filter(annotation_type__id=flags_id, data=flag, rel_reference__id=a.id,is_active=True).count()>0:
+      flag_val=1;
+    else:
+      flag_val=0;
+    str+="\tcreate_flag(%d,'%s',%d);\n" % (a.id,flag,flag_val)
+  str+="</script></tr></table>\n";
   return mark_safe(str);
 
 
