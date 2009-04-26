@@ -15,7 +15,7 @@
 {% std_navigator paginator page %}
 
 <hr/>
-{% for a_c in object_list %}
+{% for a_c in object_list %]}
 {% for a in a_c.rel_reference.all%}
 
 {{a.ref_data.url}}</td><td> {{a|do_flags}}</td><td>  [add <a href="a/{{a.id}}/add/comment/">comment</a> <a href="a/{{a.id}}/add/quality/">quality</a>] </td></tr></table><br/>
