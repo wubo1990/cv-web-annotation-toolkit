@@ -17,8 +17,10 @@
 <hr/>
 {% for a_c in object_list %}
 {% for a in a_c.rel_reference.all%}
-{{a.ref_data.url}}<br/>
-{{a|render_annotation_large}}<br/>{{a|do_flags}}  [add <a href="a/{{a.id}}/add/comment/">comment</a> <a href="a/{{a.id}}/add/quality/">quality</a> ]
+
+{{a.ref_data.url}}</td><td> {{a|do_flags}}</td><td>  [add <a href="a/{{a.id}}/add/comment/">comment</a> <a href="a/{{a.id}}/add/quality/">quality</a>] </td></tr></table><br/>
+{{a|render_annotation_large}}<a href="/datastore/show/annotation/{{a.id}}/">&gt;&gt;</a> 
+<br/>
 <hr/>
 {% endfor %}
 {% endfor %}

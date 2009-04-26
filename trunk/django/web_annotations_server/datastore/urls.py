@@ -29,6 +29,8 @@ urlpatterns = patterns('',
 
     (r'^dataitem/(?P<item_id>[\w]+)/(?P<ref_annotation_id>[\w]+)/add/(?P<new_annotation_type>[\w]+)/$', 'datastore.views.new_related_annotation',{'depth':3}),
 
+    (r'^.*/a/(?P<ref_annotation_id>[\w]+)/add/(?P<new_annotation_type>[\w]+)/$', 'datastore.views.new_related_annotation',{'depth':4}),
+
     (r'^annotation/(?P<annotation_id>[\w]+)/flag/(?P<flag>[\w]+)/$', 'datastore.views.flag_annotation'),
     (r'^annotation/(?P<annotation_id>[\w]+)/unflag/(?P<flag>[\w]+)/$', 'datastore.views.unflag_annotation'),
 
