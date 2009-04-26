@@ -2,6 +2,7 @@
 import time, datetime
 from django import template
 from datastore.models import Annotation,AnnotationType
+from django.template.loader import render_to_string
 
 register = template.Library()
 
@@ -91,4 +92,35 @@ def do_flags(a):
   return mark_safe(str);
 
 
+@register.simple_tag
+def std_navigator(paginator,page,template_plain='paginator/plain.html',template_compact='paginator/compact.html'):
+  print dir(paginator)
+  print dir(page)
+  if paginator.num_pages<10:
+    return render_to_string(template_plain, { 'paginator': paginator })
+  print dir(paginator)
+  pages=[];
+  iP=page;
+  s=-1;
+  iP=iP+s;
+  while iP >1:
+    pages.append(iP);
+    iP=iP+s;
+    s*=2;
+  pages.append(1);
+  pages.reverse();
+  pages_before=pages;
+  pages=[];
+  iP=page;
+  s=1;
+  iP=iP+s;
+  while iP < paginator.num_pages:
+    pages.append(iP);
+    iP=iP+s;
+    s*=2;
+  pages.append(paginator.num_pages);
+  pages_after=pages;
+
+
+  return render_to_string(template_compact, { 'paginator': paginator,'pages_before':pages_before,'pages_after':pages_after,'page':page })
 
