@@ -1,5 +1,6 @@
 {% load time_extras %}
 {% load annotation_formatting %}
+{% load navigator %}
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
@@ -10,18 +11,8 @@
 </head>
 
 <body bgcolor="#ffffff">
-page number:
-{% if has_previous %}
-<a href="../p{{previous}}/">{{previous}}</a>
-{% endif %}
-{{page}}
-{% if has_next %}
-<a href="../p{{next}}/">{{next}}</a>
-{% endif %} | {{num_pages}}
-<br>
-{% for p in page_range %}
-<a href="../p{{p}}/">{{p}}</a> 
-{% endfor %}
+
+{% std_navigator paginator page %}
 
 <hr/>
 {% for a in object_list %}
@@ -35,17 +26,7 @@ page number:
 Error. Javascript is required.
 </noscript>
 
-{% if has_previous %}
-<a href="../p{{previous}}/">{{previous}}</a>
-{% endif %}
-{{page}}
-{% if has_next %}
-<a href="../p{{next}}/">{{next}}</a>
-{% endif %} | {{num_pages}}
-<br>
-{% for p in page_range %}
-<a href="../p{{p}}/">{{p}}</a> 
-{% endfor %}
+{% std_navigator paginator page %}
 
 {% if refresh_rate %}
 <script type="text/JavaScript">

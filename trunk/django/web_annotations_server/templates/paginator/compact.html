@@ -1,0 +1,8 @@
+
+{% for p in pages_before %}
+<a href="../p{{p}}/">{{p}}</a>  .. 
+{% endfor %}
+<b>{{page}}</b>
+{% for p in pages_after %}
+ .. <a href="../p{{p}}/">{{p}}</a> 
+{% endfor %}
