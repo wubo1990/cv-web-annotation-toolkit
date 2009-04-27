@@ -126,7 +126,7 @@ def register_voc_boxes(request,dataset_name):
 		iSqn=1;
 		for o in object_tags:
 			object_name=xget_v(o,"name");
-			bbox=xget_child(o,"bndbox")[0];
+			bbox=xget_child(o,"bndbox");
 			(o_xmin,o_xmax,o_ymin,o_ymax)=xget_v2(bbox,["xmin","xmax","ymin","ymax"])
 			xmin=float(o_xmin)*scale+dX;
 			xmax=float(o_xmax)*scale+dX;
@@ -144,10 +144,10 @@ def register_voc_boxes(request,dataset_name):
 			full_annotation+=object_xml
 
 		full_annotation+="</annotation></results>"
-		#print full_annotation
-		annotation=Annotation(ref_data=dt_item,annotation_type=ann_type,author=request.user,data=full_annotation);
-		annotation.save();
-		#return resp
+		print full_annotation
+		#annotation=Annotation(ref_data=dt_item,annotation_type=ann_type,author=request.user,data=full_annotation);
+		#annotation.save();
+		return resp
 
 			     
 	resp.write("done");
