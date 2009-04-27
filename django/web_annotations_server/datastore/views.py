@@ -72,6 +72,13 @@ def register_images(request,dataset_name):
 
 def xget(o,tagname):
 	return o.getElementsByTagName(tagname);
+
+def xget_child(o,tagname):
+	for n in o.childNodes:
+		if n.nodeName==tagname:
+			return n
+	return None;
+
 def xget_v(o,tagname):
 	fc=o.getElementsByTagName(tagname)[0].firstChild
 	if fc:
@@ -119,7 +126,7 @@ def register_voc_boxes(request,dataset_name):
 		iSqn=1;
 		for o in object_tags:
 			object_name=xget_v(o,"name");
-			bbox=xget(o,"bndbox")[0];
+			bbox=xget_child(o,"bndbox")[0];
 			(o_xmin,o_xmax,o_ymin,o_ymax)=xget_v2(bbox,["xmin","xmax","ymin","ymax"])
 			xmin=float(o_xmin)*scale+dX;
 			xmax=float(o_xmax)*scale+dX;
