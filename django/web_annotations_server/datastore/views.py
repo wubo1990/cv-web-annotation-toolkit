@@ -267,12 +267,13 @@ def register_labelme_boxes(request,dataset_name):
 	annotation_path=os.path.join(settings.DATASETS_ROOT,dataset_name+"_annotations");
 	dataset=get_object_or_404(Dataset,name=dataset_name);
 	resp=HttpResponse();
-	for dt_item in dataset.dataitem_set.all():
+	for dt_item in dataset.dataitem_set.filter(): #url__contains="IMG_4093"):
 		(str_img,str_img_path,str_img_file)=dt_item.get_name_parts();    
 		
 		annotation_filename=os.path.join(annotation_path,str_img_path,str_img_file+".xml");
 		if not os.path.exists(annotation_filename):
 			resp.write("Missing annotations file for %s<br/>\n" % annotation_filename);
+			continue
 
 		full_annotation="""<?xml version='1.0'?>
 <results>
