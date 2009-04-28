@@ -19,7 +19,18 @@
 
 {% for a in ann_type.1 %}
 
-{{a|render_annotation_mini}} <a href="../../show/annotation/{{a.id}}/">&gt;&gt;</a> {{a|do_flags}}  [add <a href="{{a.id}}/add/comment/">comment</a> <a href="{{a.id}}/add/quality/">quality</a>]<br/>
+
+<table><tr>
+<td>{{a|render_annotation_mini}} </td>
+<td>
+<a href="/datastore/show/item_annotation/n/{{a.ref_data.get_public_id}}">
+{{a.ref_data.url}}</a></td><td> {{a|do_flags}}</td><td>  [add <a
+href="a/{{a.id}}/add/comment/">comment</a> <a
+href="a/{{a.id}}/add/quality/">quality</a>] </td><td><a
+href="/datastore/show/annotation/{{a.id}}/">more</a>
+</td></tr></table><br/>
+
+
 
 
 {% endfor %}
@@ -30,7 +41,7 @@
 <hr/>
 {% for ann_type in empty_annotation_types %}
 
-<a href="../../new_annotation/{{object.id}}/{{ann_type.1.name}}/">add {{ann_type.0}}</a> 
+<a href="new_annotation/{{object.id}}/{{ann_type.1.name}}/">add {{ann_type.0}}</a> 
 
 {% endfor %}
 

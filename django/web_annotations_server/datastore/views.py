@@ -8,7 +8,8 @@ from django.views.generic.simple import redirect_to
 from datastore.models import *
 from django.contrib.auth.decorators import login_required
 
-import os,sys,time,urllib
+import os,sys,time,urllib,mimetools
+import StringIO
 from xml.dom import minidom
 
 try:
@@ -42,8 +43,23 @@ def load_segmentation(request,segmentation_id):
 	outF=open(filename,'rb');
 	content=outF.read();
 	outF.close();
-	print content
 	return HttpResponse(content,mimetype="text/plain")
+
+def get_wnd(request,item_id,l,t,w,h):
+
+	data_item=get_object_or_404(DataItem,id=item_id);
+	(str_img,str_img_path,str_img_file)=data_item.get_name_parts();    
+
+	dataset_path=os.path.join(settings.DATASETS_ROOT,data_item.ds.name);
+	image_filename=os.path.join(dataset_path,str_img_path,str_img_file+".jpg");
+	im = Image.open(image_filename);	
+
+	f = StringIO.StringIO()
+	c = im.crop(map(lambda v:int(round(v)),[float(l),float(t),float(l)+float(w),float(t)+float(h)]));
+	response = HttpResponse(mimetype="image/jpeg")
+	c.save(response, "JPEG")
+
+	return response
 
 
 
@@ -88,6 +104,11 @@ def xget_v(o,tagname):
 def xget_v2(o,tagnames):
 	return map(lambda t:xget_v(o,t),tagnames);
 
+def xget_a(o,tagname):
+	return o.attributes[tagname].value;
+def xget_a2(o,tagnames):
+	return map(lambda t:xget_a(o,t),tagnames);
+
 @login_required
 def register_voc_boxes(request,dataset_name):
 	if not request.user.has_perm('datastore.annotation.add'):
@@ -101,11 +122,8 @@ def register_voc_boxes(request,dataset_name):
 	dataset=get_object_or_404(Dataset,name=dataset_name);
 	resp=HttpResponse();
 	for dt_item in dataset.dataitem_set.all():
-		#print dt_item.id,
-		#print dt_item.url
 		(str_img,str_img_path,str_img_file)=dt_item.get_name_parts();    
 		
-		#print str_img,str_img_path,str_img_file
 		annotation_filename=os.path.join(annotation_path,str_img_file+".xml");
 		if not os.path.exists(annotation_filename):
 			resp.write("Missing annotations file for %s<br/>\n" % annotation_filename);
@@ -119,10 +137,13 @@ def register_voc_boxes(request,dataset_name):
 		img_size=xget(xmldoc,"size")[0];
 		img_w=float(xget_v(img_size,"width"));
 		img_h=float(xget_v(img_size,"height"));
+		img_d=float(xget_v(img_size,"depth"));
+
+		full_annotation+="<size><width>%d</width><height>%d</height><depth>%d</depth></size>\n" % (img_w,img_h,img_d)
+
 		scale=min(500/img_w,500/img_h);
 		dX=(500-img_w*scale)/2;
 		dY=(500-img_h*scale)/2;
-		#print img_w,scale
 		iSqn=1;
 		for o in object_tags:
 			object_name=xget_v(o,"name");
@@ -144,14 +165,90 @@ def register_voc_boxes(request,dataset_name):
 			full_annotation+=object_xml
 
 		full_annotation+="</annotation></results>"
-		print full_annotation
-		#annotation=Annotation(ref_data=dt_item,annotation_type=ann_type,author=request.user,data=full_annotation);
-		#annotation.save();
-		return resp
+		annotation=Annotation(ref_data=dt_item,annotation_type=ann_type,author=request.user,data=full_annotation);
+		annotation.save();
 
 			     
 	resp.write("done");
 	return resp
+
+
+
+
+
+
+
+def add_child_boxes_for_annotation(request,a,ann_type_child):
+		xmldoc = minidom.parseString(a.data);
+
+		img_size=xget(xmldoc,"size")[0];
+
+		img_w=float(xget_v(img_size,"width"));
+		img_h=float(xget_v(img_size,"height"));
+
+		scale=min(500/img_w,500/img_h);
+		dX=(500-img_w*scale)/2;
+		dY=(500-img_h*scale)/2;
+
+		object_tags=xget(xmldoc,"bbox");
+		for o in object_tags:
+			(class_name,l,t,w,h)=xget_a2(o,["name","left","top","width","height"])
+			l=(float(l)-dX)/scale
+			t=(float(t)-dY)/scale
+			w=float(w)/scale
+			h=float(h)/scale
+			box_data="%s\n%f,%f,%f,%f\n1.0\n" % (class_name,l,t,w,h)
+			print box_data
+			annotation=Annotation(ref_data=a.ref_data,annotation_type=ann_type_child,
+						author=request.user,data=box_data);
+			annotation.save();
+
+@login_required
+def register_voc_box_child_annotations(request,dataset_name,annotation_id=None):
+	if not request.user.has_perm('datastore.annotation.add'):
+		return render_to_response('registration/not_authorized.html')
+
+	annotation_type="voc2008_boxes"
+	ann_type = get_object_or_404(AnnotationType,name=annotation_type);
+	annotation_type_child="voc_bbox"
+	ann_type_child = get_object_or_404(AnnotationType,name=annotation_type_child);
+
+	dataset=get_object_or_404(Dataset,name=dataset_name);
+
+	if annotation_id:	
+		a=Annotation.objects.get(id=annotation_id);
+		add_child_boxes_for_annotation(request,a,ann_type_child);
+	else:
+		for dt_item in dataset.dataitem_set.all():
+			for a in dt_item.annotation_set.filter(is_active=True,annotation_type__id=ann_type.id):
+				add_child_boxes_for_annotation(request,a,ann_type_child);
+
+	resp=HttpResponse("done");
+	return resp
+
+@login_required
+def register_labelme_box_child_annotations(request,dataset_name,annotation_id=None):
+	if not request.user.has_perm('datastore.annotation.add'):
+		return render_to_response('registration/not_authorized.html')
+
+	annotation_type="LabelMe_boxes"
+	ann_type = get_object_or_404(AnnotationType,name=annotation_type);
+	annotation_type_child="voc_bbox"
+	ann_type_child = get_object_or_404(AnnotationType,name=annotation_type_child);
+
+	dataset=get_object_or_404(Dataset,name=dataset_name);
+
+	if annotation_id:	
+		a=Annotation.objects.get(id=annotation_id);
+		add_child_boxes_for_annotation(request,a,ann_type_child);
+	else:
+		for dt_item in dataset.dataitem_set.all():
+			for a in dt_item.annotation_set.filter(is_active=True,annotation_type__id=ann_type.id):
+				add_child_boxes_for_annotation(request,a,ann_type_child);
+
+	resp=HttpResponse("done");
+	return resp
+
 
 
 @login_required
@@ -171,11 +268,8 @@ def register_labelme_boxes(request,dataset_name):
 	dataset=get_object_or_404(Dataset,name=dataset_name);
 	resp=HttpResponse();
 	for dt_item in dataset.dataitem_set.all():
-		#print dt_item.id,
-		#print dt_item.url
 		(str_img,str_img_path,str_img_file)=dt_item.get_name_parts();    
 		
-		#print str_img,str_img_path,str_img_file
 		annotation_filename=os.path.join(annotation_path,str_img_path,str_img_file+".xml");
 		if not os.path.exists(annotation_filename):
 			resp.write("Missing annotations file for %s<br/>\n" % annotation_filename);
@@ -187,13 +281,15 @@ def register_labelme_boxes(request,dataset_name):
 		object_tags=xget(xmldoc,"object");
 		image_filename=os.path.join(dataset_path,str_img_path,str_img_file+".jpg");
 		print image_filename
-		#im = imread(image_filename);
+
 		im = Image.open(image_filename);
 		(img_w,img_h) = im.size;
 		scale=min(500.0/img_w,500.0/img_h);
 		dX=(500-img_w*scale)/2;
 		dY=(500-img_h*scale)/2;
 		iSqn=1;
+
+		full_annotation+="<size><width>%d</width><height>%d</height></size>" % (img_w,img_h)
 		
 		for o in object_tags:
 			object_name = xget_v(o,"name")
@@ -226,7 +322,6 @@ def register_labelme_boxes(request,dataset_name):
 			full_annotation+=object_xml
 
 		full_annotation+="</annotation></results>"
-		#print full_annotation
 		annotation=Annotation(ref_data=dt_item,annotation_type=ann_type,author=request.user,data=full_annotation);
 		annotation.save();
 			     
@@ -260,28 +355,41 @@ def show_dataset_annotations(request,dataset_name,annotation_type,page=None):
 	ann_type = get_object_or_404(AnnotationType,name=annotation_type)
 
 	results=ann_type.annotation_set.filter(ref_data__ds__id=ds.id).filter(is_active=True);
-	print results,page
+
 	return object_list(request,queryset=results, paginate_by=20, page=page,
 			template_name='datastore/annotation_list.html');
 
 
-def show_flagged_annotations(request,dataset_name,annotation_type,flag_name,page=None):
+def show_flagged_annotations(request,dataset_name,flag_name,annotation_type=None,page=None):
 	if not page:
 		return redirect_to(request,"p1/");
 
 	ds = get_object_or_404(Dataset,name=dataset_name)
-	ann_type = get_object_or_404(AnnotationType,name=annotation_type)
 	flag_ann_type = get_object_or_404(AnnotationType,name="flags")
 
-	#flag_ann_type.annotation_set.reannotation
-	print flag_ann_type.id
-	#results=Annotation.objects.filter(annotation__annotation_type=flag_ann_type);
-	results=Annotation.objects.filter(data=flag_name,annotation_type__id=flag_ann_type.id,ref_data__ds__id=ds.id,is_active=True) ; #15722)
-	#results=ann_type.annotation_set.filter(ref_data__ds__id=ds.id).filter(is_active=True);
-	print results,page
+	if annotation_type:
+		ann_type = get_object_or_404(AnnotationType,name=annotation_type)
+		results=Annotation.objects.filter(data=flag_name,annotation_type__id=flag_ann_type.id,ref_data__ds__id=ds.id,is_active=True) 
+	else:
+		results=Annotation.objects.filter(data=flag_name,ref_data__ds__id=ds.id,is_active=True) 
 	return object_list(request,queryset=results, paginate_by=20, page=page,
 			template_name='datastore/annotation_list2.html');
 
+
+def show_bbox_objects(request,object_name,page=None,dataset_name=None):
+	if not page:
+		return redirect_to(request,"p1/");
+
+	ann_type = get_object_or_404(AnnotationType,name="voc_bbox");
+
+	results=Annotation.objects.filter(annotation_type__id=ann_type.id, data__contains=object_name);
+
+	return object_list(request,queryset=results, paginate_by=20, page=page,
+			template_name='datastore/annotation_list.html');
+
+def show_item_annotation(request,item_name):
+	di=DataItem.objects.filter(url__contains=item_name)[0];
+	return show_data_item(request,di.id)
 
 def show_data_item(request,item_id):
 	di = get_object_or_404(DataItem,id=item_id);
@@ -294,10 +402,6 @@ def show_data_item(request,item_id):
 		
 	types_dict={};
 	for t in di.annotation_set.all():
-		#print t,t.rel_reference.all().count(),t.annotation_type.name,
-		#for r in t.rel_reference.all():
-		#	print r.annotation_type.name,
-		#print ""
 		if t.rel_reference.all().count()>0:
 			continue
 		if t.annotation_type.name not in types_dict:
@@ -322,11 +426,9 @@ def new_annotation(request,item_id,annotation_type):
 	data_item = get_object_or_404(DataItem,id=item_id);
 
 	if request.method=="POST":
-		print request.POST
 		if "sites" in request.POST:
 			val=request.POST["sites"]
 			val="<?xml version='1.0'?>\n"+urllib.unquote(val);
-			print val
 		elif "annotation_value" in request.POST:
 			val= request.POST["annotation_value"]
 		elif "av_fields" in request.POST:
@@ -337,10 +439,9 @@ def new_annotation(request,item_id,annotation_type):
 					val=val+"&"+fn+"="+request.POST[fn];
 				else:
 					val=fn+"="+request.POST[fn];
-		print val
 		annotation=Annotation(ref_data=data_item,annotation_type=ann_type,author=request.user,data=val);
 		annotation.save();
-		return redirect_to(request,"../../../dataitem/%s"% data_item.id,permanent=False);
+		return redirect_to(request,"../../",permanent=False);
 	else:
 		return render_to_response('datastore/annotate_internal_'+ann_type.category+'.html',
 					  {'object':data_item,'ann_type':ann_type });
@@ -372,7 +473,6 @@ def unflag_annotation(request,annotation_id,flag):
 
 	has_active=False;
 	for a in Annotation.objects.filter(annotation_type__id=ann_type.id, data=flag, rel_reference__id=ref_annotation.id,is_active=True).all():
-		print a.is_active
 		if no_general_auth:
 			if not a.author.id==request.user.id:
 				has_active=True
@@ -391,6 +491,8 @@ def show_annotation(request,item_id):
 	di = ann.ref_data;
 	return render_to_response('datastore/show_annotation.html',
 				  {'object':ann, 'ref_data':di});
+
+
 
 
 @login_required
@@ -424,7 +526,6 @@ def new_related_annotation(request,ref_annotation_id,new_annotation_type,item_id
 				else:
 					val=fn+"="+request.POST[fn];
 			
-		print val
 		annotation=Annotation(ref_data=data_item,annotation_type=ann_type,author=request.user,data=val);
 		annotation.save();
 		annotation.rel_reference.add(ref_ann);
@@ -439,3 +540,7 @@ def new_related_annotation(request,ref_annotation_id,new_annotation_type,item_id
 		return render_to_response('datastore/annotate_internal_'+ann_type.category+'.html',
 					  {'object':data_item,'ann_type':ann_type, 'ref_annotation':ref_ann });
 
+def index(request):
+	datasets=Dataset.objects.all()
+	return render_to_response('datastore/index.html',
+		  {'datasets':datasets});

@@ -17,15 +17,7 @@ def render_annotation_full(a):
 
 @register.filter
 def render_annotation_mini(a,w=None,h=None):
-  """
-  print dir(a.rel_reference)
-  print dir(a)
-  print a.rel_reference.reverse()
-  print a.rel_reference.select_related()
-  print a.rel_reference.target_col_name
-  print a.rel_reference.source_col_name
-  print a.annotation_set.count()
-  """
+
   if a.annotation_set.count()>0:
     has_ref_str="(+)";
   else:
@@ -60,14 +52,27 @@ def render_annotation_mini(a,w=None,h=None):
       else:
         v=""
       h[k]=v
-      print h
     if h['av_feedback']:
       fback='('+h['av_feedback']+')'
     else:
       fback='';
     return h['av_quality']+fback+has_ref_str;
 
-  return "%s" % a.annotation_type.category
+  if a.annotation_type.category=="bbox":
+	data_id=a.ref_data.id;
+	a_parts=a.data.split('\n');
+	ann_str="%s:<img src='/datastore/wnd/%d/%s/'>" % (a_parts[0],data_id,a_parts[1]);
+	return mark_safe(ann_str);
+
+  if a.annotation_type.category=="flags":
+	if a.is_active:
+		active_str="Active " + a.data +" flag";
+	else:
+		active_str="Inactive " + a.data +" flag";
+  	return active_str
+
+  return "Annotation format not implemented: %s. See annotation_formatting.py" % a.annotation_type.category
+
 
 render_annotation_mini.is_safe=True;
 render_annotation_large.is_safe=True;
