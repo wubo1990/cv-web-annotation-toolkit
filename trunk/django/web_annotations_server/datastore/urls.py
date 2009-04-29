@@ -11,12 +11,14 @@ urlpatterns = patterns('',
 
 
 
-    (r'^register_images/(?P<dataset_name>[\w-]+)/', 'datastore.views.register_images'),
-    (r'^register_voc_boxes/(?P<dataset_name>[\w-]+)/', 'datastore.views.register_voc_boxes'),
-    (r'^register_voc_box_child_annotations/(?P<dataset_name>[\w-]+)/(?P<annotation_id>[\w]+)/', 'datastore.views.register_voc_box_child_annotations'),
-    (r'^register_voc_box_child_annotations/(?P<dataset_name>[\w-]+)/', 'datastore.views.register_voc_box_child_annotations'),
-    (r'^register_labelme_box_child_annotations/(?P<dataset_name>[\w-]+)/', 'datastore.views.register_labelme_box_child_annotations'),
-    (r'^register_labelme_boxes/(?P<dataset_name>[\w-]+)/', 'datastore.views.register_labelme_boxes'),
+    (r'^register_images/(?P<dataset_name>[\w-]+)/$', 'datastore.views.register_images'),
+    (r'^register_voc_boxes/(?P<dataset_name>[\w-]+)/$', 'datastore.views.register_voc_boxes'),
+    (r'^register_voc_box_child_annotations/(?P<dataset_name>[\w-]+)/(?P<annotation_id>[\w]+)/$', 'datastore.views.register_voc_box_child_annotations'),
+    (r'^register_voc_box_child_annotations/(?P<dataset_name>[\w-]+)/$', 'datastore.views.register_voc_box_child_annotations'),
+
+    (r'^register_labelme_box_child_annotations/(?P<dataset_name>[\w-]+)/(?P<annotation_id>[\w]+)/$', 'datastore.views.register_labelme_box_child_annotations'),
+    (r'^register_labelme_box_child_annotations/(?P<dataset_name>[\w-]+)/$', 'datastore.views.register_labelme_box_child_annotations'),
+    (r'^register_labelme_boxes/(?P<dataset_name>[\w-]+)/$', 'datastore.views.register_labelme_boxes'),
 
 
     (r'^wnd/(?P<item_id>[\w.-]+)/(?P<l>[\w.-]+),(?P<t>[\w.-]+),(?P<w>[\w.-]+),(?P<h>[\w.-]+)/$', 'datastore.views.get_wnd'),
