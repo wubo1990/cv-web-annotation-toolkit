@@ -11,7 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.encoding import *
 
 import os,sys,time,urllib,mimetools
-import zlib,array
+import zlib,array,struct
 
 import StringIO
 from xml.dom import minidom
@@ -53,11 +53,6 @@ def load_segmentation(request,segmentation_id):
 	return HttpResponse(content,mimetype="text/plain")
 
 
-segURL="http://vision-app1.cs.uiuc.edu:8080/datastore/load_segmentation/91385365F41F501FDA7F9A11E585489844DDBBB6/"
-segURL="http://vision-app1.cs.uiuc.edu:8080/datastore/load_segmentation/0A2B43887A69C5E42B0B2F6CA6D9EC9D42C1C2D0/"
-
-txt=urllib.urlopen(segURL).readline();
-
 def txt2bin(txt):
     a=array.array('B')
     m={'A':0,'B':1,'C':2,'D':3,'E':4,'F':5,'G':6,'H':7,'I':8,'J':9,'K':10,'L':11,'M':12,'N':13,'O':14,'P':15};
@@ -80,17 +75,23 @@ def get_segmentation_img(request,segmentation_id):
 	outF.close();
 
 	binary_txt=txt2bin(content);
-	binary_plain=zlib.decompress(binary_txt);
-	header=binary_plain[0:32];
-	pixels=binary_plain[32:];
-	print header
-	response = HttpResponse(mimetype="text/plain")
-	response.write(header);
+	header=binary_txt[0:32];
+	(w,h)=struct.unpack("!ii",header[0:8])
+	pixels=array.array('b',zlib.decompress(binary_txt[32:]));
+	print header,w,h
+	for i in xrange(0,len(pixels),4):
+		a=pixels[i];
+		pixels[i]=pixels[i+1];
+		pixels[i+1]=pixels[i+2];
+		pixels[i+2]=pixels[i+3];
+		pixels[i+3]=a;
+	im = Image.frombuffer("RGBA", (w,h), pixels);
+	response = HttpResponse(mimetype="image/png")
+	im.save(response, "PNG")
 	return response
 
 	im = Image.open(image_filename);	
-	response = HttpResponse(mimetype="image/png")
-	c.save(response, "PNG")
+
 	return response	
 
 
