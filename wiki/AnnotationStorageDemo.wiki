@@ -58,7 +58,7 @@ The index page displays the statistics of existing datasets. The numbers have li
 
 === All active annotations ===
 
-{{http://128.174.241.84:8080/datastore/show/annotated_images/<dataset>/<annotation_type>/p<page_number>/}}}
+{{{http://128.174.241.84:8080/datastore/show/annotated_images/<dataset>/<annotation_type>/p<page_number>/}}}
 
 (e.g. [http://128.174.241.84:8080/datastore/show/annotated_images/VOC2008/voc2008_boxes/p1/])
 
@@ -66,7 +66,7 @@ This display shows all annotations of a particular type.
 
 === All examples of an object ===
 
-The examples are found among voc_bbox annotations. The examples are filtered using SQL like '%<query>%'. The examples are currently retrieved from all datasets.
+The examples are found among voc_bbox annotations. The examples are filtered using SQL {{{like '%<query>%'}}}. The examples are currently retrieved from all datasets.
 
 {{{http://vision-app1.cs.uiuc.edu:8080/datastore/show/bbox_objects/<query>/p<page_number>/}}}
 
