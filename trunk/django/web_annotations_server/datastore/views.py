@@ -11,6 +11,8 @@ from django.contrib.auth.decorators import login_required
 from django.utils.encoding import *
 
 import os,sys,time,urllib,mimetools
+import zlib,array
+
 import StringIO
 from xml.dom import minidom
 
@@ -50,6 +52,48 @@ def load_segmentation(request,segmentation_id):
 	outF.close();
 	return HttpResponse(content,mimetype="text/plain")
 
+
+segURL="http://vision-app1.cs.uiuc.edu:8080/datastore/load_segmentation/91385365F41F501FDA7F9A11E585489844DDBBB6/"
+segURL="http://vision-app1.cs.uiuc.edu:8080/datastore/load_segmentation/0A2B43887A69C5E42B0B2F6CA6D9EC9D42C1C2D0/"
+
+txt=urllib.urlopen(segURL).readline();
+
+def txt2bin(txt):
+    a=array.array('B')
+    m={'A':0,'B':1,'C':2,'D':3,'E':4,'F':5,'G':6,'H':7,'I':8,'J':9,'K':10,'L':11,'M':12,'N':13,'O':14,'P':15};
+
+    for i in range(0,len(txt),2):
+        c=txt[i];
+        c2=txt[i+1];
+        v=m[c]*16+m[c2]
+        a.append(v)
+    return a;
+
+def get_segmentation_img(request,segmentation_id):
+	print segmentation_id;
+	filename=os.path.join(settings.SEGMENTATION_ROOT,segmentation_id);
+	if not os.path.exists(filename):
+		raise Http404
+
+	outF=open(filename,'rb');
+	content=outF.read();
+	outF.close();
+
+	binary_txt=txt2bin(content);
+	binary_plain=zlib.decompress(binary_txt);
+	header=binary_plain[0:32];
+	pixels=binary_plain[32:];
+	print header
+	response = HttpResponse(mimetype="text/plain")
+	response.write(header);
+	return response
+
+	im = Image.open(image_filename);	
+	response = HttpResponse(mimetype="image/png")
+	c.save(response, "PNG")
+	return response	
+
+
 def get_wnd(request,item_id,l,t,w,h):
 
 	data_item=get_object_or_404(DataItem,id=item_id);
@@ -59,7 +103,6 @@ def get_wnd(request,item_id,l,t,w,h):
 	image_filename=os.path.join(dataset_path,str_img_path,str_img_file+".jpg");
 	im = Image.open(image_filename);	
 
-	f = StringIO.StringIO()
 	c = im.crop(map(lambda v:int(round(v)),[float(l),float(t),float(l)+float(w),float(t)+float(h)]));
 	response = HttpResponse(mimetype="image/jpeg")
 	c.save(response, "JPEG")

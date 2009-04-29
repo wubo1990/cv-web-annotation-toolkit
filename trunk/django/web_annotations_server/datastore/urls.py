@@ -8,6 +8,7 @@ urlpatterns = patterns('',
 
     (r'^save_segmentation/(?P<segmentation_id>[\w-]+)/', 'datastore.views.save_segmentation'),
     (r'^load_segmentation/(?P<segmentation_id>[\w-]+)/', 'datastore.views.load_segmentation'),
+    (r'^get_segmentation/(?P<segmentation_id>[\w-]+)/png/', 'datastore.views.get_segmentation_img'),
 
 
 
