@@ -1,4 +1,5 @@
 # Create your views here.
+# -*- coding: UTF-8 -*-
 
 from django.http import HttpResponse,Http404
 from django.conf import settings
@@ -7,10 +8,14 @@ from django.views.generic.list_detail import object_list
 from django.views.generic.simple import redirect_to
 from datastore.models import *
 from django.contrib.auth.decorators import login_required
+from django.utils.encoding import *
 
 import os,sys,time,urllib,mimetools
 import StringIO
 from xml.dom import minidom
+
+
+
 
 try:
 	try:
@@ -101,6 +106,13 @@ def xget_v(o,tagname):
 		return	fc.nodeValue;
 	else:	
 		return None
+def xget_v3(o,tagname):
+	fc=o.getElementsByTagName(tagname)[0].firstChild
+	if fc:
+		return	fc;
+	else:	
+		return None
+
 def xget_v2(o,tagnames):
 	return map(lambda t:xget_v(o,t),tagnames);
 
@@ -108,6 +120,14 @@ def xget_a(o,tagname):
 	return o.attributes[tagname].value;
 def xget_a2(o,tagnames):
 	return map(lambda t:xget_a(o,t),tagnames);
+
+def xadd(doc,x_parent,child_name,child_content):
+	x_child = doc.createElement(child_name);
+	x_child_c = doc.createTextNode(child_content)
+	x_child.appendChild(x_child_c)
+	x_parent.appendChild(x_child);
+
+
 
 @login_required
 def register_voc_boxes(request,dataset_name):
@@ -139,6 +159,7 @@ def register_voc_boxes(request,dataset_name):
 		img_h=float(xget_v(img_size,"height"));
 		img_d=float(xget_v(img_size,"depth"));
 
+		
 		full_annotation+="<size><width>%d</width><height>%d</height><depth>%d</depth></size>\n" % (img_w,img_h,img_d)
 
 		scale=min(500/img_w,500/img_h);
@@ -197,10 +218,13 @@ def add_child_boxes_for_annotation(request,a,ann_type_child):
 			t=(float(t)-dY)/scale
 			w=float(w)/scale
 			h=float(h)/scale
-			box_data="%s\n%f,%f,%f,%f\n1.0\n" % (class_name,l,t,w,h)
+			box_data=u"%s\n%f,%f,%f,%f\n1.0\n" % (class_name,l,t,w,h)
 			print box_data
 			annotation=Annotation(ref_data=a.ref_data,annotation_type=ann_type_child,
 						author=request.user,data=box_data);
+			annotation.save();
+			annotation.rel_reference.add(a);
+			annotation.save();
 			annotation.save();
 
 @login_required
@@ -267,7 +291,11 @@ def register_labelme_boxes(request,dataset_name):
 	annotation_path=os.path.join(settings.DATASETS_ROOT,dataset_name+"_annotations");
 	dataset=get_object_or_404(Dataset,name=dataset_name);
 	resp=HttpResponse();
-	for dt_item in dataset.dataitem_set.filter(): #url__contains="IMG_4093"):
+	#for dt_item in dataset.dataitem_set.filter(id=29913): #url__contains="IMG_4093"):
+	#totTODO=None
+	totTODO=dataset.dataitem_set.all().count(); 
+	for (iItem,dt_item) in enumerate(dataset.dataitem_set.all()): 
+		
 		(str_img,str_img_path,str_img_file)=dt_item.get_name_parts();    
 		
 		annotation_filename=os.path.join(annotation_path,str_img_path,str_img_file+".xml");
@@ -275,13 +303,14 @@ def register_labelme_boxes(request,dataset_name):
 			resp.write("Missing annotations file for %s<br/>\n" % annotation_filename);
 			continue
 
-		full_annotation="""<?xml version='1.0'?>
-<results>
-<annotation>"""
+		x_out=minidom.Document();
+		x_res = x_out.createElement("results")
+		x_ann = x_out.createElement("annotation")
+
 		xmldoc = minidom.parse(annotation_filename);
 		object_tags=xget(xmldoc,"object");
 		image_filename=os.path.join(dataset_path,str_img_path,str_img_file+".jpg");
-		print image_filename
+		print iItem,totTODO,image_filename
 
 		im = Image.open(image_filename);
 		(img_w,img_h) = im.size;
@@ -290,12 +319,16 @@ def register_labelme_boxes(request,dataset_name):
 		dY=(500-img_h*scale)/2;
 		iSqn=1;
 
-		full_annotation+="<size><width>%d</width><height>%d</height></size>" % (img_w,img_h)
-		
+		x_sz = x_out.createElement("size")
+		xadd(x_out,x_sz,"width","%d" % img_w)
+		xadd(x_out,x_sz,"height","%d" % img_h)
+		x_ann.appendChild(x_sz);
+
 		for o in object_tags:
 			object_name = xget_v(o,"name")
 			if not object_name:
 				continue
+			object_name = object_name.strip();
 			polygon=xget(o,"polygon")[0];
 			points=xget(polygon,"pt");
 			points_new=[];
@@ -305,7 +338,8 @@ def register_labelme_boxes(request,dataset_name):
 				points_new.append([x,y]);
 			(o_xmin,o_ymin)=reduce(lambda (x,y),(x2,y2):(min(x,x2),min(y,y2)),points_new);
 			(o_xmax,o_ymax)=reduce(lambda (x,y),(x2,y2):(max(x,x2),max(y,y2)),points_new);
-			print object_name, o_xmin,o_ymin, o_xmax,o_ymax
+			#print object_name, o_xmin,o_ymin, o_xmax,o_ymax,type(object_name)
+
 
 			xmin=float(o_xmin)*scale+dX;
 			xmax=float(o_xmax)*scale+dX;
@@ -313,18 +347,58 @@ def register_labelme_boxes(request,dataset_name):
 			ymax=float(o_ymax)*scale+dY;
 			w=xmax-xmin;
 			h=ymax-ymin;
-			object_xml="""<bbox2 name="%s" sqn="%d" >
-<bbox name="%s" sqn="1" left="%s" top="%s" width="%d" height="%d">
-<pt x="%s" y="%s" ct="0"/>
-<pt x="%s" y="%s" ct="0"/>
-</bbox>
-</bbox2>""" % (object_name, iSqn, object_name, xmin,ymin,w,h,xmin,ymin,xmax,ymax)
-			iSqn = iSqn+1;
-			full_annotation+=object_xml
+			x_bb2=x_out.createElement("bbox2");
+			x_bb2.setAttribute(u"name",object_name)
+			x_bb2.setAttribute("sqn","%d" % iSqn)
+			#print x_bb2.toxml("utf-16")
+			#print minidom.parseString(x_bb2.toxml("utf-8"))
+			iSqn+=1;
 
-		full_annotation+="</annotation></results>"
-		annotation=Annotation(ref_data=dt_item,annotation_type=ann_type,author=request.user,data=full_annotation);
+			x_obj=x_out.createElement("bbox");
+			x_obj.setAttribute("name",object_name)
+			x_obj.setAttribute("left","%d" % xmin)
+			x_obj.setAttribute("top","%d" % ymin)
+			x_obj.setAttribute("width","%d" % w)
+			x_obj.setAttribute("height","%d" % h)
+			x_obj.setAttribute("sqn","1")
+
+			x_pt=x_out.createElement("pt");
+			x_pt.setAttribute("x","%d" % xmin)
+			x_pt.setAttribute("y","%d" % ymin)
+			x_pt.setAttribute("ct","0")
+			x_obj.appendChild(pt)			
+
+			x_pt=x_out.createElement("pt");
+			x_pt.setAttribute("x","%d" % xmax)
+			x_pt.setAttribute("y","%d" % ymax)
+			x_pt.setAttribute("ct","0")
+			x_obj.appendChild(pt)			
+
+			x_bb2.appendChild(x_obj);
+			x_ann.appendChild(x_bb2);
+
+
+
+		x_res.appendChild(x_ann);
+		x_out.appendChild(x_res);
+		#print minidom.parseString(force_unicode(x_out.toxml("utf-8")))
+		#print x_out.toxml("utf-8")
+		#print minidom.parseString(x_out.toxml("utf-8"))
+		#print "-----"
+		annotation=Annotation(ref_data=dt_item,annotation_type=ann_type,author=request.user,data=unicode(x_out.toxml("utf-8")))
+		#print minidom.parseString(annotation.data);
+		#print "====="
+
 		annotation.save();
+		#print minidom.parseString(annotation.data);
+		a_id=annotation.id
+		a_new=Annotation.objects.get(id=a_id)
+		dt=a_new.data
+		#print type(annotation.data)
+		#print type(str(dt))
+		#print str(dt)[1700:1800]
+		#print annotation.data[1700:1800]
+		#print minidom.parseString(str(dt)).toxml()
 			     
 	resp.write("Done importing LabelMe annotations as boxes");
 	return resp
