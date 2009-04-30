@@ -2,7 +2,8 @@ from django.conf.urls.defaults import *
 
 urlpatterns = patterns('',
 
-    (r'^index.html', 'datastore.views.index'),
+    (r'^index.html$', 'datastore.views.index'),
+    (r'^$', 'datastore.views.index'),
 
     (r'^segmentation/(?P<path>.*)$', 'django.views.static.serve', {'document_root': '/var/datasets/segmentations/'}),
 
@@ -54,7 +55,7 @@ urlpatterns = patterns('',
 
     (r'^show/bbox_objects/(?P<object_name>[\w]+)/p(?P<page>[\w]+)/$', 'datastore.views.show_bbox_objects'),
 
-    (r'^edit/annotation/(?P<annotation_id>[\w]+)/$', 'datastore.views.edit_annotation'),
+    (r'edit/annotation/(?P<annotation_id>[\w]+)/$', 'datastore.views.edit_annotation_inline'),
 
 
     (r'^show/flagged_annotations/(?P<dataset_name>[\w]+)/(?P<annotation_type>[\w]+)/(?P<flag_name>[\w]+)/p(?P<page>[\w]+)/$', 'datastore.views.show_flagged_annotations'),

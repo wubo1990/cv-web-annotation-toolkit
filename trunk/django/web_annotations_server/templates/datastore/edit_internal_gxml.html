@@ -45,7 +45,7 @@ swf='/code/label_generic';
 mode="edit";
 
 
-query_args='img_base=/&imgURL={{current_annotation.ref_data.url}}&task={{current_annotation.annotation_type.get_annotation_metadata.task}}&mode=edit';
+query_args='img_base=/&imgURL={{current_annotation.ref_data.url}}&task={{current_annotation.annotation_type.get_annotation_metadata.task}}&mode=edit&annotationURL=datastore/annotation/{{current_annotation.id}}/';
 	if (AC_FL_RunContent == 0) {
 		alert("This page requires AC_RunActiveContent.js.");
 	} else {
