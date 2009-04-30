@@ -95,6 +95,12 @@ class Annotation(models.Model):
     rel_reference = models.ManyToManyField('self', symmetrical=False,blank=True)
 
 
+class AnnotationRevisions(models.Model):
+    target_annotation = models.ForeignKey(Annotation,related_name="revisions_set");
+    revision = models.ForeignKey(Annotation,related_name="revisedannotation_set"); #In most cases this should be one-to-one, but in rare cases it could be many-to-many
 
+    author=models.ForeignKey(User);
+    created = models.DateTimeField(auto_now_add=True);
+    
 
 	

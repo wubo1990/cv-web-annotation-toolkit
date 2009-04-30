@@ -10,7 +10,7 @@ from datastore.models import *
 from django.contrib.auth.decorators import login_required
 from django.utils.encoding import *
 
-import os,sys,time,urllib,mimetools
+import os,sys,time,urllib,mimetools,datetime
 import zlib,array,struct
 
 import StringIO
@@ -473,7 +473,7 @@ def show_dataset_annotations(request,dataset_name,annotation_type,page=None):
 	ds = get_object_or_404(Dataset,name=dataset_name)
 	ann_type = get_object_or_404(AnnotationType,name=annotation_type)
 
-	results=ann_type.annotation_set.filter(ref_data__ds__id=ds.id).filter(is_active=True);
+	results=ann_type.annotation_set.filter(ref_data__ds__id=ds.id).filter(is_active=True).order_by("ref_data__id");
 
 	return object_list(request,queryset=results, paginate_by=20, page=page,
 			template_name='datastore/annotation_list.html');
@@ -567,7 +567,7 @@ def new_annotation(request,item_id,annotation_type):
 
 
 @login_required
-def edit_annotation(request,annotation_id):
+def edit_annotation_inline(request,annotation_id):
 	if not request.user.has_perm('datastore.annotation.add'):
 		return render_to_response('registration/not_authorized.html')
 
@@ -589,10 +589,16 @@ def edit_annotation(request,annotation_id):
 				else:
 					val=fn+"="+request.POST[fn];
 		annotation=Annotation(ref_data=base_annotation.ref_data,annotation_type=ann_type,author=request.user,data=val);
+		annotation.id=base_annotation.id;
+		annotation.created=datetime.datetime.today();
+		annotation.is_active=True;
 		annotation.save();
+		base_annotation.id=None;
 		base_annotation.is_active=False;
 		base_annotation.save();
-		return redirect_to(request,"../../",permanent=False);
+		rev=AnnotationRevisions(target_annotation=annotation,revision=base_annotation,author=request.user);
+		rev.save();
+		return redirect_to(request,"../../../",permanent=False);
 	else:
 		return render_to_response('datastore/edit_internal_'+ann_type.category+'.html',
 					  {'current_annotation':base_annotation });

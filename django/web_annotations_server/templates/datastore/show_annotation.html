@@ -15,7 +15,23 @@
 <table>
 <tr><td colspan=2 align=center><b>{{object.annotation_type.name}}</b>({{object.annotation_type.category}})</td></tr>
 <tr><td width="70%">
-{{object|render_annotation_full}} <br/>{{object|do_flags}} [add <a href="add/comment/">comment</a> <a href="add/quality/">quality</a> ] <br/>
+
+{{object|render_annotation_full}} <br/>
+
+<table><tr>
+<td> {{object|do_flags}}</td><td>  [add <a
+href="a/{{object.id}}/add/comment/">comment</a> <a
+href="a/{{object.id}}/add/quality/">quality</a>] </td><td>
+      <a href="/datastore/show/annotation/{{object.id}}/">more</a> 
+</td><td>
+      <a href="edit/annotation/{{object.id}}/">edit</a> 
+</td><td>
+{% if object.is_active %} active {% else %} inactive {% endif %}
+</td><td>
+by:{{object.author}}
+</td><td>
+</td></tr></table><br/>
+<br/>
 </td>
 <td width=100>
 Reference:
