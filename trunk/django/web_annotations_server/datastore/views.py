@@ -565,6 +565,38 @@ def new_annotation(request,item_id,annotation_type):
 		return render_to_response('datastore/annotate_internal_'+ann_type.category+'.html',
 					  {'object':data_item,'ann_type':ann_type });
 
+
+@login_required
+def edit_annotation(request,annotation_id):
+	if not request.user.has_perm('datastore.annotation.add'):
+		return render_to_response('registration/not_authorized.html')
+
+	base_annotation = get_object_or_404(Annotation,id=annotation_id);
+	ann_type = base_annotation.annotation_type;
+
+	if request.method=="POST":
+		if "sites" in request.POST:
+			val=request.POST["sites"]
+			val="<?xml version='1.0'?>\n"+urllib.unquote(val);
+		elif "annotation_value" in request.POST:
+			val= request.POST["annotation_value"]
+		elif "av_fields" in request.POST:
+			fnames= request.POST["av_fields"]
+			val=""
+			for fn in fnames.split(","):
+				if val:
+					val=val+"&"+fn+"="+request.POST[fn];
+				else:
+					val=fn+"="+request.POST[fn];
+		annotation=Annotation(ref_data=base_annotation.ref_data,annotation_type=ann_type,author=request.user,data=val);
+		annotation.save();
+		base_annotation.is_active=False;
+		base_annotation.save();
+		return redirect_to(request,"../../",permanent=False);
+	else:
+		return render_to_response('datastore/edit_internal_'+ann_type.category+'.html',
+					  {'current_annotation':base_annotation });
+
 @login_required
 def flag_annotation(request,annotation_id,flag):
 	ann_type = get_object_or_404(AnnotationType,name="flags");

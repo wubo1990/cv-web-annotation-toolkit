@@ -54,6 +54,8 @@ urlpatterns = patterns('',
 
     (r'^show/bbox_objects/(?P<object_name>[\w]+)/p(?P<page>[\w]+)/$', 'datastore.views.show_bbox_objects'),
 
+    (r'^edit/annotation/(?P<annotation_id>[\w]+)/$', 'datastore.views.edit_annotation'),
+
 
     (r'^show/flagged_annotations/(?P<dataset_name>[\w]+)/(?P<annotation_type>[\w]+)/(?P<flag_name>[\w]+)/p(?P<page>[\w]+)/$', 'datastore.views.show_flagged_annotations'),
     (r'^show/flagged_annotations/(?P<dataset_name>[\w]+)/(?P<flag_name>[\w]+)/p(?P<page>[\w]+)/$', 'datastore.views.show_flagged_annotations'),
