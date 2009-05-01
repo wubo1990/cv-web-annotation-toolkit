@@ -429,6 +429,7 @@ def register_labelme_boxes(request,dataset_name):
 			if not object_name:
 				continue
 			object_name = object_name.strip();
+			print o.toxml();
 			polygon=xget(o,"polygon")[0];
 			points=xget(polygon,"pt");
 			points_new=[];
@@ -447,15 +448,10 @@ def register_labelme_boxes(request,dataset_name):
 			ymax=float(o_ymax)*scale+dY;
 			w=xmax-xmin;
 			h=ymax-ymin;
-			x_bb2=x_out.createElement("bbox2");
-			x_bb2.setAttribute(u"name",object_name)
-			x_bb2.setAttribute("sqn","%d" % iSqn)
-			#print x_bb2.toxml("utf-16")
-			#print minidom.parseString(x_bb2.toxml("utf-8"))
 			iSqn+=1;
 
 			x_obj=x_out.createElement("bbox");
-			x_obj.setAttribute("name",object_name)
+			x_obj.setAttribute(u"name",object_name)
 			x_obj.setAttribute("left","%d" % xmin)
 			x_obj.setAttribute("top","%d" % ymin)
 			x_obj.setAttribute("width","%d" % w)
@@ -474,8 +470,7 @@ def register_labelme_boxes(request,dataset_name):
 			x_pt.setAttribute("ct","0")
 			x_obj.appendChild(pt)			
 
-			x_bb2.appendChild(x_obj);
-			x_ann.appendChild(x_bb2);
+			x_ann.appendChild(x_obj);
 
 
 
