@@ -1,7 +1,7 @@
 # Create your views here.
 # -*- coding: UTF-8 -*-
 
-from django.http import HttpResponse,Http404
+from django.http import HttpResponse,Http404,HttpResponseRedirect
 from django.conf import settings
 from django.shortcuts import render_to_response,get_object_or_404 
 from django.views.generic.list_detail import object_list
@@ -374,7 +374,6 @@ def register_labelme_box_child_annotations(request,dataset_name,annotation_id=No
 	return resp
 
 
-
 @login_required
 def register_labelme_boxes(request,dataset_name):
 	if not request.user.has_perm('datastore.annotation.add'):
@@ -500,6 +499,89 @@ def register_labelme_boxes(request,dataset_name):
 
 
 
+
+
+
+from forms import UploadPredictionsForm
+
+
+def do_import_predictions(request,dataset_name,form,uploaded_file):
+	
+	annotation_type="voc_bbox"
+	ann_type = get_object_or_404(AnnotationType,name=annotation_type);
+
+	dataset=get_object_or_404(Dataset,name=dataset_name);
+
+	pred_set=PredictionsSet(title=form.cleaned_data['title'],
+				description=form.cleaned_data['description'],
+				author=request.user);
+	pred_set.save();
+				
+
+	for chunk in uploaded_file.chunks():
+		for l in chunk.split("\n"):
+			parts=l.strip().split(" ")
+			object_name=form.cleaned_data['category']
+			if len(parts)==6:
+				(image_name,confidence,l,t,r,b)=parts
+				di=dataset.dataitem_set.filter(url__contains=image_name)[0];
+				w=float(r)-float(l);
+				h=float(b)-float(t);
+				box_data=u"%s\n%s,%s,%f,%f\n%s\n" % (object_name,l,t,w,h,confidence)
+				print box_data
+				annotation=Annotation(ref_data=di,annotation_type=ann_type,
+						      author=request.user,data=box_data);
+				annotation.save();
+				pred_set.annotations.add(annotation);
+				
+
+	"""
+    destination.close()
+
+	if annotation_id:	
+		a=Annotation.objects.get(id=annotation_id);
+		add_child_boxes_for_annotation(request,a,ann_type_child);
+	else:
+		for dt_item in dataset.dataitem_set.all():
+			for a in dt_item.annotation_set.filter(is_active=True,annotation_type__id=ann_type.id):
+				add_child_boxes_for_annotation(request,a,ann_type_child);
+
+			(class_name,l,t,w,h)=xget_a2(o,["name","left","top","width","height"])
+			l=(float(l)-dX)/scale
+			t=(float(t)-dY)/scale
+			w=float(w)/scale
+			h=float(h)/scale
+			box_data=u"%s\n%f,%f,%f,%f\n1.0\n" % (class_name,l,t,w,h)
+			print box_data
+			annotation=Annotation(ref_data=a.ref_data,annotation_type=ann_type_child,
+						author=request.user,data=box_data);
+			annotation.save();
+			annotation.rel_reference.add(a);
+			annotation.save();
+			annotation.save();
+	resp=HttpResponse("done");
+	return resp
+	"""
+@login_required
+def register_voc_predictions(request,dataset_name):
+	if not request.user.has_perm('datastore.annotation.add'):
+		return render_to_response('registration/not_authorized.html')
+
+
+	if request.method == 'POST':
+		form = UploadPredictionsForm(request.POST, request.FILES)
+		if form.is_valid():
+			uploaded_file=request.FILES['predictions_file'];
+			do_import_predictions(request,dataset_name,form,uploaded_file);
+			#return HttpResponseRedirect('/datastore/')
+	else:
+		form = UploadPredictionsForm()
+	return render_to_response('datastore/upload_predictions.html', {'form': form})
+
+
+
+
+
 def load_annotation(request,annotation_id):
 	a=Annotation.objects.get(id=annotation_id);
 	return HttpResponse(a.data);
@@ -536,7 +618,7 @@ def show_flagged_annotations(request,dataset_name,flag_name,annotation_type=None
 
 	ds = get_object_or_404(Dataset,name=dataset_name)
 	flag_ann_type = get_object_or_404(AnnotationType,name="flags")
-
+	print annotation_type
 	if annotation_type:
 		ann_type = get_object_or_404(AnnotationType,name=annotation_type)
 		results=Annotation.objects.filter(data=flag_name,annotation_type__id=flag_ann_type.id,ref_data__ds__id=ds.id,is_active=True) 

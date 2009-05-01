@@ -22,6 +22,7 @@ urlpatterns = patterns('',
     (r'^register_labelme_box_child_annotations/(?P<dataset_name>[\w-]+)/$', 'datastore.views.register_labelme_box_child_annotations'),
     (r'^register_labelme_boxes/(?P<dataset_name>[\w-]+)/$', 'datastore.views.register_labelme_boxes'),
 
+    (r'^register_voc_predictions/(?P<dataset_name>[\w-]+)/$', 'datastore.views.register_voc_predictions'),
 
     (r'^wnd/(?P<item_id>[\w.-]+)/(?P<l>[\w.-]+),(?P<t>[\w.-]+),(?P<w>[\w.-]+),(?P<h>[\w.-]+)/$', 'datastore.views.get_wnd'),
 

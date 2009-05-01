@@ -101,6 +101,17 @@ class AnnotationRevisions(models.Model):
 
     author=models.ForeignKey(User);
     created = models.DateTimeField(auto_now_add=True);
+
+
+class PredictionsSet(models.Model):
+    title = models.TextField();
+    description = models.TextField();
+
+    annotations = models.ManyToManyField(Annotation);
+
+    author=models.ForeignKey(User);
+    created = models.DateTimeField(auto_now_add=True);
+
     
 
 	

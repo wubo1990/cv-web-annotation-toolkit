@@ -114,6 +114,7 @@ INSTALLED_APPS = (
     'web_annotations_server.mturk',
     'web_annotations_server.datastore',
     'web_annotations_server.annotations',
+    'tagging',
     #'annotation.annotation_store',
     #'annotation.image_collector',
 )
