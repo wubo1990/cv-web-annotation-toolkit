@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from xml.dom import minidom
+from xmlmisc import *
 
 # Create your models here.
 
@@ -78,6 +80,13 @@ class AnnotationType(models.Model):
             meta_dict[k]=v;
         return meta_dict;
 
+    def get_annotation_metadata2(self):
+        metadata=self.annotation_metadata.split("&");
+        meta_dict={}
+        for (k,v) in map(lambda v:v.split("="),metadata):
+            meta_dict[k]=v.split(",");
+        return meta_dict;
+
 
 class Annotation(models.Model):
     ref_data=models.ForeignKey(DataItem);
@@ -93,6 +102,24 @@ class Annotation(models.Model):
 
 
     rel_reference = models.ManyToManyField('self', symmetrical=False,blank=True)
+
+
+
+    vs_attr_values=None;
+
+    def visual_similarity_get_attribute_values(self):
+        if self.vs_attr_values:
+            return self.vs_attr_values
+        self.vs_attr_values=[];
+        x_doc = minidom.parseString(self.data);
+        for x_sim in xget(x_doc,"similarity"):
+		(attr,val,explain)=xget_v2(x_sim,["attribute","value","explanation"]);
+                self.vs_attr_values.append([attr,val,explain])
+
+	#attributes=self.annotation_type.get_annotation_metadata2()['attributes'];
+        #return map(lambda s:[s,"3","name"],attributes);
+	return self.vs_attr_values
+
 
 
 class AnnotationRevisions(models.Model):

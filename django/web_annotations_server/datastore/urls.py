@@ -43,6 +43,11 @@ urlpatterns = patterns('',
 
     (r'new_annotation/(?P<item_id>[\w]+)/(?P<annotation_type>[\w]+)/$', 'datastore.views.new_annotation'),
 
+    (r'new_visual_similarity/(?P<ann1_id>[\w]+)/(?P<ann2_id>[\w]+)/$', 'datastore.views.new_visual_similarity'),
+    #(r'^browse_visual_similarity/p(?P<page>[\w]+)/$', 'datastore.views.browse_visual_similarity'),
+
+    (r'random_visual_similarity_task/(?P<dataset_name>[\w]+)/(?P<query>[\w]+)/$', 'datastore.views.random_similarity_task'),
+
 
     (r'^dataitem/(?P<item_id>[\w]+)/(?P<ref_annotation_id>[\w]+)/add/(?P<new_annotation_type>[\w]+)/$', 'datastore.views.new_related_annotation',{'depth':3}),
 
@@ -53,6 +58,7 @@ urlpatterns = patterns('',
 
     (r'^show/annotated_images/(?P<dataset_name>[\w]+)/(?P<annotation_type>[\w]+)/$', 'datastore.views.show_dataset_annotations'),
     (r'^show/annotated_images/(?P<dataset_name>[\w]+)/(?P<annotation_type>[\w]+)/p(?P<page>[\w]+)/$', 'datastore.views.show_dataset_annotations'),
+
 
     (r'^show/bbox_objects/(?P<object_name>[\w]+)/p(?P<page>[\w]+)/$', 'datastore.views.show_bbox_objects'),
 

@@ -2,6 +2,8 @@
 import time, datetime
 from django import template
 from datastore.models import Annotation,AnnotationType
+from django.template.loader import render_to_string
+from django.utils.safestring import mark_safe
 
 register = template.Library()
 
@@ -16,7 +18,11 @@ def render_annotation_full(a):
   return render_annotation_mini(a,500,500)
 
 @register.filter
-def render_annotation_mini(a,w=None,h=None):
+def render_annotation_mini_visual(a):
+  return render_annotation_mini(a,300,None,True)
+
+@register.filter
+def render_annotation_mini(a,w=None,h=None,visual_only=False):
 
   if a.annotation_set.count()>0:
     has_ref_str="(+)";
@@ -61,7 +67,13 @@ def render_annotation_mini(a,w=None,h=None):
   if a.annotation_type.category=="bbox":
 	data_id=a.ref_data.id;
 	a_parts=a.data.split('\n');
-	ann_str="%s:<img src='/datastore/wnd/%d/%s/'>" % (a_parts[0],data_id,a_parts[1]);
+	if visual_only:
+		if w:
+			ann_str="<img width='%d' src='/datastore/wnd/%d/%s/'>" % (w,data_id,a_parts[1]);
+		else:
+			ann_str="<img src='/datastore/wnd/%d/%s/'>" % (data_id,a_parts[1]);
+	else:
+		ann_str="%s(%s):<img src='/datastore/wnd/%d/%s/'>" % (a_parts[0],a_parts[2],data_id,a_parts[1]);
 	return mark_safe(ann_str);
 
   if a.annotation_type.category=="flags":
@@ -70,6 +82,10 @@ def render_annotation_mini(a,w=None,h=None):
 	else:
 		active_str="Inactive " + a.data +" flag";
   	return active_str
+
+  if a.annotation_type.category=="similarity2":
+	print a.rel_reference.all()
+  	return render_to_string("datastore/show_inline_similarity2.html", {'a':a})
 
   return "Annotation format not implemented: %s. See annotation_formatting.py" % a.annotation_type.category
 

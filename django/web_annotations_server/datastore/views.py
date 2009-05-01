@@ -10,11 +10,12 @@ from datastore.models import *
 from django.contrib.auth.decorators import login_required
 from django.utils.encoding import *
 
-import os,sys,time,urllib,mimetools,datetime
+import os,sys,time,urllib,mimetools,datetime,random
 import zlib,array,struct
 
 import StringIO
 from xml.dom import minidom
+from xmlmisc import *
 
 
 
@@ -135,49 +136,6 @@ def register_images(request,dataset_name):
 	return HttpResponse("Done");
 
 
-def xget(o,tagname):
-	return o.getElementsByTagName(tagname);
-
-def xget_child(o,tagname):
-	for n in o.childNodes:
-		if n.nodeName==tagname:
-			return n
-	return None;
-
-def xget_v(o,tagname):
-	try:
-		fc=o.getElementsByTagName(tagname)[0].firstChild
-		if fc:
-			return	fc.nodeValue;
-		else:	
-			return None
-	except:
-		return None
-def xget_v_dft(o,tagname,default):
-	v=xget_v(o,tagname)
-	if v is None:
-		v=default
-	return v
-def xget_v3(o,tagname):
-	fc=o.getElementsByTagName(tagname)[0].firstChild
-	if fc:
-		return	fc;
-	else:	
-		return None
-
-def xget_v2(o,tagnames):
-	return map(lambda t:xget_v(o,t),tagnames);
-
-def xget_a(o,tagname):
-	return o.attributes[tagname].value;
-def xget_a2(o,tagnames):
-	return map(lambda t:xget_a(o,t),tagnames);
-
-def xadd(doc,x_parent,child_name,child_content):
-	x_child = doc.createElement(child_name);
-	x_child_c = doc.createTextNode(child_content)
-	x_child.appendChild(x_child_c)
-	x_parent.appendChild(x_child);
 
 
 
@@ -697,6 +655,78 @@ def new_annotation(request,item_id,annotation_type):
 	else:
 		return render_to_response('datastore/annotate_internal_'+ann_type.category+'.html',
 					  {'object':data_item,'ann_type':ann_type });
+
+@login_required
+def new_visual_similarity(request,ann1_id,ann2_id):
+	if not request.user.has_perm('datastore.annotation.add'):
+		return render_to_response('registration/not_authorized.html')
+
+	annotation_type="visual_similarity";
+	ann_type = get_object_or_404(AnnotationType,name=annotation_type);
+
+	ann1 = get_object_or_404(Annotation,id=ann1_id);
+	ann2 = get_object_or_404(Annotation,id=ann2_id);
+
+	if request.method=="POST":
+		attributes = ann_type.get_annotation_metadata2()['attributes']
+		x_doc=minidom.Document();
+		x_res = x_doc.createElement("similarity")
+		x_doc.appendChild(x_res);
+		x_ref = x_doc.createElement("compare")
+		x_res.appendChild(x_ref);
+		xadd(x_doc,x_ref,"a","%d" % ann1.id)	
+		xadd(x_doc,x_ref,"b","%d" % ann2.id)
+		for a in attributes:
+			fn=a.replace(" ","-");
+			if fn in request.POST:
+                            sim_ann=request.POST[fn]
+                        else:
+                            sim_ann="-1"
+			sim_exp=request.POST[fn+"_explanation"]
+			print sim_ann
+			print sim_exp
+			x_sim = x_doc.createElement("similarity")
+			x_res.appendChild(x_sim);
+			xadd(x_doc,x_sim,"attribute",a)
+			xadd(x_doc,x_sim,"value",sim_ann)
+			xadd(x_doc,x_sim,"explanation",sim_exp)
+		#val = x_doc.toxml()
+		val = unicode(x_doc.toxml("utf-8"))
+		print val
+		
+		annotation=Annotation(ref_data=ann1.ref_data,annotation_type=ann_type,author=request.user,data=val);
+		annotation.save();
+		annotation.rel_reference.add(ann1);
+		annotation.rel_reference.add(ann2);
+		annotation.save();
+
+		return redirect_to(request,"../../../",permanent=False);
+		#return render_to_response('datastore/annotate_internal_'+ann_type.category+'.html',
+		#			  {'ann1':ann1,'ann2':ann2,'ann_type':ann_type });
+	else:
+		return render_to_response('datastore/annotate_internal_'+ann_type.category+'.html',
+					  {'ann1':ann1,'ann2':ann2,'ann_type':ann_type });
+
+
+@login_required
+def random_similarity_task(request,dataset_name,query):
+	if not request.user.has_perm('datastore.annotation.add'):
+		return render_to_response('registration/not_authorized.html')
+
+	ds = get_object_or_404(Dataset,name=dataset_name);
+	ann_type=get_object_or_404(AnnotationType,name="visual_similarity");
+	base_ann_type=get_object_or_404(AnnotationType,name="voc_bbox");
+	available_objects=Annotation.objects.filter(ref_data__ds__id=ds.id,annotation_type__id=base_ann_type.id,data__contains=query)
+	num_objects=available_objects.count();
+	print num_objects
+	idx_a=random.randint(0,num_objects-1)
+	idx_b=random.randint(0,num_objects-1)
+	print idx_a,idx_b	
+	ann_a= available_objects[idx_a];
+	ann_b= available_objects[idx_b];
+	return redirect_to(request,"new_visual_similarity/%d/%d/" %(ann_a.id,ann_b.id),permanent=False);
+
+
 
 
 @login_required
