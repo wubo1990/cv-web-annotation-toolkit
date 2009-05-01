@@ -1,0 +1,13 @@
+<html>
+Please upload predictions in the following format, one prediction per line:<br/>
+image_name confidence left top right bottom<br/>
+
+{% if form.is_multipart %}
+    <form enctype="multipart/form-data" method="post" action="">
+{% else %}
+    <form method="post" action="">
+{% endif %}
+{{ form }}
+<input type="submit">
+</form>
+</html>
