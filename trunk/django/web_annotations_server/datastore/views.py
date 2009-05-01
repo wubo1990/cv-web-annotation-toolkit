@@ -145,11 +145,19 @@ def xget_child(o,tagname):
 	return None;
 
 def xget_v(o,tagname):
-	fc=o.getElementsByTagName(tagname)[0].firstChild
-	if fc:
-		return	fc.nodeValue;
-	else:	
+	try:
+		fc=o.getElementsByTagName(tagname)[0].firstChild
+		if fc:
+			return	fc.nodeValue;
+		else:	
+			return None
+	except:
 		return None
+def xget_v_dft(o,tagname,default):
+	v=xget_v(o,tagname)
+	if v is None:
+		v=default
+	return v
 def xget_v3(o,tagname):
 	fc=o.getElementsByTagName(tagname)[0].firstChild
 	if fc:
@@ -211,23 +219,71 @@ def register_voc_boxes(request,dataset_name):
 		dY=(500-img_h*scale)/2;
 		iSqn=1;
 		for o in object_tags:
+
 			object_name=xget_v(o,"name");
 			bbox=xget_child(o,"bndbox");
 			(o_xmin,o_xmax,o_ymin,o_ymax)=xget_v2(bbox,["xmin","xmax","ymin","ymax"])
+			obj_xmin=float(o_xmin);
+			obj_xmax=float(o_xmax);
+			obj_ymin=float(o_ymin);
+			obj_ymax=float(o_ymax);
 			xmin=float(o_xmin)*scale+dX;
 			xmax=float(o_xmax)*scale+dX;
 			ymin=float(o_ymin)*scale+dY;
 			ymax=float(o_ymax)*scale+dY;
 			w=xmax-xmin;
 			h=ymax-ymin;
-			object_xml="""<bbox2 name="%s" sqn="%d" >
+			o_w=float(o_xmax)-float(o_xmin);
+			o_h=float(o_ymax)-float(o_ymin);
+			objS=min(500/o_w,500/o_h);
+			dObjX=(500-o_w*objS)/2;
+			dObjY=(500-o_h*objS)/2;
+
+			object_xml="""
+<bbox name="%s" sqn="1" left="%s" top="%s" width="%d" height="%d">
+<pt x="%s" y="%s" ct="0"/>
+<pt x="%s" y="%s" ct="0"/>
+""" % (object_name, xmin,ymin,w,h,xmin,ymin,xmax,ymax)
+
+			pose=xget_v_dft(o,"pose","Unspecified");
+			truncated=xget_v_dft(o,"truncated","0");
+			difficult=xget_v_dft(o,"difficult","0");
+			occluded=xget_v_dft(o,"occluded","0");
+			detail_xml=""
+
+			detail_xml+="""
+		<attribute name="truncated" value="%s" ct="0"/>
+		<attribute name="occluded" value="%s" ct="0"/>
+		<attribute name="difficult" value="%s" ct="0"/>
+                <select name="pose" value="%s" ct="0"/>
+""" % ( truncated,occluded,difficult,pose) 
+
+			for part in xget(o,"part"):
+				object_name=xget_v(part,"name");
+				bbox=xget_child(part,"bndbox");
+				(o_xmin,o_xmax,o_ymin,o_ymax)=xget_v2(bbox,["xmin","xmax","ymin","ymax"])
+				p_xmin=float(o_xmin)*objS+dObjX-obj_xmin*objS;
+				p_xmax=float(o_xmax)*objS+dObjX-obj_xmin*objS;
+				p_ymin=float(o_ymin)*objS+dObjY-obj_ymin*objS;
+				p_ymax=float(o_ymax)*objS+dObjY-obj_ymin*objS;
+				p_w=p_xmax-p_xmin;
+				p_h=p_ymax-p_ymin;
+				part_xml="""
 <bbox name="%s" sqn="1" left="%s" top="%s" width="%d" height="%d">
 <pt x="%s" y="%s" ct="0"/>
 <pt x="%s" y="%s" ct="0"/>
 </bbox>
-</bbox2>""" % (object_name, iSqn, object_name, xmin,ymin,w,h,xmin,ymin,xmax,ymax)
+""" % (object_name, p_xmin,p_ymin,p_w,p_h,p_xmin,p_ymin,p_xmax,p_ymax)
+
+				detail_xml+=part_xml
+
 			iSqn = iSqn+1;
+			object_xml+="<annotation>\n"+detail_xml+"</annotation>"
+			object_xml+="</bbox>"
 			full_annotation+=object_xml
+
+
+
 
 		full_annotation+="</annotation></results>"
 		annotation=Annotation(ref_data=dt_item,annotation_type=ann_type,author=request.user,data=full_annotation);
