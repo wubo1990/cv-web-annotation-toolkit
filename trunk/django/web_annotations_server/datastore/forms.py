@@ -5,3 +5,5 @@ class UploadPredictionsForm(forms.Form):
     description = forms.CharField(max_length=500)
     category = forms.CharField(max_length=50)
     predictions_file  = forms.FileField()
+
+
