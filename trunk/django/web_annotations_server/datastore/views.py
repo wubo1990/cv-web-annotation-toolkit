@@ -429,7 +429,7 @@ def register_labelme_boxes(request,dataset_name):
 			if not object_name:
 				continue
 			object_name = object_name.strip();
-			print o.toxml();
+			#print o.toxml();
 			polygon=xget(o,"polygon")[0];
 			points=xget(polygon,"pt");
 			points_new=[];
