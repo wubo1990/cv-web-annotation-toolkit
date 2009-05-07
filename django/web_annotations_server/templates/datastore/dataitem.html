@@ -1,4 +1,5 @@
 {% load annotation_formatting %}
+{% load tagging_tags %}
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
@@ -12,6 +13,17 @@
 
 
 <img src="{{object.url}}" width=640> 
+
+  {% tags_for_object object as a_tags %}
+  {% if a_tags %}
+  <div class="tags">
+  Tags:
+  {% for t in a_tags %}
+  {% if forloop.last %} | {% endif %}
+    <b>{{t}}</b> | 
+  {% endfor%}
+    </div>
+  {% endif %}
 
 {% for ann_type in object.by_type.items %}
 <hr/>

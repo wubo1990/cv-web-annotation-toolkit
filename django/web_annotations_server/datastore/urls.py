@@ -24,6 +24,8 @@ urlpatterns = patterns('',
 
     (r'^register_voc_predictions/(?P<dataset_name>[\w-]+)/$', 'datastore.views.register_voc_predictions'),
 
+    (r'^tag_images/(?P<dataset_name>[\w-]+)/$', 'datastore.views.tag_images'),
+
     (r'^wnd/(?P<item_id>[\w.-]+)/(?P<l>[\w.-]+),(?P<t>[\w.-]+),(?P<w>[\w.-]+),(?P<h>[\w.-]+)/$', 'datastore.views.get_wnd'),
 
 
@@ -31,6 +33,8 @@ urlpatterns = patterns('',
     (r'^data/(?P<dataset_name>[\w-]+)/p(?P<page>[\w]+)/$', 'datastore.views.show_data_items'),
 
     (r'^dataitem/(?P<item_id>[\w]+)/$', 'datastore.views.show_data_item'),
+
+    (r'^score_predictions/(?P<dataset_name>[\w]+)/$', 'datastore.views.score_predictions'),
 
 
 

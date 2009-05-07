@@ -1,6 +1,5 @@
 <html>
-Please upload predictions in the following format, one prediction per line:<br/>
-<b>image_name confidence left top right bottom</b><br/>
+Please specify images, one image per line.<br/>
 
 {% if form.is_multipart %}
     <form enctype="multipart/form-data" method="post" action="">
@@ -16,7 +15,7 @@ Please upload predictions in the following format, one prediction per line:<br/>
 </tr>
     {% endfor %}
 <tr><td colspan=3 align="center">
-    <input type="submit" value="Upload predictions" /></td></tr>
+    <input type="submit" value="Tag images" /></td></tr>
 </table>	  
 </form>
 </html>

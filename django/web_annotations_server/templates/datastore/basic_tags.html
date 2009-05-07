@@ -1,0 +1,10 @@
+  {% if a_tags %}
+  <div class="tags">
+  Tags:
+  {% for t in a_tags %}
+  {% if forloop.last %} | {% endif %}
+    <b>{{t}}</b> | 
+  {% endfor%}
+    </div>
+  {% endif %}
+

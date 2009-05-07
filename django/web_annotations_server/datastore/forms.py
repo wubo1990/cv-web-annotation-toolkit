@@ -7,3 +7,8 @@ class UploadPredictionsForm(forms.Form):
     predictions_file  = forms.FileField()
 
 
+class TagImagesForm(forms.Form):
+    tag_name = forms.CharField(max_length=50)
+    image_list_file  = forms.FileField()
+
+
