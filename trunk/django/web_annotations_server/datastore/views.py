@@ -9,6 +9,8 @@ from django.views.generic.simple import redirect_to
 from datastore.models import *
 from django.contrib.auth.decorators import login_required
 from django.utils.encoding import *
+from forms import *
+import tagging.models
 
 import os,sys,time,urllib,mimetools,datetime,random
 import zlib,array,struct
@@ -147,6 +149,9 @@ def register_voc_boxes(request,dataset_name):
 	annotation_type="voc2008_boxes"
 	ann_type = get_object_or_404(AnnotationType,name=annotation_type);
 
+        TM=tagging.models.Tag.objects;
+        tag_name="Source-Annotation";
+
 	dataset_path=os.path.join(settings.DATASETS_ROOT,dataset_name);
 	annotation_path=os.path.join(settings.DATASETS_ROOT,dataset_name+"_annotations");
 	dataset=get_object_or_404(Dataset,name=dataset_name);
@@ -246,6 +251,7 @@ def register_voc_boxes(request,dataset_name):
 		full_annotation+="</annotation></results>"
 		annotation=Annotation(ref_data=dt_item,annotation_type=ann_type,author=request.user,data=full_annotation);
 		annotation.save();
+                TM.add_tag( annotation, tag_name)
 
 			     
 	resp.write("done");
@@ -258,32 +264,36 @@ def register_voc_boxes(request,dataset_name):
 
 
 def add_child_boxes_for_annotation(request,a,ann_type_child):
-		xmldoc = minidom.parseString(a.data);
+    xmldoc = minidom.parseString(a.data);
 
-		img_size=xget(xmldoc,"size")[0];
+    img_size=xget(xmldoc,"size")[0];
 
-		img_w=float(xget_v(img_size,"width"));
-		img_h=float(xget_v(img_size,"height"));
+    img_w=float(xget_v(img_size,"width"));
+    img_h=float(xget_v(img_size,"height"));
+    
+    scale=min(500/img_w,500/img_h);
+    dX=(500-img_w*scale)/2;
+    dY=(500-img_h*scale)/2;
 
-		scale=min(500/img_w,500/img_h);
-		dX=(500-img_w*scale)/2;
-		dY=(500-img_h*scale)/2;
+    object_tags=xget(xmldoc,"bbox");
+    for o in object_tags:
+        (class_name,l,t,w,h)=xget_a2(o,["name","left","top","width","height"])
+        l=(float(l)-dX)/scale
+        t=(float(t)-dY)/scale
+        w=float(w)/scale
+        h=float(h)/scale
+        box_data=u"%s\n%f,%f,%f,%f\n1.0\n" % (class_name,l,t,w,h)
+        print box_data
+        annotation=Annotation(ref_data=a.ref_data,annotation_type=ann_type_child,
+                              author=request.user,data=box_data);
+        annotation.save();
+        annotation.rel_reference.add(a);
+        annotation.save();
 
-		object_tags=xget(xmldoc,"bbox");
-		for o in object_tags:
-			(class_name,l,t,w,h)=xget_a2(o,["name","left","top","width","height"])
-			l=(float(l)-dX)/scale
-			t=(float(t)-dY)/scale
-			w=float(w)/scale
-			h=float(h)/scale
-			box_data=u"%s\n%f,%f,%f,%f\n1.0\n" % (class_name,l,t,w,h)
-			print box_data
-			annotation=Annotation(ref_data=a.ref_data,annotation_type=ann_type_child,
-						author=request.user,data=box_data);
-			annotation.save();
-			annotation.rel_reference.add(a);
-			annotation.save();
-			annotation.save();
+        tagging.models.Tag.objects.add_tag(annotation,"Source-Annotation")
+        print tagging.models.Tag.objects.get_for_object(annotation)
+        
+                        
 
 @login_required
 def register_voc_box_child_annotations(request,dataset_name,annotation_id=None):
@@ -458,10 +468,30 @@ def register_labelme_boxes(request,dataset_name):
 
 
 
+def score_predictions(request,dataset_name):
+
+    annotation_type="voc_bbox"
+    ann_type = get_object_or_404(AnnotationType,name=annotation_type);
+
+    dataset_name="VOC2008";
+
+    dataset=get_object_or_404(Dataset,name=dataset_name);
+
+    annotations=TaggedItem.objects.get_by_model(Annotation,"Source-Annotation").filter(annotation_type__id=ann_type.id);
 
 
-from forms import UploadPredictionsForm
+    pred_set=PredictionsSet.objects.get(id=1);
+    predictions=[]
+    for a in pred_set.annotations.all():
+        (category,box,confidence)=a.data.split("\n")[0:3]
+        predictions.append([a.ref_data.id,float(confidence),category,map(lambda s:float(s),box.split(","))]);
 
+    predictions.sort(reverse=True)
+  
+    print predictions
+    print pred_set.annotations.count();
+    return HttpResponse("done");
+    
 
 def do_import_predictions(request,dataset_name,form,uploaded_file):
 	
@@ -474,7 +504,7 @@ def do_import_predictions(request,dataset_name,form,uploaded_file):
 				description=form.cleaned_data['description'],
 				author=request.user);
 	pred_set.save();
-				
+
 
 	for chunk in uploaded_file.chunks():
 		for l in chunk.split("\n"):
@@ -492,34 +522,6 @@ def do_import_predictions(request,dataset_name,form,uploaded_file):
 				annotation.save();
 				pred_set.annotations.add(annotation);
 				
-
-	"""
-    destination.close()
-
-	if annotation_id:	
-		a=Annotation.objects.get(id=annotation_id);
-		add_child_boxes_for_annotation(request,a,ann_type_child);
-	else:
-		for dt_item in dataset.dataitem_set.all():
-			for a in dt_item.annotation_set.filter(is_active=True,annotation_type__id=ann_type.id):
-				add_child_boxes_for_annotation(request,a,ann_type_child);
-
-			(class_name,l,t,w,h)=xget_a2(o,["name","left","top","width","height"])
-			l=(float(l)-dX)/scale
-			t=(float(t)-dY)/scale
-			w=float(w)/scale
-			h=float(h)/scale
-			box_data=u"%s\n%f,%f,%f,%f\n1.0\n" % (class_name,l,t,w,h)
-			print box_data
-			annotation=Annotation(ref_data=a.ref_data,annotation_type=ann_type_child,
-						author=request.user,data=box_data);
-			annotation.save();
-			annotation.rel_reference.add(a);
-			annotation.save();
-			annotation.save();
-	resp=HttpResponse("done");
-	return resp
-	"""
 @login_required
 def register_voc_predictions(request,dataset_name):
 	if not request.user.has_perm('datastore.annotation.add'):
@@ -535,6 +537,45 @@ def register_voc_predictions(request,dataset_name):
 	else:
 		form = UploadPredictionsForm()
 	return render_to_response('datastore/upload_predictions.html', {'form': form})
+
+
+
+from forms import UploadPredictionsForm
+
+
+def do_tag_images(request,dataset_name,form,uploaded_file):
+	
+	annotation_type="voc_bbox"
+	ann_type = get_object_or_404(AnnotationType,name=annotation_type);
+
+	dataset=get_object_or_404(Dataset,name=dataset_name);
+
+        TM=tagging.models.Tag.objects;
+        tag_name=form.cleaned_data['tag_name'];
+
+	for chunk in uploaded_file.chunks():
+		for l in chunk.split("\n"):
+			parts=l.strip().split(" ")
+                        img=parts[0];
+                        di=dataset.dataitem_set.filter(url__contains=img)[0]
+                        TM.add_tag(di,tag_name);
+
+				
+@login_required
+def tag_images(request,dataset_name):
+	if not request.user.has_perm('datastore.annotation.add'):
+		return render_to_response('registration/not_authorized.html')
+
+
+	if request.method == 'POST':
+		form = TagImagesForm(request.POST, request.FILES)
+		if form.is_valid():
+			uploaded_file=request.FILES['image_list_file'];
+			do_tag_images(request,dataset_name,form,uploaded_file);
+			#return HttpResponseRedirect('/datastore/')
+	else:
+		form = TagImagesForm()
+	return render_to_response('datastore/tag_images.html', {'form': form})    
 
 
 
@@ -634,7 +675,9 @@ def new_annotation(request,item_id,annotation_type):
 
 	ann_type = get_object_or_404(AnnotationType,name=annotation_type);
 	data_item = get_object_or_404(DataItem,id=item_id);
-
+        TM=tagging.models.Tag.objects;
+        tag_name="Source-Annotation";
+        
 	if request.method=="POST":
 		if "sites" in request.POST:
 			val=request.POST["sites"]
@@ -651,6 +694,7 @@ def new_annotation(request,item_id,annotation_type):
 					val=fn+"="+request.POST[fn];
 		annotation=Annotation(ref_data=data_item,annotation_type=ann_type,author=request.user,data=val);
 		annotation.save();
+                TM.add_tag(annotation,tag_name);
 		return redirect_to(request,"../../",permanent=False);
 	else:
 		return render_to_response('datastore/annotate_internal_'+ann_type.category+'.html',
