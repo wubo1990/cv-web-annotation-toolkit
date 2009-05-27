@@ -28,6 +28,9 @@ if os.path.exists('/var/django2/annotation/web_annotations_server/'):
 	DJ_CODE_RT='/var/django2/annotation/web_annotations_server/'
 elif os.path.exists('/Users/syrnick/projects/cv_web_tk/code/django/web_annotations_server/'):
 	DJ_CODE_RT='/Users/syrnick/projects/cv_web_tk/code/django/web_annotations_server/';
+elif os.path.exists('/var/django/web_annotations_server/'):
+	DJ_CODE_RT='/var/django/web_annotations_server/'
+
 
 
 
