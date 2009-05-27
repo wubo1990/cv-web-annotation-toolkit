@@ -9,9 +9,15 @@ from django.http import HttpResponse,Http404,HttpResponseRedirect
 from django.shortcuts import render_to_response,get_object_or_404 
 from django.views.generic.list_detail import object_list
 
-from boto.mturk.connection import MTurkConnection
-from boto.mturk.question import ExternalQuestion
-from boto.mturk.qualification import Qualifications, PercentAssignmentsApprovedRequirement
+try:
+    from boto.mturk.connection import MTurkConnection
+    from boto.mturk.question import ExternalQuestion
+    from boto.mturk.qualification import Qualifications, PercentAssignmentsApprovedRequirement
+    hasBoto=True
+except Exception,e:
+    print e
+    
+    hasBoto=False
 
 from django.views.static import serve
 import django

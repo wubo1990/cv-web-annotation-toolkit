@@ -1,0 +1,209 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>prototype</title>
+<script language="javascript">AC_FL_RunContent = 0;</script>
+<script src="js/AC_RunActiveContent.js" language="javascript"></script>
+</head>
+
+<body bgcolor="#ffffff">
+
+<script language="javascript" src="js/prototype.js" > </script>
+
+
+<form id="MT_form" name="MT_form" action="http://www.mturk.com/mturk/externalSubmit" method="POST">
+
+IMPORTANT: Read the <a id="a_instructions" href="instructions.html" target="wnd_instructions">instructions</a>!!<br/>
+<!-- <b>Instructions have been updated!</b><br/>-->
+
+<div id="rating_div" style="display:none;"></div>
+
+<div id="flash_div"></div>
+
+<noscript>
+Error. Javascript is required.
+</noscript>
+<hr/>
+Any comments/suggestions/etc: <input type=text name="Comments" id="Comments" value="">
+<hr/>
+<input type=hidden name="assignmentId" id="assignmentId" value="">
+<input type=hidden name="hitId" id="hitId" value="ignored">
+<input type=hidden name="sites" id="sites" value="">
+<input type=hidden name="extid" id="extid" value="">
+<input type=hidden name="session" id="session" value="">
+<input type=hidden name="workerId" id="workerId" value="">
+<input type=hidden name="mode" id="mode" value="">
+
+<!--
+Please use the form and the button below <b>only</b> if the button <b>above</b> does not work and you don't want to return the HIT.
+Otherwise, please ignore it.
+<hr/>
+
+Error explanation(platform,browser,etc): <input type=text name="ErrorExplanation" id="ErrorExplanation" value="">
+<input type=submit>(<b>only</b> if the other button does not work)
+-->
+</form>
+
+
+<script language="javascript">
+
+//
+// This method Gets URL Parameters (GUP)
+//
+function gup( name )
+{
+  var regexS = "[\\?&]"+name+"=([^&#]*)";
+  var regex = new RegExp( regexS );
+  var tmpURL = window.location.href;
+  var results = regex.exec( tmpURL );
+  if( results == null )
+    return "";
+  else
+    return results[1];
+}
+
+//
+// This method decodes the query parameters that were URL-encoded
+//
+function decode(strToDecode)
+{
+  var encoded = strToDecode;
+  return unescape(encoded.replace(/\+/g,  " "));
+}
+
+
+
+    //document.getElementById('pageFrame').src = decode(gup('url'));
+    document.getElementById('assignmentId').value = gup('assignmentId');
+
+
+    //
+    // Check if the worker is PREVIEWING the HIT or if they've ACCEPTED the HIT
+    //
+    mode_value="AmazonMTproduction"
+
+    if (gup('assignmentId') == "ASSIGNMENT_ID_NOT_AVAILABLE")
+    {
+        mode_value=="AmazonMTproduction"
+        // If we're previewing, disable the button and give it a helpful message
+	//document.getElementById('submitButton').disabled = true;
+	//document.getElementById('submitButton').value = "You must ACCEPT the HIT before you can submit the results.";
+    } else {
+        var form = document.getElementById('MT_form');
+        if (document.referrer && ( document.referrer.indexOf('workersandbox') != -1) ) {
+            form.action = "http://workersandbox.mturk.com/mturk/externalSubmit";
+	    mode_value="AmazonMTsandbox";
+        }
+    }
+
+
+//alert(document.location);
+query_args=document.location.toString();
+query_args=query_args.split("?")[1];
+args_list=query_args.split("&");
+rating=""
+swf=""
+swf_w='600';
+swf_h='400';
+
+no_mode_in_query=1;
+
+for (i = 0; i <= args_list.length; i++)
+{
+	arg=args_list[i];
+	if(arg){
+	arg_pair=arg.split("=");
+	arg_n=arg_pair[0];
+	arg_v=arg_pair[1];
+	if( arg_n=="assignmentId"){
+		$('MT_form')[arg_n].value=arg_v;
+	}else if( arg_n=="hitId"){
+		$('MT_form')[arg_n].value=arg_v;
+	}else if( arg_n=="workerId"){
+		$('MT_form')[arg_n].value=arg_v;
+	}else if( arg_n=="extid"){
+	        $('MT_form')[arg_n].value=arg_v;
+	}else if( arg_n=="session"){
+	        $('MT_form')[arg_n].value=arg_v;
+	}else if( arg_n=="swf"){
+	        swf=arg_v;
+	}else if( arg_n=="swf"){
+	        swf=arg_v;
+	}else if( arg_n=="swf_w"){
+	        swf_w=arg_v;
+	}else if( arg_n=="swf_h"){
+	        swf_h=arg_v;
+	}else if( arg_n=="rating"){
+	        rating=arv_v;
+	}else if( arg_n=="mode"){
+	        no_mode_in_query=0;
+		$('MT_form')[arg_n].value=arg_v;
+		mode_value=arg_v;
+	}
+	}
+}
+if( rating!=""){
+    $('rating_div').innerHTML="Current rating: "+rating;
+    $('rating_div').style.display='block';
+}
+
+task_name=gup("task");
+flash_name=gup("swf");
+
+instructions_URL="instructions_for_"+task_name+"_in_"+flash_name+".html";
+$('a_instructions').href=instructions_URL;
+
+
+//alert(mode_value);
+//alert(query_args);
+if ( no_mode_in_query){
+    query_args=query_args+"&mode="+mode_value
+}
+
+submitURL="";
+if(mode_value=="AmazonMTsandbox"){
+	submitURL="http://workersandbox.mturk.com/mturk/externalSubmit";
+}else if(mode_value=="AmazonMTproduction"){
+	submitURL="http://www.mturk.com/mturk/externalSubmit";
+//}else if(mode_value=="MT2"){
+//	submitURL="/mt/submit/";
+//}else if(mode_value=="sandbox2"){
+//	submitURL="/mt/submit/";
+}
+
+$('MT_form').action=submitURL;
+//alert(query_args);
+
+	if (AC_FL_RunContent == 0) {
+		alert("This page requires AC_RunActiveContent.js.");
+	} else {
+	  $('flash_div').innerHTML=
+		AC_FL_RunContent2(
+			'codebase', 'http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0',
+			'width', swf_w,
+			'height', swf_h,
+			'src', swf,
+			'quality', 'high',
+			'pluginspage', 'http://www.macromedia.com/go/getflashplayer',
+			'align', 'middle',
+			'play', 'true"',
+			'loop', 'true',
+			'scale', 'showall',
+			'wmode', 'window',
+			'devicefont', 'false',
+			'id', 'annotation_gui',
+			'bgcolor', '#ffffff',
+			'name', 'annotation_gui',
+			'menu', 'true',
+			'allowFullScreen', 'false',
+			'allowScriptAccess','always',
+			'movie', swf,
+			'salign', '',
+			'FlashVars', query_args
+			); //end AC code
+
+			}
+</script>
+
+</body>
+</html>
