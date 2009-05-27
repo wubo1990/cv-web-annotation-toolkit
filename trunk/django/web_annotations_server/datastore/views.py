@@ -113,6 +113,19 @@ def get_wnd(request,item_id,l,t,w,h):
 
 	return response
 
+def get_wnd2(request,item_name,l,t,w,h):
+
+	image_filename=os.path.join(settings.DATASETS_ROOT,item_name);
+	if not os.path.exists(image_filename):
+		raise Http404();
+	im = Image.open(image_filename);	
+
+	c = im.crop(map(lambda v:int(round(v)),[float(l),float(t),float(l)+float(w),float(t)+float(h)]));
+	response = HttpResponse(mimetype="image/jpeg")
+	c.save(response, "JPEG")
+
+	return response
+
 
 
 def register_images_recursive(dataset,base_dir,working_dir):
