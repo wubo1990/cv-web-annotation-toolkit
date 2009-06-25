@@ -1,0 +1,4 @@
+To confirm your registration at {{site.name}}, please follow this link:
+
+{{site.domain}}/accounts/activate/{{activation_key}}/
+

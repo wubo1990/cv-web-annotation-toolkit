@@ -1,0 +1,48 @@
+{% extends 'evaluation/base_app.html' %}
+{% load switchcase %}
+
+{% block content %}
+
+Submission {{submission.id}} ({{submission.title}}) by {{user.username}} to {{submission.to_challenge.name}}.
+{% if submission.challenge.is_score_visible %} Score: {{submission.score}}. {% endif %} Submitted {{submission.when}}.
+<hr/>
+<table>
+    <tr><td>
+      <b>Method:</b></td><td>{{submission.method}}</td></tr>
+    <tr><td>
+      <b>Title:</b></td><td>{{submission.title}}</td></tr>
+    <tr><td><b>Description:</b></td><td>{{submission.description}}</td></tr>
+</table>
+<hr/>
+<h2>Status</h2>
+
+{% switch submission.state %}
+    {% case 1 %} New {% endcase %}
+    {% case 2 %} Evaluation in progress{% endcase %}
+    {% case 3 %} Evaluation completed successfully{% endcase %}
+    {% case 4 %} Evaluation failed {% endcase %}
+{% endswitch %}
+
+<hr/>
+<h2>Messages</h2>
+{% for m in submission_messages %}
+<b>[{{m.when}}]</b> {{m.text}}<br/>
+{% endfor %}
+<hr/>
+<h2>Evaluation errors</h2>
+{% for r in err_rpt.readlines %}
+{{r}}<br/>
+{% endfor %}
+<hr/>
+<h2>Evaluation log</h2>
+{% for r in rpt.readlines %}
+{{r}}<br/>
+{% endfor %}
+<hr/>
+
+
+
+
+
+{% endblock %}
+

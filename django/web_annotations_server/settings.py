@@ -55,6 +55,7 @@ TIME_ZONE = 'America/Chicago'
 LANGUAGE_CODE = 'en-us'
 
 SITE_ID = 1
+SITE_NAME = 'vision-app1.cs.uiuc.edu'
 
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
@@ -108,6 +109,10 @@ TEMPLATE_DIRS = (
     #"/var/lib/python-support/python2.5/django/contrib/admin/templates/",
 )
 
+
+DEFAULT_FROM_EMAIL='syrnick@gmail.com'
+EMAIL_HOST='localhost'
+
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -117,13 +122,21 @@ INSTALLED_APPS = (
     'web_annotations_server.mturk',
     'web_annotations_server.datastore',
     'web_annotations_server.annotations',
+    'web_annotations_server.evaluation',
     'tagging',
+    'registration',
     #'annotation.annotation_store',
     #'annotation.image_collector',
 )
 
+ACCOUNT_ACTIVATION_DAYS=4
 
-HOST_NAME_FOR_MTURK="http://vision-app1.cs.uiuc.edu:8000/"
+HOST_NAME_FOR_MTURK="http://vision-app1.cs.uiuc.edu:8080/"
 
 ## number of hits to show per page
 NUM_HITS_PER_PAGE = 20
+
+
+#Evaluation app settings:
+VOC_DEV_KIT='/home/sorokin2/voc_data/VOCdevkit'
+MCR_ROOT='/opt/MATLAB/MATLAB_Compiler_Runtime/v79'
