@@ -13,6 +13,7 @@
 <p>Your username and password didn't match. Please try again.</p>
 {% endif %}
 
+<p>If you don't have an account, you can <a href="../register/">create one</a>. If you forgot your password, you can <a href="/accounts/password/reset/">reset it</a>.</p>
 <form method="post" action="{% url django.contrib.auth.views.login %}">
 <table>
 <tr>

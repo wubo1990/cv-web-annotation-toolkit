@@ -1,0 +1,27 @@
+{% extends "evaluation/base_app.html" %}
+
+{% block content %}
+
+{% if user.is_anonymous %}
+<p>
+Please <a href="/accounts/login/?next=/"> login</a> or <a href="/accounts/register/">register</a> to upload a new submission or see you previous uploads.
+</p>
+<p>
+Submission results are not available until the challenge is closed.
+</p>
+{% else %}
+<ul>
+  <li> To check existing submissions, click <b><a href="/eval/my_submissions/">here</a></b>.</li>
+  <li> To upload a new submission, click <b><a href="/eval/upload/">here</a></b>.<br/>
+  </li>
+</ul>
+{% endif %}
+
+  <div>
+    {% include 'evaluation/instructions_note.html' %}
+  </div>
+
+
+
+{% endblock %}
+

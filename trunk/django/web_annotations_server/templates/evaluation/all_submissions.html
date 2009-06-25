@@ -1,0 +1,42 @@
+{% extends "evaluation/base_app.html" %}
+{% load switchcase %}
+
+{% block content %}
+<table><tr>
+  <td>Id</td>
+  <td>Method</td>
+  <td>Title</td>
+  <td>Author</td>  
+  <td>Challenge</td>
+  <td>Status</td>
+  <td>Score</td>
+</tr>
+{% for s in objects %}
+<tr>
+<td><a href="/eval/view_submission/{{s.id}}/">{{s.id}}</a></td>
+
+<td>{{s.method}}</td>
+<td>{{s.title}}</td>
+<td>{{s.owner.username}}</td>
+
+  <td>{{s.to_challenge.name}}</td>
+  <td>
+{% switch s.state %}
+    {% case 1 %} New {% endcase %}
+    {% case 2 %} Evaluation in progress{% endcase %}
+    {% case 3 %} Evaluation completed successfully{% endcase %}
+    {% case 4 %} Evaluation failed {% endcase %}
+{% endswitch %}
+    </td>
+<td> {% if s.to_challenge.is_score_visible %} {{s.score}} {% endif %}</td>
+  {% comment %}
+  {% for o in s.submissionscore_set.all %}
+  {{o.category}}({{o.score}})  
+  {% endfor %}
+  {% endcomment %}
+
+</td></tr>
+{% endfor %}
+</table>
+<hr/>
+{% endblock %}

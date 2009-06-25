@@ -1,0 +1,26 @@
+{% extends 'evaluation/base_app.html' %}
+
+{% block content %}
+Please upload submissions as defined in the development kit.<br/>
+
+{% if form.is_multipart %}
+    <form enctype="multipart/form-data" method="post" action="">
+{% else %}
+    <form method="post" action="">
+{% endif %}
+<table>
+ {% for field in form %}
+ <tr><td>
+            {{ field.label_tag }}</td><td>
+	    {{ field }}</td><td>
+            {{ field.errors }}</td>
+</tr>
+    {% endfor %}
+<tr><td colspan=3 align="center">
+    <input type="submit" value="Upload submission" /></td></tr>
+</table>	  
+</form>
+  <div>
+    {% include 'evaluation/instructions_note.html' %}
+  </div>
+{% endblock %}

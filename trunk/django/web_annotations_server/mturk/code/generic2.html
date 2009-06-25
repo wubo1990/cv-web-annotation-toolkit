@@ -10,8 +10,23 @@
 
 <script language="javascript" src="js/prototype.js" > </script>
 
+<script language="JavaScript">
+function disableEnterKey(e)
+{
+     var key;
 
-<form id="MT_form" name="MT_form" action="http://www.mturk.com/mturk/externalSubmit" method="POST">
+     if(window.event)
+          key = window.event.keyCode;     //IE
+     else
+          key = e.which;     //firefox
+
+     if(key == 13)
+          return false;
+     else
+          return true;
+}
+</script>
+<form id="MT_form" name="MT_form" action="http://www.mturk.com/mturk/externalSubmit" method="POST" >
 
 IMPORTANT: Read the <a id="a_instructions" href="instructions.html" target="wnd_instructions">instructions</a>!!<br/>
 <!-- <b>Instructions have been updated!</b><br/>-->
@@ -24,7 +39,7 @@ IMPORTANT: Read the <a id="a_instructions" href="instructions.html" target="wnd_
 Error. Javascript is required.
 </noscript>
 <hr/>
-Any comments/suggestions/etc: <input type=text name="Comments" id="Comments" value="">
+Any comments/suggestions/etc: <input type=text name="Comments" id="Comments" value="" onKeyPress="return disableEnterKey(event)">
 <hr/>
 <input type=hidden name="assignmentId" id="assignmentId" value="">
 <input type=hidden name="hitId" id="hitId" value="ignored">
@@ -93,9 +108,12 @@ function decode(strToDecode)
         if (document.referrer && ( document.referrer.indexOf('workersandbox') != -1) ) {
             form.action = "http://workersandbox.mturk.com/mturk/externalSubmit";
 	    mode_value="AmazonMTsandbox";
-        }
+}
     }
 
+//var form = $('MT_form');
+//mode_value="AmazonMTsandbox";
+//form.action = "https://workersandbox.mturk.com/mturk/externalSubmit";
 
 //alert(document.location);
 query_args=document.location.toString();
@@ -171,7 +189,9 @@ if(mode_value=="AmazonMTsandbox"){
 //	submitURL="/mt/submit/";
 }
 
-$('MT_form').action=submitURL;
+//submitURL=decode(gup('turkSubmitTo')).replace('%3A%2F%2F','://');
+//alert(submitURL);
+//$('MT_form').action=submitURL;
 //alert(query_args);
 
 	if (AC_FL_RunContent == 0) {
