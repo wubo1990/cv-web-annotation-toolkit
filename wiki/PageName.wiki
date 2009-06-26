@@ -21,18 +21,18 @@ The evaluation is done in 2 steps:
 eval_VOCcheck.py unpacks and checks the submission. It has the following parameters:
 
 || Parameter || Meaning ||
-|| --submission=<path_to_file>   || Full filename of the submission ||
-|| --work_root=<path_to_folder>  || A place, where to extract the submission ||
-|| --report=<path_to_file>       || report filename. ||
-|| --devkit=<path_to_VOCdevkit>  || A path to VOC dev kit. We need image sets   ||
-|| --challenge=<challenge> || Challenge year (VOC2008/VOC2009). Used to get the right image set ||
-|| --setname=<eval_set_name> || The name of the evaluation set. E.g. *val* or *test* || 
+|| {{{--submission=<path_to_file>}}}   || Full filename of the submission ||
+|| {{{--work_root=<path_to_folder>}}}  || A place, where to extract the submission ||
+|| {{{--report=<path_to_file>}}}       || report filename. ||
+|| {{{--devkit=<path_to_VOCdevkit>}}}  || A path to VOC dev kit. We need image sets   ||
+|| {{{--challenge=<challenge>}}} || Challenge year (VOC2008/VOC2009). Used to get the right image set ||
+|| {{{--setname=<eval_set_name>}}} || The name of the evaluation set. E.g. *val* or *test* || 
 
 
 = Django server notes =
  
  * Evaluation app needs:
-   * [code.google.com/p/django-registration/ django-registration]  
+   * [http://code.google.com/p/django-registration/ django-registration]  
    * settings.VOC_DEV_KIT='......../VOCdevkit'
    * settings.MCR_ROOT='......./MATLAB/MATLAB_Compiler_Runtime/v79'  (example)
  
