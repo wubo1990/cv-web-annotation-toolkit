@@ -72,8 +72,7 @@ eval_VOCcheck.py unpacks and checks the submission. It has the following paramet
  * Visit {{{http://<host_ip_address>:8080/}}} . It should be up.
 
  * Download and install [http://pascallin.ecs.soton.ac.uk/challenges/VOC/voc2009/ VOC dev kit].
- * Get matlab functions web_annotations_server/evaluation/matlab_code (e.g.
-[http://code.google.com/p/cv-web-annotation-toolkit/source/browse/trunk/django/web_annotations_server/evaluation/matlab_code/ from svn] )   
+ * Get matlab functions {{{web_annotations_server/evaluation/matlab_code}}} (e.g. from  [http://code.google.com/p/cv-web-annotation-toolkit/source/browse/trunk/django/web_annotations_server/evaluation/matlab_code/ svn])
  
  * Move all matlab functions to the VOC dev kit (including VOC/VOCinit.m) 
  * Edit compile.m and put the right path to VOCcode
