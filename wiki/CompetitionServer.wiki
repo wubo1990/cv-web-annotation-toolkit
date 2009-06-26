@@ -66,8 +66,8 @@ eval_VOCcheck.py unpacks and checks the submission. It has the following paramet
    * create database/user (see/edit settings.py for the actual values)
  * Edit settings.py to reflect local paths
 
- * Run python manage.py syncdb
- * Run python manage.py runserver <host_ip_address>:8080
+ * Run python {{{manage.py syncdb}}}
+ * Run python {{{manage.py runserver <host_ip_address>:8080}}}
  
  * Visit {{{http://<host_ip_address>:8080/}}} . It should be up.
 
