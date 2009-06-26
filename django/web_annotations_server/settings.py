@@ -7,6 +7,7 @@ if "DJANGO_IN_APACHE" in os.environ:
 	DEBUG = False
 
 
+
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
