@@ -146,8 +146,16 @@ def show_my_submissions(request,challenge_name=None):
         objects = request.user.submission_set.filter(to_challenge=challenge);
     else:
         challenge = None
-        objects = request.user.submission_set.all();        
-    
+        objects = request.user.submission_set.all()
+
+    objects=objects.extra(
+	    select={
+		    'most_recent': 'SELECT max(s2.when) as most_recent FROM evaluation_submission s2 WHERE s2.owner_id=evaluation_submission.owner_id and s2.method=evaluation_submission.method and s2.to_challenge_id=evaluation_submission.to_challenge_id'
+		    },
+	    );        
+
+    #objects=objects.
+
     return render_to_response('evaluation/my_submissions.html',
 			      {'challenge':challenge,'objects':objects,'user':request.user});
 
@@ -163,7 +171,11 @@ def show_all_submissions(request,challenge_name=None):
 	else:
 		challenge = None
 		objects = Submission.objects.all();        
-		
+	objects=objects.extra(
+		select={
+			'most_recent': 'SELECT max(s2.when) as most_recent FROM evaluation_submission s2 WHERE s2.owner_id=evaluation_submission.owner_id and s2.method=evaluation_submission.method and s2.to_challenge_id=evaluation_submission.to_challenge_id'
+			},
+		);        		
 	return render_to_response('evaluation/all_submissions.html',
 				  {'challenge':challenge,'objects':objects,'user':request.user});
 

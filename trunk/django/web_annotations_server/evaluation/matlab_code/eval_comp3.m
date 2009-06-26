@@ -43,7 +43,7 @@ for i=1:VOCopts.nclasses
     end
 end
 
-if all(all_ap==0)
+if ~all(all_ap==0)
    f_results_final=fopen([report_fn  '.final_score'],'w');
    fprintf(f_results_final,'%0.4f\n',mean(all_ap));
    fclose(f_results_final);
