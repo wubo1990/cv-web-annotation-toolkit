@@ -42,8 +42,8 @@ eval_VOCcheck.py unpacks and checks the submission. It has the following paramet
  
  * Evaluation app needs:
    * [http://code.google.com/p/django-registration/ django-registration]  
-   * settings.VOC_DEV_KIT='......../VOCdevkit'
-   * settings.MCR_ROOT='......./MATLAB/MATLAB_Compiler_Runtime/v79'  (example)
+   * {{{settings.VOC_DEV_KIT='......../VOCdevkit'}}}
+   * {{{settings.MCR_ROOT='......./MATLAB/MATLAB_Compiler_Runtime/v79'}}} (it can be any version, not necessarily v79) 
 
 = Access control =
  * Regular users 
