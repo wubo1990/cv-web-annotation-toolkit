@@ -24,6 +24,7 @@ def writeMessage(report,msg):
 def run_evaluation():
 	submissions=Submission.objects.filter(state=2);
 	for s in submissions:
+            try:
 		print s.id,s.title
 		
 	        submission_rt=os.path.join(s.to_challenge.data_root,'submissions/%d/' % s.id);
@@ -137,7 +138,19 @@ def run_evaluation():
 			s.score=str(final_score);
 			s.state=3;
 			s.save();
+            except:
+                print "Mysterious error"
+                s.state=4;
+                s.save();
 
+def run_evaluation_cycle():
+    while True:
+        try:
+            run_evaluation();
+        except:
+            print "Mysterious error while running all evaluations"            
+        time.sleep(5)
+        print time.localtime()
 
 if __name__=="__main__":
-	run_evaluation();
+	run_evaluation_cycle();
