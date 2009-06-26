@@ -69,7 +69,7 @@ eval_VOCcheck.py unpacks and checks the submission. It has the following paramet
  * Run python manage.py syncdb
  * Run python manage.py runserver <host_ip_address>:8080
  
- * Visit http://<host_ip_address>:8080/ . It should be up.
+ * Visit {{{http://<host_ip_address>:8080/}}} . It should be up.
 
  * Download and install [http://pascallin.ecs.soton.ac.uk/challenges/VOC/voc2009/ VOC dev kit].
  * Get matlab functions web_annotations_server/evaluation/matlab_code (e.g.
@@ -100,5 +100,3 @@ eval_VOCcheck.py unpacks and checks the submission. It has the following paramet
  * Not supported right now. Issues:
    * Admin templates don't work
    * "/" can't be mapped to django, while allowing other sites to exist.
-
-
