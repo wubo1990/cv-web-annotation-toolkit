@@ -187,6 +187,8 @@ def main(argv):
             elif len(missing_files)>0:
                 has_challenge_data[iC]=False
                 print >>fReport,"Challenge %d. Missing some of the result files. Check that all results images have been generated. Here're some of the missing results." % (iC)
+                writeError(report,"Challenge %d. Missing some of the result files. Check that all results images have been generated. Here're some of the missing results." % (iC))
+                hasError=True                
                 for i,f in enumerate(missing_files):
                     print >>fReport,"\tMissing %s/%s.png" % (expected2_fn,f)
                     if i>=9:
@@ -198,7 +200,9 @@ def main(argv):
         else:
             print >>fReport,"Challenge %d. Not submitted (looking for folder %s)" % (iC,expected2_fn);
             has_challenge_data[iC]=False
-
+    if hasError:
+        return
+    
     for (iC,template) in single_file_challenges:
         expected_fn=Template(template).substitute({ 'setname': setname});
         print template,expected_fn

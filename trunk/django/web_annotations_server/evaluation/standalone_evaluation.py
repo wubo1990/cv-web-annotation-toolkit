@@ -48,7 +48,7 @@ def run_evaluation():
 		final_scores_report_filename=os.path.join(submission_rt,'report.txt.final_score');
 		scores_file=open(scores_report_filename,'w');
 		all_scores=[];
-		for c in ['5']: #challenges:
+		for c in challenges:
 			c=int(c.strip())
 			print c
 			if c == 0:
