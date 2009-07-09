@@ -1,0 +1,161 @@
+{% load annotation_formatting %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Visual similarity annotation</title>
+<style type="text/css">
+<!--
+body {
+font: 100% Verdana, Arial, Helvetica, sans-serif;
+background: #666666;
+margin: 0; /* it's good practice to zero the margin and padding of the -->
+<!--body element to account for differing browser defaults */
+padding: 0;
+text-align: center; /* this centers the container in IE 5* -->
+<!--browsers. The text is then set to the left aligned default in the -->
+<!--#container selector */
+color: #000000;
+}
+.oneColElsCtr #container {
+width: 56em;
+background: #FFFFFF;
+margin: 0 auto; /* the auto margins (in conjunction with a width) -->
+<!--center the page */
+border: 1px solid #000000;
+text-align: left; /* this overrides the text-align: center on the body -->
+<!--element. */
+}
+.oneColElsCtr #mainContent {
+padding: 0 20px; /* remember that padding is the space inside the div -->
+<!--box and margin is the space outside the div box */
+}
+.def {font-size: x-small}
+.ann_table {border: 0px;  padding:0; border-spacing:0}
+
+table td {
+border: 1px;
+border-top-width: 1px;
+border-right-width: 1px;
+border-bottom-width: 1px;
+border-left-width: 1px;
+border-top-style: none;
+border-left-style: none;
+border-right-style: none;
+border-bottom-style: dotted;
+border-top-color: #000000;
+border-right-color: #000000;
+border-bottom-color: #000000;
+border-left-color: #000000;
+}
+table th {
+border: 1px;
+border-style: solid;
+text-align: center;
+}
+.c {
+border: 1px;
+border-top-width: 1px;
+border-right-width: 1px;
+border-left-width: 1px;
+border-top-style: none;
+border-right-style: solid;
+
+border-top-color: #000000;
+border-right-color: #000000;
+border-left-color: #000000;
+border-bottom-width: 1px;
+border-bottom-style: dotted;
+border-bottom-color: #000000;
+}
+.b{
+}
+
+.l {
+border-left-width: 1px;
+border-left-style: solid;
+border-left-color: #000000;
+}
+.r {
+border-right-width: 1px;
+border-right-style: solid;
+border-right-color: #000000;
+}
+
+.footer {
+border: 1px;
+border-style: solid;
+border-color: #000000;
+text-align:center;
+}
+
+.base_annotations td {
+border: 1px;
+border-width-1px;
+border-style: solid;
+border-color: #000000;
+text-align:center;
+vertical-align:center;
+background: #999;
+}
+-->
+</style></head>
+
+
+<body class="oneColElsCtr">
+
+<div id="container">
+<h4 align="center">Visual similarity annotaiton</h4>
+
+  <form method="POST" id="MT_form">
+
+{% if ann_type.explanation %}
+<a id="a_instructions" href="{{ann_type.explanation}}" target="wnd_instructions">Please read the instructions.</a><br/>
+{% endif %}
+
+
+  <table width="100%" class="base_annotations"><tr><td
+  width="50%">{{ann1|render_annotation_mini_visual}}</td><td width="50%">{{ann2|render_annotation_mini_visual}}</td></tr></table>
+  <table class="ann_table">
+    <tr>
+      <th width="12%" scope="col">Visual property</th>
+      <th width="30%" colspan="3" scope="col">Similarity degree</th>
+      <th width="10%" colspan="1">Explanation</th>
+    </tr>
+
+    {% for attr in ann_type.get_annotation_metadata2.attributes %}
+
+    <tr>
+      <td class="l r " align="right"><strong>{{attr}}</strong></td>
+      <td ><span class="def">least similar</span></td>
+      <td>
+        <input type="radio" name="{{attr|slugify}}" id="{{attr|slugify}}_0" value="0" >
+      0
+      <input type="radio" name="{{attr|slugify}}" id="{{attr|slugify}}_1" value="1" >
+      1
+      <input type="radio" name="{{attr|slugify}}" id="{{attr|slugify}}_2" value="2" />
+      2
+      <input type="radio" name="{{attr|slugify}}" id="{{attr|slugify}}_3" value="3" />
+      3
+      <input type="radio" name="{{attr|slugify}}" id="{{attr|slugify}}_4" value="4" />
+      4
+      <input type="radio" name="{{attr|slugify}}" id="{{attr|slugify}}_5" value="5" />
+      5</td>
+      <td><span class="def">most similar</span></td>
+      <td class="r l">
+        <input type="text" name="{{attr|slugify}}_explanation" id="{{attr|slugify}}_explanation" size="40"/>
+      </td>
+    </tr>
+
+    {% endfor %}
+
+    <tr>
+      <td colspan="5" class="footer"><input type="submit"></td>
+    </tr>
+  </table>
+  </form>
+  <p>&nbsp;</p>
+</div>
+</body>
+</html>

@@ -1,0 +1,92 @@
+{% load annotation_formatting %}
+{% load tagging_tags %}
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>Data items</title>
+<script language="javascript" src="/code/js/prototype.js" > </script>
+
+<script language="javascript" src="/code/js/flags.js" > </script>
+<link rel="stylesheet" type="text/css" href="/code/css/flags.css" />
+
+</head>
+
+<body bgcolor="#ffffff">
+
+<table>
+<tr><td colspan=2 align=center><b>{{object.annotation_type.name}}</b>({{object.annotation_type.category}})</td></tr>
+<tr><td width="70%">
+
+{{object|render_annotation_full}} <br/>
+
+<table><tr>
+<td> {{object|do_flags}}</td><td>  [add <a
+href="a/{{object.id}}/add/comment/">comment</a> <a
+href="a/{{object.id}}/add/quality/">quality</a>] </td><td>
+      <a href="/datastore/show/annotation/{{object.id}}/">more</a> 
+</td><td>
+      <a href="edit/annotation/{{object.id}}/">edit</a> 
+</td><td>
+{% if object.is_active %} active {% else %} inactive {% endif %}
+</td><td>
+by:{{object.author}}
+</td><td>
+</td></tr></table><br/>
+<br/>
+</td>
+<td width=100>
+Reference:
+<img src="{{object.ref_data.url}}" width=100 > 
+</td></tr>
+</table>
+
+{% for ann_rel in object.annotation_set.all %}
+<hr/>
+ {% tags_for_object ann_rel as a_tags %}
+
+{{ann_rel|render_annotation_mini}}<br/> 
+{% if a_tags %}
+  <div class="tags">
+  Tags:
+  {% for t in a_tags %}
+  {% if forloop.last %} | {% endif %}
+    <b>{{t}}</b> | 
+  {% endfor%}
+    </div>
+{% endif %}
+
+
+<b>{{ann_type.0}}</b> <a href="new_annotation/{{object.id}}/{{ann_type.0}}/">add </a> <br/>
+
+{% for a in ann_type.1 %}
+
+{{a|render_annotation_mini}} [add <a href="a/{{a.id}}/add/comment/">comment</a> <a href="a/{{a.id}}/add/quality/">quality</a>]<br/>
+
+{% endfor %}
+
+{% endfor %}
+
+
+<hr/>
+{% for ann_type in empty_annotation_types %}
+
+<a href="new_annotation/{{object.id}}/{{ann_type.1.name}}/">add {{ann_type.0}}</a> 
+
+{% endfor %}
+
+<noscript>
+Error. Javascript is required.
+</noscript>
+
+
+{% if refresh_rate %}
+<script type="text/JavaScript">
+<!--
+setTimeout("document.location.reload(true)",{{refresh_rate}});
+//   -->
+</script>
+{% endif %}
+
+
+</body>
+</html>

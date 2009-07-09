@@ -1,0 +1,52 @@
+{% load time_extras %}
+{% load annotation_formatting %}
+{% load navigator %}
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>Data items</title>
+<script language="javascript" src="/code/js/prototype.js" > </script>
+<script language="javascript" src="/code/js/flags.js" > </script>
+<link rel="stylesheet" type="text/css" href="/code/css/flags.css" />
+</head>
+
+<body bgcolor="#ffffff">
+
+{% std_navigator paginator page %}
+
+<hr/>
+{% for a_c in object_list %}
+{% for a in a_c.rel_reference.all%}
+
+<table><tr><td>
+<a href="/datastore/show/item_annotation/n/{{a.ref_data.get_public_id}}">
+{{a.ref_data.url}}</a></td><td> {{a|do_flags}}</td><td>  [add <a
+href="a/{{a.id}}/add/comment/">comment</a> <a
+href="a/{{a.id}}/add/quality/">quality</a>] </td><td><a
+href="/datastore/show/annotation/{{a.id}}/">more</a>
+</td><td>
+      <a href="edit/annotation/{{a.id}}/">edit</a> 
+</td>
+</tr></table><br/>
+{{a|render_annotation_large}}
+<hr/>
+{% endfor %}
+{% endfor %}
+
+<noscript>
+Error. Javascript is required.
+</noscript>
+
+{% std_navigator paginator page %}
+
+{% if refresh_rate %}
+<script type="text/JavaScript">
+<!--
+setTimeout("document.location.reload(true)",{{refresh_rate}});
+//   -->
+</script>
+{% endif %}
+
+
+</body>
+</html>

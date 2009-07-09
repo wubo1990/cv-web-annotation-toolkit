@@ -1,0 +1,25 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>Statistics</title>
+<script language="javascript" src="/code/js/prototype.js" > </script>
+</head>
+
+<body bgcolor="#ffffff">
+
+<hr/>
+<table><tr><td>Session code</td><td>Session id</td><td>Num submissions</td></tr>
+{% for s in submissions_per_session %}
+<tr><td>{{s.session_code}}</td><td>{{s.session_id}}</td><td>{{s.submissions}}</td></tr>
+{% endfor %}
+</table>
+<hr/>
+<table><tr><td>Worker</td><td>Num sessions</td><td>Num submissions</td></tr>
+{% for wc in worker_contributions %}
+<tr><td>{{wc.worker}}</td><td>{{wc.num_sessions}}</td><td>{{wc.contribution}}</td></tr>
+{% endfor %}
+</table>
+
+</body>
+
+</html>

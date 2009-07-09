@@ -1,0 +1,46 @@
+{% load time_extras %}
+{% load navigator %}
+{% load tagging_tags %}
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>Data items</title>
+<script language="javascript" src="/code/js/prototype.js" > </script>
+</head>
+
+<body bgcolor="#ffffff">
+
+{% std_navigator paginator page %}
+
+
+
+<hr/>
+{% for di in object_list %}
+<table><tr><td>
+<img src="{{di.url}}" width=640></td><td> <a
+href="../../../dataitem/{{di.id}}/">annotations</a>
+  {% tags_for_object di as a_tags %}
+  {% include basic_tags.html %}
+</td></tr></table>
+<hr/>
+{% endfor %}
+
+<noscript>
+Error. Javascript is required.
+</noscript>
+
+
+{% std_navigator paginator page %}
+
+
+{% if refresh_rate %}
+<script type="text/JavaScript">
+<!--
+setTimeout("document.location.reload(true)",{{refresh_rate}});
+//   -->
+</script>
+{% endif %}
+
+
+</body>
+</html>

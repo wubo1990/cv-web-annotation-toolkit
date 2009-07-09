@@ -1,0 +1,33 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Please login{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">Please login </h1>
+{% endblock %}
+
+
+{% block content %}
+
+{% if form.errors %}
+<p>Your username and password didn't match. Please try again.</p>
+{% endif %}
+
+<p>If you don't have an account, you can <a href="../register/">create one</a>. If you forgot your password, you can <a href="/accounts/password/reset/">reset it</a>.</p>
+<form method="post" action="{% url django.contrib.auth.views.login %}">
+<table>
+<tr>
+    <td>{{ form.username.label_tag }}</td>
+    <td>{{ form.username }}</td>
+</tr>
+<tr>
+    <td>{{ form.password.label_tag }}</td>
+    <td>{{ form.password }}</td>
+</tr>
+</table>
+
+<input type="submit" value="login" />
+<input type="hidden" name="next" value="{{ next }}" />
+</form>
+
+{% endblock %}

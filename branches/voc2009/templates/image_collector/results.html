@@ -1,0 +1,51 @@
+pages: 
+{% if prevPage %}
+<a href="#" onclick="javascript:return do_find(1);">1</a>...&nbsp;
+<a href="#" onclick="javascript:return do_find({{prevPage}});"> {{prevPage}}</a>&nbsp;{% endif %}
+{% if nextPage %}<a href="#" onclick="javascript:return do_find({{nextPage}});"> {{nextPage}}</a>&nbsp;
+{% if totPages %} ...&nbsp; <a href="#" onclick="javascript:return do_find({{totPages}});"> {{totPages}}</a>&nbsp;{% endif %}
+{% endif %} | 
+{% for p in pagelist %}
+<a href="#" onclick="javascript:return do_find({{p}});">{{p}}</a>&nbsp;.&nbsp;
+{% endfor %}
+
+<hr/>
+
+
+
+
+
+
+
+
+
+
+<table>
+{% for pic in photos %}
+
+{% cycle <tr>,&nbsp;,&nbsp;,&nbsp;  %}
+
+<td id="pic_flickr_{{pic.attrib.id}}" class="{{pic.html_class}}">
+<table>
+<tr><td rowspan=2>
+<img src="http://farm{{pic.attrib.farm}}.static.flickr.com/{{pic.attrib.server}}/{{pic.attrib.id}}_{{pic.attrib.secret}}_m.jpg" onclick="flip_selected('{{pic.attrib.id}}','flickr')"/></td>
+<td>
+<a href="http://flickr.com/photos/{{pic.attrib.owner}}/{{pic.attrib.id}}/" target="original_flickr">+</a></td></tr>
+<tr><td>
+<div id="updater_pic_flickr_{{pic.attrib.id}}">&nbsp;</div>
+</td></tr>
+</table>
+</td>
+{% cycle &nbsp;,&nbsp;,&nbsp;,</tr>  %}
+
+{% endfor %}
+</table>
+
+<hr/>
+
+{% if prevPage %}
+<a href="#" onclick="javascript:return do_find({{prevPage}});"> prev</a>&nbsp;&nbsp;&nbsp;&nbsp;{% endif %}
+{% if nextPage %}<a href="#" onclick="javascript:return do_find({{nextPage}});"> next</a>{% endif %}
+
+
+

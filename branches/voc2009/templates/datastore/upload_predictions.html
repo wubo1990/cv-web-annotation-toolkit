@@ -1,0 +1,22 @@
+<html>
+Please upload predictions in the following format, one prediction per line:<br/>
+<b>image_name confidence left top right bottom</b><br/>
+
+{% if form.is_multipart %}
+    <form enctype="multipart/form-data" method="post" action="">
+{% else %}
+    <form method="post" action="">
+{% endif %}
+<table>
+ {% for field in form %}
+ <tr><td>
+            {{ field.label_tag }}</td><td>
+	    {{ field }}</td><td>
+            {{ field.errors }}</td>
+</tr>
+    {% endfor %}
+<tr><td colspan=3 align="center">
+    <input type="submit" value="Upload predictions" /></td></tr>
+</table>	  
+</form>
+</html>

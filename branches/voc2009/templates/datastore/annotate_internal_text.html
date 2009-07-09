@@ -1,0 +1,58 @@
+{% load annotation_formatting %}
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>Text annotation</title>
+<script language="javascript" src="/code/js/prototype.js" > </script>
+</head>
+
+<body bgcolor="#ffffff">
+
+<form method="POST">
+{% if ann_type.explanation %}
+Instructions are <a id="a_instructions" href="{{ann_type.explanation}}" target="wnd_instructions">here</a>!<br/>
+{% endif %}
+
+<table>
+
+<tr>
+{% if ref_annotation %}
+<td>Annotation:{{ref_annotation.annotation_type.name}}<br/>({{ref_annotation.annotation_type.category}})</td><td>
+{{ref_annotation|render_annotation_full}}</td>
+<td>Image:<br/><img src="{{object.url}}" width=200> </td> 
+{% else %}
+<td>Image:</td><td>
+<img src="{{object.url}}"> </td> 
+{% endif %}
+</tr>
+
+
+
+<tr><td>
+Text annotation:</td><td>
+<textarea name="annotation_value" rows=15 cols=80></textarea></td></tr>
+<tr><td colspan=2 align=center>
+<input type="submit">
+</td></tr>
+</table>
+
+</form>
+
+
+
+<noscript>
+Error. Javascript is required.
+</noscript>
+
+
+{% if refresh_rate %}
+<script type="text/JavaScript">
+<!--
+setTimeout("document.location.reload(true)",{{refresh_rate}});
+//   -->
+</script>
+{% endif %}
+
+
+</body>
+</html>

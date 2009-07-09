@@ -1,0 +1,75 @@
+{% load annotation_formatting %}
+{% load tagging_tags %}
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>Data items</title>
+<script language="javascript" src="/code/js/prototype.js" > </script>
+<script language="javascript" src="/code/js/flags.js" > </script>
+<link rel="stylesheet" type="text/css" href="/code/css/flags.css" />
+</head>
+
+<body bgcolor="#ffffff">
+
+
+<img src="{{object.url}}" width=640> 
+
+  {% tags_for_object object as a_tags %}
+  {% if a_tags %}
+  <div class="tags">
+  Tags:
+  {% for t in a_tags %}
+  {% if forloop.last %} | {% endif %}
+    <b>{{t}}</b> | 
+  {% endfor%}
+    </div>
+  {% endif %}
+
+{% for ann_type in object.by_type.items %}
+<hr/>
+<b>{{ann_type.0}}</b> <a href="../../new_annotation/{{object.id}}/{{ann_type.0}}/">add </a> <br/>
+
+{% for a in ann_type.1 %}
+
+
+<table><tr>
+<td>{{a|render_annotation_mini}} </td>
+<td>
+<a href="/datastore/show/item_annotation/n/{{a.ref_data.get_public_id}}">
+{{a.ref_data.url}}</a></td><td> {{a|do_flags}}</td><td>  [add <a
+href="a/{{a.id}}/add/comment/">comment</a> <a
+href="a/{{a.id}}/add/quality/">quality</a>] </td><td><a
+href="/datastore/show/annotation/{{a.id}}/">more</a>
+</td></tr></table><br/>
+
+
+
+
+{% endfor %}
+
+{% endfor %}
+
+
+<hr/>
+{% for ann_type in empty_annotation_types %}
+
+<a href="new_annotation/{{object.id}}/{{ann_type.1.name}}/">add {{ann_type.0}}</a> 
+
+{% endfor %}
+
+<noscript>
+Error. Javascript is required.
+</noscript>
+
+
+{% if refresh_rate %}
+<script type="text/JavaScript">
+<!--
+setTimeout("document.location.reload(true)",{{refresh_rate}});
+//   -->
+</script>
+{% endif %}
+
+
+</body>
+</html>

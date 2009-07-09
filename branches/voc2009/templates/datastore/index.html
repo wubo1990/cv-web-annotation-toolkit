@@ -1,0 +1,72 @@
+
+{% for ds in datasets %}
+<h2>{{ds.name}}</h2>
+<a
+href="/datastore/data/{{ds.name}}/p1/">Images</a>({{ds.get_stat_counts.data_items}})<br/>
+
+Annotations:<br/>
+<ul>
+<li> 
+<a href="/datastore/show/annotated_images/{{ds.name}}/voc2008_boxes/p1/">voc2008_boxes</a>
+(<b>{{ds.get_stat_counts.voc2008_boxes}}</b>)</li>
+<li>
+<a href="/datastore/show/annotated_images/{{ds.name}}/voc_bbox/p1/">voc_bbox</a>
+(<b>{{ds.get_stat_counts.voc_bbox}}</b>)</li>
+
+<li>
+<a href="/datastore/show/annotated_images/{{ds.name}}/LabelMe_boxes/p1/">LabelMe_boxes</a>
+(<b>{{ds.get_stat_counts.LabelMe_boxes}}</b>)</li>
+
+<li> <a
+href="show/annotated_images/{{ds.name}}/visual_similarity/">Visual similarities.</a><br/></li>
+
+
+</ul>
+Flagged annotations:
+
+<a
+href="http://vision-app1.cs.uiuc.edu:8080/datastore/show/flagged_annotations/{{ds.name}}/white/p1/">
+<img src="/code/images/ico/flag_white.gif">({{ds.get_stat_counts.num_flags.white}})</a>
+<a
+href="http://vision-app1.cs.uiuc.edu:8080/datastore/show/flagged_annotations/{{ds.name}}/blue/p1/">
+<img src="/code/images/ico/flag_blue.gif">({{ds.get_stat_counts.num_flags.blue}})</a>
+<a
+href="http://vision-app1.cs.uiuc.edu:8080/datastore/show/flagged_annotations/{{ds.name}}/red/p1/">
+<img src="/code/images/ico/flag_red.gif">({{ds.get_stat_counts.num_flags.red}})</a>
+</br>
+
+<!--Flagged images:-->
+
+<!--http://vision-app1.cs.uiuc.edu:8080/datastore/register_voc_box_child_annotations/VOC2008/1/-->
+<br/>
+
+Actions:<br/>
+<ul>
+<li> <a href="/datastore/register_voc_predictions/{{ds.name}}/">Upload
+predictions.</a></li>
+<li> <a href="/datastore/tag_images/VOC2008/">Tag images</a></li>
+</ul>
+
+
+
+<hr/>
+{% endfor %}
+<hr/>
+
+<!--
+Create internal XML data for VOC boxes:
+http://vision-app1.cs.uiuc.edu:8080/datastore/register_voc_boxes/VOC2008/<br/>
+
+Create internal XML data with bounding boxes for LabelMe data:
+http://vision-app1.cs.uiuc.edu:8080/datastore/register_labelme_boxes/LabelMe/
+
+<br/>
+
+Create small boxes for each marked VOC object:
+http://vision-app1.cs.uiuc.edu:8080/datastore/register_voc_box_child_annotations/VOC2008/
+<br/>
+
+Create small boxes for each marked LabelMe object:
+http://vision-app1.cs.uiuc.edu:8080/datastore/register_labelme_box_child_annotations/LabelMe/ <br/>
+
+-->

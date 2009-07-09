@@ -1,0 +1,30 @@
+{% load annotation_formatting %}
+{% load tagging_tags %}
+
+  <table width="100%" class="base_annotations"><tr><td
+  width="30%">{{a.rel_reference.all.0|render_annotation_mini_visual}}</td><td width="30%">{{a.rel_reference.all.1|render_annotation_mini_visual}}</td><td>
+  <table class="ann_table">
+    <tr>
+      <th >Visual property</th>
+      <th >Similarity degree</th>
+      <th >Explanation</th>
+    </tr>
+
+    {% for attr in a.visual_similarity_get_attribute_values %}
+    <tr><td>{{attr.0}}</td><td> <strong>{{attr.1}}</strong></td><td> {{attr.2}}</td></tr>
+    {% endfor %}
+  </table><br/>
+  Submitted by {{a.author}} on {{a.created}}
+  {% tags_for_object a as a_tags %}
+  {% if a_tags %}
+  <div class="tags">
+  Tags:
+  {% for t in a_tags %}
+  {% if forloop.last %} | {% endif %}
+    <b>{{t}}</b> | 
+  {% endfor%}
+  </div>
+  {% endif %}
+  </td></tr>
+  
+</table>
