@@ -1,0 +1,58 @@
+#summary An overview of the annotation tool
+
+= Introduction =
+
+The annotation tool is designed to be a modular component for easy integration into web application. The tool supports 3 major modes: input, display and edit. In the *input* mode, the tool gets the image and the task definition and produces the XML annotation. In *display* mode, the tool gets the task definition, the image and the XML annotation. The tool then renders the annotation. In *edit* mode, the tool loads the task definition, image, XML annotation and allows to change the annotation. 
+
+= Tool arguments = 
+
+ * *mode*: {input,display,edit}
+ * *img_base*: The URL of the server. Must match the server hosting the Flash interface.
+ * *image_url*: The URL of the image to work on. The URL must include the name of the server.
+ * *task_url*: The URL of the task definition. 
+ * *task*: The name of the task. It is mapped onto <server>/tasks/<task>.xml file. The file is served. *task_url* is the preferred way to specify the task.
+ * *assignmentId*: The ID of the assignment. When set to ASSIGNED_ID_NOT_AVAILABLE, the interface will disable any input. This indicates a "preview" mode in Mechanical Turk.
+ * *annotation_url* : The URL of the existing annotations. The annotations will be loaded in display or edit modes.
+
+
+= Tool definition XML = 
+The actual annotation interface is defined by the XML task definition. At a high level, the task definition contains a list of targets and the type of annotation for each target.
+For example, if we want outlines of obstacles and the bounding boxes around people, we would write:
+
+{{{
+<?xml version="1.0"?>
+<task id="000001" type="image">
+  <targets>
+     <target name="obstacle"> <annotation type="outline" /></target>
+     <target name="person"> <annotation type="bbox2" /></target>
+  </targets>
+</task>
+}}}
+
+This example is sufficient to design simple tasks. There are many useful advanced features. See TaskDefinitionXML for complete specification and more examples.
+
+= Tool output = 
+
+The annotation interface tool outputs an XML document representing the annotations. 
+An example annotation (1 person and 1 obstacle) is shown below: 
+{{{
+<results>
+<image url='http://127.0.0.1:8080/frames/VOC2008/2007_004538.jpg' />
+<annotation>
+<size><width>480</width><height>367</height></size>
+<polygon name="obstacle" sqn="1" >	
+  <pt x="88" y="230" ct="1247310030932"/>
+	<pt x="151" y="234" ct="1247310031382"/>
+	<pt x="239" y="259" ct="1247310031821"/>
+	<pt x="236" y="347" ct="1247310032247"/>
+	<pt x="200" y="421" ct="1247310032864"/>
+	<pt x="21" y="361" ct="1247310033688"/>
+	<pt x="55" y="238" ct="1247310034960"/>
+</polygon><bbox name="person" sqn="1" left="232.1" top="137" width="164" height="249">
+	<pt x="232.1" y="137" ct="1247310039553"/>
+	<pt x="396.1" y="386" ct="1247310040849"/>
+</bbox>
+</annotation>
+
+<meta load_time="1247310026339" submit_time="1247310044429"/></results>
+}}}
