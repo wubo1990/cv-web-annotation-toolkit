@@ -17,9 +17,9 @@ This is a very rough installation guide. I hopefully lists all dependencies.
  * Install Boto (for Amazon MTurk access)
  * Install a local smtp server (to e-mail things from python)
  * Enable appropriate applications (mturk contains some templates used by other apps).
- * Run syncdb: python manage.py syncdb
+ * Run syncdb: {{{python manage.py syncdb}}}
 
- * [optional] Run development server: python manage.py runserver <host>:8080
+ * [optional] Run development server: {{{python manage.py runserver <host>:8080}}}
 
 == Installing into Apache ==
 
@@ -34,4 +34,3 @@ This is probably wrong, but it does what I want. A better way to do it is to hav
 Include /etc/apache2/conf.d/django.conf
 }}}
  * sudo apache2ctl restart
-
