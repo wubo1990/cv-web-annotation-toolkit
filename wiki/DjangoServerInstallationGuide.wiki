@@ -1,0 +1,37 @@
+#summary Server installation guide.
+
+= Introduction =
+
+This is a very rough installation guide. I hopefully lists all dependencies.
+
+= Details =
+
+ * Install Django 1.0.2
+ * mysql
+ * create user and database for django. Write them to settings.py
+ * Install django-tagging  (for django 1.0.2)
+ * Install python-mysqldb 
+ * Install django-registration
+   * Install python-setuptools
+   * Run easy_install django-registration
+ * Install Boto (for Amazon MTurk access)
+ * Install a local smtp server (to e-mail things from python)
+ * Enable appropriate applications (mturk contains some templates used by other apps).
+ * Run syncdb: python manage.py syncdb
+
+ * [optional] Run development server: python manage.py runserver <host>:8080
+
+== Installing into Apache ==
+
+This is probably wrong, but it does what I want. A better way to do it is to have a single virtual site for django.
+
+ * Install mod-python (apt-get install libapache2-mod-python)
+ * Put django.conf into /etc/apache2/conf.d/.
+   * Edit it: change python paths; Correct the alias for /media. 
+   * Enable/disable other configs
+ * Include django.conf into /etc/apache2/sites-enabled/000-default
+{{{
+Include /etc/apache2/conf.d/django.conf
+}}}
+ * sudo apache2ctl restart
+
