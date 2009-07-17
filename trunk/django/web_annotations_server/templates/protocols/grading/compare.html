@@ -1,0 +1,113 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>prototype</title>
+<script language="javascript">AC_FL_RunContent = 0;</script>
+<script src="/code/js/AC_RunActiveContent.js" language="javascript"></script>
+</head>
+
+<body bgcolor="#ffffff">
+
+<script language="javascript" src="/code/js/prototype.js" > </script>
+
+
+<form id="MT_form" name="MT_form" action="{{submit_target}}" method="POST">
+<!--Comparison to the gold standard annotation. -->
+{% if submit_target %}Click submit button to finish the HIT. {% endif %}
+<hr/>
+{% if grading_report %}
+Annotation grade {{grading_report.grade}}, updated rating: <b>{{rating}}</b><br/>
+{% endif %}
+
+<script language="javascript">
+query_args='{{parameters}}';
+query_args=query_args+'&datalist={{comparison_list}}';
+//alert(query_args)
+//query_args=+"&mode=AmazonMT";
+
+
+
+	if (AC_FL_RunContent == 0) {
+		alert("This page requires AC_RunActiveContent.js.");
+	} else {
+		AC_FL_RunContent(
+			'codebase', 'http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0',
+			'width', '680',
+			'height', '600',
+			'src', '/code/people14_display',
+			'quality', 'high',
+			'pluginspage', 'http://www.macromedia.com/go/getflashplayer',
+			'align', 'middle',
+			'play', 'true"',
+			'loop', 'true',
+			'scale', 'showall',
+			'wmode', 'window',
+			'devicefont', 'false',
+			'id', 'people14_display',
+			'bgcolor', '#ffffff',
+			'name', 'people14_display',
+			'menu', 'true',
+			'allowFullScreen', 'false',
+			'allowScriptAccess','always',
+			'movie', '/code/people14_display',
+			'salign', '',
+			'FlashVars', query_args
+			); //end AC code
+	}
+</script>
+<noscript>
+Error. Javascript is required.
+</noscript>
+
+{% if submit_target %}
+<input type=submit value="Finalize HIT">
+<hr/>
+Any comments/suggestions/etc: <br/><textarea name="Comments" id="Comments" value=""></textarea>
+<hr/>
+<input type=hidden name="assignmentId" id="assignmentId" value="{{assignmentId}}">
+<input type=hidden name="hitId" id="hitId" value="ignored">
+<input type=hidden name="extid" id="extid" value="{{extid}}">
+{% endif %}
+
+</form>
+
+
+<script language="javascript">
+query_args=document.location.toString().split("?")[1];
+args_list=query_args.split("&");
+
+for (i = 0; i <= args_list.length; i++)
+{
+	arg=args_list[i];
+	if(arg){
+	arg_pair=arg.split("=");
+	arg_n=arg_pair[0];
+	arg_v=arg_pair[1];
+	if( arg_n=="assignmentId"){
+		$('MT_form')[arg_n].value=arg_v;
+	}else if( arg_n=="hitId"){
+		$('MT_form')[arg_n].value=arg_v;
+	}else if( arg_n=="workerId"){
+		$('MT_form')[arg_n].value=arg_v;
+	}else if( arg_n=="extid"){
+	        $('MT_form')[arg_n].value=arg_v;
+	}else if( arg_n=="mode"){
+		$('MT_form')[arg_n].value=arg_v;
+		mode_value=arg_v;
+	}
+	}
+}
+
+/*submitURL="";
+if(mode_value=="AmazonMTsandbox"){
+	submitURL="http://workersandbox.mturk.com/mturk/externalSubmit";
+}else if(mode_value=="AmazonMTproduction"){
+	submitURL="http://www.mturk.com/mturk/externalSubmit";
+}
+
+$('MT_form').action=submitURL;
+*/
+</script>
+
+</body>
+</html>

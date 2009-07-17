@@ -1,0 +1,25 @@
+{% extends "admin/base.html" %}
+{% load time_extras %}
+
+{% block title %}{{worker.worker}}:worker internal dashboard{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">Worker internal dashboard: {{worker.worker}} </h1>
+{% endblock %}
+
+
+
+{% block content %}
+Worker {{worker.worker}}<br/>
+
+Total submissions: {{stats.num_submissions}}<br/>
+Invalid submissions: {{stats.num_invalid}}<br/>
+<hr>
+Grading results:<br/>
+bad:{{stats.total_grades.num_bad}}<br/>
+with errors:{{stats.total_grades.num_ok}}<br/>
+good:{{stats.total_grades.num_good}}<br/>
+<hr/>
+ungraded:{{stats.total_grades.num_ungraded}}<br/>
+
+{% endblock %}

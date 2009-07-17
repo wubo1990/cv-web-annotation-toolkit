@@ -1,0 +1,74 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+<script language="javascript">AC_FL_RunContent = 0;</script>
+<script src="/code/js/AC_RunActiveContent.js" language="javascript"></script>
+</head>
+
+<body>
+
+<h1>Please mark 14 landmarks on the person</h1>
+
+<form id="MT_form" name="MT_form" method="POST" action="{{submit_target}}">
+
+{% if workerId %}
+<input id=workerId name=workerId value="{{workerId}}">
+{% endif %}
+
+
+{% if workerId %}
+<input type="submit">
+{% endif %}
+
+
+<script>
+
+query_args="";
+query_args=query_args+"data_host={{img_base_url|urlencode}}" 
+query_args=query_args+"&data_unit={{task.dataunit|urlencode}}";
+
+query_args=query_args+"&assignmentId=onlydemo";
+query_args=query_args+"&mode=MT2";
+
+if (AC_FL_RunContent == 0) {
+alert("This page requires AC_RunActiveContent.js.");
+} else {
+AC_FL_RunContent(
+'codebase', 'http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0',
+'width', '680',
+'height', '600',
+'src', 'people_14pt',
+'quality', 'high',
+'pluginspage', 'http://www.macromedia.com/go/getflashplayer',
+'align', 'middle',
+'play', 'true"',
+'loop', 'true',
+'scale', 'showall',
+'wmode', 'window',
+'devicefont', 'false',
+'id', 'people_14pt',
+'bgcolor', '#ffffff',
+'name', 'people_14pt',
+'menu', 'true',
+'allowFullScreen', 'false',
+'allowScriptAccess','always',
+//'movie', '../../code/people_14pt',
+//'movie', 'http://s3.amazonaws.com/visual-hits/code/people_14pt',
+'movie', '/code/people_14pt',
+'salign', '',
+'FlashVars', query_args
+); //end AC code
+}
+</script>
+<hr/>
+Any comments/suggestions/etc: <input type=text name="Comments" id="Comments" value="">
+<hr/>
+<input type=hidden name="assignmentId" id="assignmentId" value="">
+<input type=hidden name="hitId" id="hitId" value="ignored">
+<input type=hidden name="sites" id="sites" value="">
+<input type=submit>
+</form>
+
+</body>
+</html>

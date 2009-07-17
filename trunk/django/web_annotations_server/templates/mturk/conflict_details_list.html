@@ -1,0 +1,42 @@
+{% extends "admin/base.html" %}
+{% load time_extras %}
+
+{% block title %}{{session.code}}:session dashboard{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">Session dashboard: {{session.code}} </h1>
+{% endblock %}
+
+
+
+{% block content %}
+
+Session {{session.code}} [{% if session.sandbox %}
+SANDBOX
+{% else %}
+PRODUCTION
+{% endif %}].<br/>
+{{g1}} VS {{g2}}
+<hr/>
+<a href="/mt/result_stats/{{session.code}}-grading/by_worker/">Grading session by worker</a> <br/>
+<a href="/mt/result_stats/{{session.code}}/by_worker/">Input session by worker</a> 
+<hr/>
+<table>
+{% for c in conflicts %}
+<tr>
+<td><a target="_view_task" href="{{c.task.get_view_url}}">{{c.task.id}}</a></td><td>{{c.grade1.quality}},
+<a href="/mt/dashboard/worker_internal/{{c.grade1.worker.worker}}/">{{c.grade1.worker.worker}}</a>({{c.grade1.worker.utility}}) [<a href="/mt/grading/by_id/{{c.grade1.reference}}/">{{c.grade1.id}}</a>] </td><td>
+<a href="/mt/grading/deactivate_grade/{{c.grade1.id}}/" target="_grade_misc">
+[mark invalid]</a></td>
+<td>&nbsp;</td>
+<td>{{c.grade2.quality}},<a href="/mt/dashboard/worker_internal/{{c.grade2.worker.worker}}/">{{c.grade2.worker.worker}}</a>({{c.grade2.worker.utility}})
+[<a href="/mt/grading/by_id/{{c.grade2.reference}}/">{{c.grade2.id}}</a>]
+</td><td>
+<a href="/mt/grading/deactivate_grade/{{c.grade2.id}}/" target="_grade_misc">[mark invalid]</a></td>
+</td>
+
+</tr>
+
+{% endfor %}
+</table>
+{% endblock %}

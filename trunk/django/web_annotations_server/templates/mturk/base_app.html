@@ -1,0 +1,27 @@
+{% extends "base_site.html" %}
+{% load i18n %}
+
+{% block title %}{{ title }} | {% trans 'Mechanical Turk task manager' %}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">{% trans 'Mechanical Turk task manager' %}</h1>
+{% endblock %}
+
+{% block nav-global %}
+{% if user %} 
+{% if user.is_anonymous %}
+<a href="/accounts/login/?next=/"> Login</a> / <a href="/accounts/register/">Registration</a> 
+{% else %}
+Welcome, {{user.username}} : 
+{% comment %}<a href="/mt/dashboard_w/">Worker dashboard</a> 
+/ <a href="/mt/dashboard_r/">Requester dashboard</a> 
+/ <a href="/mt/dashboard_a/">Admin dashboard</a>  {% endcomment %}
+{% if user.is_staff %}
+/ <a href="/admin/">Admin interface</a>.
+{% endif %}
+/ <a href="/logout">Log out</a>
+{% endif %}
+
+{% endif %}
+{% endblock %}
+

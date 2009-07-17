@@ -1,5 +1,5 @@
 from django.contrib import admin
-from models import Session,FundingAccount,MTHit,SubmittedTask,Worker,Task
+from models import Session,FundingAccount,MTHit,SubmittedTask,Worker,Task,TaskType
 
 
 class FundingAccountAdmin(admin.ModelAdmin):
@@ -8,7 +8,7 @@ class FundingAccountAdmin(admin.ModelAdmin):
 
 class SessionAdmin(admin.ModelAdmin):
     list_display = ('code', 'task_def', 'funding', 'owner')
-    fields = ('code', 'task_def', 'funding', 'standalone_mode', 'sandbox', 'HITlimit');
+    fields = ('code', 'task_def', 'funding', 'standalone_mode', 'sandbox', 'HITlimit', 'hit_type', 'owner');
 
 
 class MTHitAdmin(admin.ModelAdmin):
@@ -22,6 +22,9 @@ class WorkerAdmin(admin.ModelAdmin):
 
 class TaskAdmin(admin.ModelAdmin):
     list_display = ('name', 'title', 'reward', 'max_assignments', 'duration')    
+
+class TaskTypeAdmin(admin.ModelAdmin):
+    list_display = ('id','name');
     
 
 
@@ -32,4 +35,5 @@ admin.site.register(MTHit, MTHitAdmin);
 admin.site.register(FundingAccount, FundingAccountAdmin);
 admin.site.register(Worker,WorkerAdmin);
 admin.site.register(Task,TaskAdmin);
+admin.site.register(TaskType,TaskTypeAdmin);
 

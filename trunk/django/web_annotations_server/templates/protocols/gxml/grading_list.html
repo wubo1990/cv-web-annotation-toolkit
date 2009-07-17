@@ -1,0 +1,221 @@
+{% extends "admin/base.html" %}
+{% load time_extras %}
+
+{% block extrahead %}
+<script src="/code/js/prototype.js" language="javascript"></script>
+{% endblock %}
+
+
+{% block title %}Grading {% endblock %}
+
+{% block branding %}
+<h1 id="site-name">Grading  </h1>
+{% endblock %}
+
+{% block content %}
+<form id='grading_form'>
+No work - no data submitted, unless the image is empty<br/>
+Poor - the annotator was negligent/made very clear mistakes. <br/>
+Visible errors - some minor, but visible errors. The errors are possibly due to misunderstanding<br/>
+Good - fair annotation. This is a reasonably expected annotation. (No annotation for empty images)<br/>
+Exceptional - some really outstanding annotation. E.g. very constructive comment.<br/>
+
+<hr/>
+{% if has_previous %}
+<a href="../p{{previous}}/">{{previous}}</a>
+{% endif %}
+{{page}}
+{% if has_next %}
+<a href="../p{{next}}/">{{next}}</a>
+{% endif %} | {{num_pages}}
+{% for p in page_range %}
+{{p}} 
+{% endfor %}
+
+<hr/>
+<script>
+
+var all_submission_ids=[
+{% for s in object_list %}
+'{{s.id}}',
+{% endfor %}
+];
+
+  var set_display_mode=function(s_id,mode){
+    id="div_"+s_id;
+    if(mode=="graded")
+    {
+    $(id).style.display="none";	      
+    $(id+"_feedback").style.display="none";	      
+    $(id+"_grade").style.display="none";	      
+    $(id+"_info").style.display="none";	      
+    $(id+"_raw").style.display="none";	      
+    $(id+"_graded_msg").style.display="block";	      
+
+    $(id+"_r1").style.display="none";
+    $(id+"_r2").style.display="none";
+    $(id+"_r3").style.display="none";
+    $(id+"_r4").style.display="none";
+
+    $(id+"_r5").style.display="block";
+    }else{
+    $(id).style.display="block";	      
+    $(id+"_feedback").style.display="block";	      
+    $(id+"_grade").style.display="block";	      
+    $(id+"_info").style.display="block";	      
+    $(id+"_raw").style.display="block";	      
+    $(id+"_graded_msg").style.display="block";	      
+    $(id+"_r2").style.display="block";
+    $(id+"_r3").style.display="block";
+    $(id+"_r4").style.display="block";
+    $(id+"_r1").style.display="block";
+
+    $(id+"_r5").style.display="none";
+}
+  } 
+
+</script>
+<table>
+
+
+
+{% for s in object_list %}
+<tr id="div_{{s.id}}_r1">
+<td>
+<div id="div_{{s.id}}" style="display:block">
+
+<iframe height=600 width=600 src="{{s.get_view_url}}&{{s.hit.parameters}}&annotationURL=mt/submission_data_xml/{{s.id}}/{{s.hit.ext_hitid}}/"></iframe>
+</div>
+
+</td>
+<td>
+
+<table>
+<tr>
+<td><div id="div_{{s.id}}_info" style="display:block">
+<b>Worker: </b>{{ s.worker }}<br/>
+<b>Comment: </b>{{ s.get_parsed.comments }}
+</div></td></tr>
+<tr id="div_{{s.id}}_r2">
+<td><div id="div_{{s.id}}_raw" style="display:block">
+<a href="/mt/submission_data_xml/{{s.id}}/{{s.hit.ext_hitid}}/">full xml</a>
+</div></td>
+
+<tr id="div_{{s.id}}_r3">
+<td><div id="div_{{s.id}}_grade" style="display:block">
+<select id="quality_{{s.id}}" size="5" >
+<option value="0">No work</option>
+<option value="3">Poor</option>
+<option value="7">Visible errors</option>
+<option value="10" selected="selected">Good</option>
+<option value="15">Exceptional</option>
+</select>
+</div></td>
+</tr>
+<tr id="div_{{s.id}}_r4">
+<td>
+<div id="div_{{s.id}}_feedback" style="display:block">
+Feedback:<textarea rows="5" cols="50" name="message_{{s.id}}"></textarea>
+<br/>
+<a href="#" onclick="submit_id('{{s.id}}');set_display_mode({{s.id}},'graded');return false;">Submit this grade only</a>
+</div>
+</td></tr></table></td></tr>
+
+<tr id="div_{{s.id}}_r5">
+<td><div id="div_{{s.id}}_graded_msg" style="display:none">{{s.id}} has been graded</div>
+<a href="#" onclick="set_display_mode({{s.id}},'display');return false">(show)</a></td></tr>
+</td>
+</tr>
+
+{% ifequal s.manualgraderecord_set.count 0 %} 
+{% else %}
+<script>
+  set_display_mode({{s.id}},"graded");
+</script>
+{% endifequal %}
+{% endfor %}
+
+</table>
+<noscript>
+Error. Javascript is required.
+</noscript>
+
+<hr/>
+<table>
+<tr>
+{% for s in object_list %}
+<td>
+<div id='upd_{{s.id}}' >{% ifequal s.manualgraderecord_set.count 0 %} 
+upd_{{s.id}} |
+{% else %}
+graded |
+{% endifequal %}
+</div></td>
+{% endfor %}
+</tr>
+</table>
+<hr/>
+
+<hr/>
+<script>
+function show_all(){
+for(var i=0;i<all_submission_ids.length;i++)
+{
+set_display_mode(all_submission_ids[i],'display');
+}
+return false;
+}
+</script>
+<a href="#" onclick="return show_all();">show all</a>
+<hr/>
+
+<script>
+var all_submissions=[
+{% for s in object_list %}
+{% ifequal s.manualgraderecord_set.count 0 %} 
+'{{s.id}}',
+{% endifequal %}
+{% endfor %}
+];
+
+
+function submit_id(sID){
+      $('upd_'+sID).innerHTML='submitting ...';
+      new Ajax.Updater('upd_'+sID, '/mt/grading_submit/'+sID+'/', {
+         parameters: { 
+	    quality: $('grading_form')['quality_'+sID].value,
+	    feedback: $('grading_form')['message_'+sID].value
+	    }
+          });
+}
+
+function submit_results(){
+   for(var i=0;i<all_submissions.length;i++)
+   {
+      sID=(all_submissions[i]);
+	       submit_id(sID);
+   }
+   $('submit_div').style.display='none';
+}
+</script>
+
+{% if has_previous %}
+<a href="../p{{previous}}/">{{previous}}</a>
+{% endif %}
+{{page}}
+{% if has_next %}
+<a href="../p{{next}}/">{{next}}</a>
+{% endif %} | {{num_pages}}
+{% for p in page_range %}
+<a href="../p{{p}}/">{{p}}</a>
+{% endfor %}
+<hr/>
+
+<div id="submit_div">
+<input type="button" onclick="javascript:submit_results()" value="submit">
+</div>
+</form>
+
+
+{% endblock %}
+

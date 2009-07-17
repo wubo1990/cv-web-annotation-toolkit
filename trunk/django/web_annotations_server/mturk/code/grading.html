@@ -1,0 +1,339 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>prototype</title>
+<script language="javascript">AC_FL_RunContent = 0;</script>
+<script src="js/AC_RunActiveContent.js" language="javascript"></script>
+<script src="/code/js/easy_selection.js"></script>
+<style>
+.good {background-color:#FFF; }
+.bad {background-color:#F00;}
+.with_errors {background-color:#0F0;}
+.exceptional {background-color:#00F;}
+.grade_msg {background-color:#FFF; }
+</style>
+</head>
+
+<body bgcolor="#ffffff">
+
+<script language="javascript" src="js/prototype.js" > </script>
+
+
+<form id="MT_form" name="MT_form" action="http://www.mturk.com/mturk/externalSubmit" method="POST">
+
+IMPORTANT: Read the <a id="a_instructions" href="instructions.html" target="wnd_instructions">instructions</a>!! <!--<b>Instructions have been updated!</b><br/>-->
+
+<div id="rating_div" style="display:none;"></div>
+
+<div id="grading_results"></div>
+
+<div id="grading_content">Loading grading task...</div>
+
+
+
+<div id="submit_div">
+<noscript>
+Error. Javascript is required.
+</noscript>
+<hr/>
+Any comments/suggestions/etc: <input type=text name="Comments" id="Comments" value="">
+<hr/>
+
+<input type=hidden name="assignmentId" id="assignmentId" value="">
+<input type=hidden name="hitId" id="hitId" value="ignored">
+<input type=hidden name="sites" id="sites" value="">
+<input type=hidden name="extid" id="extid" value="">
+<input type=hidden name="session" id="session" value="">
+<input type=hidden name="workerId" id="workerId" value="">
+<input type=hidden name="mode" id="mode" value="">
+
+
+<input type=submit>
+
+</div>
+
+
+
+</form>
+
+
+<script language="javascript">
+
+//
+// This method Gets URL Parameters (GUP)
+//
+function gup( name )
+{
+  var regexS = "[\\?&]"+name+"=([^&#]*)";
+  var regex = new RegExp( regexS );
+  var tmpURL = window.location.href;
+  var results = regex.exec( tmpURL );
+  if( results == null )
+    return "";
+  else
+    return results[1];
+}
+
+//
+// This method decodes the query parameters that were URL-encoded
+//
+function decode(strToDecode)
+{
+  var encoded = strToDecode;
+  return unescape(encoded.replace(/\+/g,  " "));
+}
+
+
+
+    document.getElementById('assignmentId').value = gup('assignmentId');
+
+
+    //
+    // Check if the worker is PREVIEWING the HIT or if they've ACCEPTED the HIT
+    //
+    mode_value="AmazonMTproduction"
+
+    if (gup('assignmentId') == "ASSIGNMENT_ID_NOT_AVAILABLE")
+    {
+        mode_value=="AmazonMTproduction"
+        // If we're previewing, disable the button and give it a helpful message
+	//document.getElementById('submitButton').disabled = true;
+	//document.getElementById('submitButton').value = "You must ACCEPT the HIT before you can submit the results.";
+    } else {
+        var form = document.getElementById('MT_form');
+        if (document.referrer && ( document.referrer.indexOf('workersandbox') != -1) ) {
+            form.action = "http://workersandbox.mturk.com/mturk/externalSubmit";
+	    mode_value="AmazonMTsandbox";
+        }
+    }
+
+
+//alert(document.location);
+query_args=document.location.toString();
+query_args=query_args.split("?")[1];
+args_list=query_args.split("&");
+
+no_mode_in_query=1;
+rating="";
+workerId="";
+for (i = 0; i <= args_list.length; i++)
+{
+	arg=args_list[i];
+	if(arg){
+	arg_pair=arg.split("=");
+	arg_n=arg_pair[0];
+	arg_v=arg_pair[1];
+	if( arg_n=="assignmentId"){
+		$('MT_form')[arg_n].value=arg_v;
+	}else if( arg_n=="hitId"){
+		$('MT_form')[arg_n].value=arg_v;
+	}else if( arg_n=="workerId"){
+	  workerId=arg_v;
+		$('MT_form')[arg_n].value=arg_v;
+	}else if( arg_n=="extid"){
+	        $('MT_form')[arg_n].value=arg_v;
+	}else if( arg_n=="session"){
+	        $('MT_form')[arg_n].value=arg_v;
+	}else if( arg_n=="mode"){
+	        no_mode_in_query=0;
+		$('MT_form')[arg_n].value=arg_v;
+		mode_value=arg_v;
+	}
+	}
+}
+if( rating!=""){
+    $('rating_div').innerHTML="Current rating: "+rating;
+    $('rating_div').style.display='block';
+}
+
+instructions_URL=unescape(gup("instructions"));
+$('a_instructions').href=instructions_URL;
+
+
+//alert(mode_value);
+//alert(query_args);
+if ( no_mode_in_query){
+    query_args=query_args+"&mode="+mode_value
+}
+
+submitURL="";
+if(mode_value=="AmazonMTsandbox"){
+	submitURL="http://workersandbox.mturk.com/mturk/externalSubmit";
+}else if(mode_value=="AmazonMTproduction"){
+	submitURL="http://www.mturk.com/mturk/externalSubmit";
+}else if(mode_value=="MT2"){
+	submitURL="/mt/submit/";
+}else if(mode_value=="sandbox2"){
+	submitURL="/mt/submit/";
+}else if(mode_value=="input"){
+	submitURL="/mt/submit/";
+}
+$('MT_form').action=submitURL;
+
+
+var active_task_data;
+var annotation_data;
+var annotation_grades={};
+var annotation_feedback={};
+var data_done=0;
+var annotation_done=0;
+
+grading_template='<table>                                   \
+<tr id="div_#{s_id}_r2">                               \
+<td><div id="div_#{s_id}_raw" style="display:block">   \
+</div></td> \
+<tr id="div_#{s_id}_r3"> \
+<td><div id="div_#{s_id}_grade" style="display:block"> \
+<select name="quality__#{s_id}" id="quality__#{s_id}" size="5" >                \
+<option value="3">Bad</option>                          \
+<option value="7">With errors</option>                  \
+<option value="10" selected="selected">Good</option>    \
+<option value="15">Exceptional</option>                 \
+</select>                                               \
+</div></td> \
+</tr> \
+<tr id="div_#{s_id}_r4">\
+<td>\
+<div id="div_#{s_id}_feedback" style="display:block"> \
+Feedback:<textarea rows="5" cols="50" name="message_#{s_id}"></textarea>\
+</div>\
+</td></tr></table>';
+
+var task_template = new Template('<tr id=\"task_#{task_id}\"><td><iframe height=500 width=550 src=\"#{url}\" ></iframe></td><td>'+grading_template+'</td></tr>');
+var annotation_show_template = new Template('<td>#{id}:#{grade}</td>');
+
+// task_template = new Template('<tr><td>a</td><td>b</td></tr>');
+
+
+var check_after_load=function()
+{
+  class_list={ 3:'bad',7:'with_errors',10:'good',15:'exceptional' };
+  if(data_done && annotation_done)
+    {
+      var items=active_task_data.getElementsByTagName('submission');
+
+      for( var iID=0;iID<items.length;iID++)
+      {
+	var i=items[iID];
+	var id = i.getAttribute("id");
+	var task_id=id.split('/')[1];
+	var s_id=id.replace('/','_');
+	grade=annotation_grades[task_id];
+	feedback = annotation_feedback[task_id];
+	$('task_'+task_id).addClassName(class_list[grade]);
+
+	$("div_"+s_id+"_grade").innerHTML="grade: "+grade;
+	$("div_"+s_id+"_feedback").innerHTML="feedback: "+feedback;
+      }
+    }
+};
+var onTaskXMLLoaded=function(transport)
+{
+  if (transport.responseXML)
+  {
+    active_task_data = transport.responseXML;
+    var items=active_task_data.getElementsByTagName('submission')
+
+    var s= "<table>";
+    var in_conflict=false;
+    for( var iID=0;iID<items.length;iID++)
+    {
+      var i=items[iID];
+
+      var id = i.getAttribute("id");
+      var s_id=id.replace('/','_');
+      var url = decode(i.getAttribute("url"));
+      var worker = i.getAttribute("worker");
+      var task_id=id.split('/')[1];
+      if(mode_value=="display")
+	{
+	  s +=task_template.evaluate({id:id, s_id:s_id,url:url,task_id:task_id});
+	}else{
+	  s +=task_template.evaluate({id:id, s_id:s_id,url:url});
+	}
+      if( worker==workerId )
+	{
+	  in_conflict=true;
+	}
+    }
+    s+= "</table>";
+
+    if(in_conflict)
+      {
+	$('submit_div').style.display="none";
+	$('grading_content').innerHTML ='conflict';
+      }else{
+	$('grading_content').innerHTML =s;
+      }
+    }
+  data_done=1;
+  check_after_load();
+}
+
+
+var onAnnotationXMLLoaded=function(transport)
+{
+  if (transport.responseXML)
+  {
+    annotation_data = transport.responseXML;
+
+    var items=annotation_data.getElementsByTagName('grade')
+
+    var info=annotation_data.getElementsByTagName('info')[0];
+
+    var s= "<table><tr>";
+    var w=info.getAttribute("by_worker");
+    s+="<td>"+w+"</td>";
+
+    for( var iID=0;iID<items.length;iID++)
+    {
+      var i=items[iID];
+
+      var id = i.getAttribute("for_id");
+      var grade = i.getAttribute("grade");
+      var feedback = i.getAttribute("feedback");
+      annotation_grades[id]=grade;
+      annotation_feedback[id]=feedback;
+      s +=annotation_show_template.evaluate({id:id, grade:grade});
+    }
+    s+= "</tr></table>";
+
+    $('grading_results').innerHTML = s;
+    annotation_done=1;
+  }
+}
+
+if(mode_value=="display")
+  {
+    tasks_URL=unescape(gup("data_url"));
+
+    var upd=new Ajax.Request(tasks_URL, {
+			       method: 'get',
+			       onSuccess: onTaskXMLLoaded,
+			     });
+
+
+    var annotation_URL=unescape(gup("annotation_url"));
+    var upd=new Ajax.Request(annotation_URL, {
+			       method: 'get',
+			       onSuccess: onAnnotationXMLLoaded,
+			     });
+  }
+else
+  {
+    tasks_URL=unescape(gup("data_url"));
+
+    var upd=new Ajax.Request(tasks_URL, {
+			       method: 'get',
+			       onSuccess: onTaskXMLLoaded,
+			     });
+
+
+  }
+</script>
+
+
+
+
+</body>
+</html>
