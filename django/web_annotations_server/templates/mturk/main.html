@@ -1,0 +1,36 @@
+{% extends "mturk/base_app.html" %}
+
+{% block content %}
+
+{% if user.is_anonymous %}
+<p>
+Please <a href="/accounts/login/?next=/"> login</a> or <a href="/accounts/register/">register</a>.
+{% else %}
+
+{% endif %}
+
+My sessions:<br/>
+<table>
+<tr>
+<td>Session</td>
+<td>Open submissions</td>
+<td>Total submissions</td>
+</tr>
+{% for s in sessions %}
+<tr>
+<td>
+<a href="/mt/dashboard/session/{{s}}/">{{s}}</a><br/>
+</td>
+<td>
+{{s.num_open_submissions}}
+</td>
+<td>
+{{s.num_submissions}}
+</td>
+
+</tr>
+{% endfor %}
+</table>
+
+{% endblock %}
+

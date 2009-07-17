@@ -25,6 +25,8 @@ from django.contrib import admin
 from django.contrib.admin.views import main
 
 def add_session(request):
+  print main
+  help(main)
   res = main.add_stage(request, "mturk", "session")
   if request.POST:
     pass

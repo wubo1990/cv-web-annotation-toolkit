@@ -1,0 +1,110 @@
+{% extends "admin/base.html" %}
+{% load time_extras %}
+
+{% block title %}{{session.code}}:session dashboard{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">Session dashboard: {{session.code}} </h1>
+{% endblock %}
+
+
+
+{% block content %}
+
+Session {{session.code}} [{% if session.sandbox %}
+SANDBOX
+{% else %}
+PRODUCTION
+{% endif %}].<br/>
+
+HITs {{session.mthit_set.count}} of {{session.HITlimit}}.<br/>
+Submissions: Total {{session.submittedtask_set.count}}. Approved {{stats.submissions.approved}}. Rejected {{stats.submissions.rejected}}. <b>Open {{stats.submissions.open}}.</b><br/>
+
+<hr/>
+
+<hr/>
+<h2>Grading</h2>
+<a href="/mt/result_stats/{{session.code}}/by_worker/">Grading by worker</a><br/>
+<a href="/mt/grading/thumbnails_random/{{session.code}}/">Random grading in thumbnails</a><br/>
+<br/>
+<a href="/mt/grading/submit/session/{{session.code}}/{{session.code}}-grading/">Submit all for grading</a><br/><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="/mt/dashboard/session/{{session.code}}-grading/">dashboard: grading session</a>
+<hr/>
+
+<h2>Grade statistics</h2>
+Good :{{stats.total_grades.num_good}}<br/>
+With errors: {{stats.total_grades.num_ok}}<br/>
+Bad :{{stats.total_grades.num_bad}}<br/>
+<hr/>
+<b>Ungraded: {{stats.total_grades.num_ungraded}}</b><br/>
+<hr/>
+<b>Conflicts:</b> {{stats.conflicts.stats.num_conflicts}}
+<hr/>
+<b>Conflict distribution:</b> 
+<table><tr><td> </td>
+{% for c in stats.session_grades.conflict_distribution_tbl.columns %}
+<td>{{c}}</td>
+{% endfor %}
+</tr>
+{% for r in stats.session_grades.conflict_distribution_tbl.rows %}
+<td>{{r.label}}</td>
+{% for v in r.row %}
+<td><a href="/mt/grading/conflict/show/{{session.code}}/{{v.i}}/{{v.j}}/">{{v.v}}</a></td>
+{% endfor %}
+</tr>
+
+{% endfor %}
+</table>
+
+<hr/>
+<h2>Approval</h2>
+WARNING: no questions asked<br/>
+<a href="/mt/approve_good_results/{{session.code}}/">Approve good results</a><br/>
+<a href="/mt/reject_poor_results/{{session.code}}/">Reject bad results</a><br/>
+<br/>
+<a href="/mt/approve_all_results/{{session.code}}/">Approve all results (regardless if they were graded)</a><br/>
+<hr/>
+<h2>Results</h2>
+Browse:<br/>
+<ul>
+<li><a href="/mt/results/{{session.code}}/">All results</a><br/></li>
+<li><a href="/mt/good_results/{{session.code}}/">Good results</a><br/></li>
+</ul>
+
+Convert good anntoations to messages:<br/>
+<code>
+rosrun cv_mech_turk session_2_messages.py --session={{session.code}}
+</code><br/>
+<br/>
+Download annotations and images:<br/>
+<code>
+rosrun cv_mech_turk session_results.py --session={{session.code}}
+</code><br/>
+
+
+<hr/>
+<h2>Timing statistics</h2>
+Min time :{{stats.timing.min}}<br/>
+Max time :{{stats.timing.max}}<br/>
+Avg time :{{stats.timing.avg}}<br/>
+Std time :{{stats.timing.std}}<br/>
+<hr/>
+<br/>
+<br/>
+<br/>
+<br/>
+
+{% comment  %}
+
+Started: {{s.hit.submitted|human_date}}  {{s.hit.submitted|relative_using_date}}
+<br>
+Finished: {{s.submitted|human_date}}  {{s.submitted|relative_using_date}}
+<br>
+Delay: {{ s.get_delay }}
+<br>
+
+Filename: {{ s.hit.get_filename }}
+<br>
+{% endcomment %}
+
+{% endblock %}

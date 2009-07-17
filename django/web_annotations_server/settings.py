@@ -31,7 +31,8 @@ elif os.path.exists('/Users/syrnick/projects/cv_web_tk/code/django/web_annotatio
 	DJ_CODE_RT='/Users/syrnick/projects/cv_web_tk/code/django/web_annotations_server/';
 elif os.path.exists('/var/django/web_annotations_server/'):
 	DJ_CODE_RT='/var/django/web_annotations_server/'
-
+elif os.path.exists('/var/django2/web_annotations_server/'):
+	DJ_CODE_RT='/var/django2/web_annotations_server/'
 
 
 
@@ -132,7 +133,7 @@ INSTALLED_APPS = (
 
 ACCOUNT_ACTIVATION_DAYS=4
 
-HOST_NAME_FOR_MTURK="http://vision-app1.cs.uiuc.edu:8080/"
+HOST_NAME_FOR_MTURK="http://vm7.willowgarage.com:8080/"
 
 ## number of hits to show per page
 NUM_HITS_PER_PAGE = 20

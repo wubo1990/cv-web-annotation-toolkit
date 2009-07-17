@@ -1,6 +1,6 @@
 import random,math,urllib,os,sys
 import cPickle as pickler
-
+from xml.dom import minidom
 from django.contrib.auth.models import User
 from django.conf import settings
 
@@ -27,21 +27,30 @@ class FundingAccount(models.Model):
 	def __str__(self):
         	return self.name
 
+task_engines={};
+import mturk.protocols.gxml.task;
+task_engines["gxml"]=mturk.protocols.gxml.task.GXmlTaskEngine();
+import mturk.protocols.grading.task;
+task_engines["grading"]=mturk.protocols.grading.task.GradingTaskEngine();
 
+class TaskType(models.Model):
+	name=models.SlugField();
+	
+	def get_engine(self):
+		return task_engines.get(self.name,None)
 
+	def __unicode__(self):
+		return self.name;
 
 
 class Task(models.Model):
 	name=models.SlugField();
+	type=models.ForeignKey(TaskType);	
 	
 	interface_xml=models.TextField(help_text="XML describing the flash interface.");	
 
 	instructions_url=models.URLField(help_text="url to access the instructions for this task.");	
 	
-	hit_type=models.CharField(max_length=100,
-                                  blank=True,
-                                  help_text="mechanical turk's id");
-
 	title=models.CharField(max_length=200);
 	description=models.TextField();
 	keywords=models.CharField(max_length=200, help_text="comma separated set of keywords describing this task");
@@ -72,7 +81,24 @@ class Task(models.Model):
 		return self.keywords.split(',');
 
 
+	parsed_parameters=None;
 
+	def parse_parameters_xml(self):
+		if self.parsed_parameters is not None:
+			return self.parsed_parameters;
+		if self.interface_xml.startswith("<?xml"):
+			xmldoc = minidom.parseString(self.interface_xml);
+			self.parsed_parameters=xmldoc
+		
+		return self.parsed_parameters;
+
+SESSION_STATE = (
+            (1, 'Active'),
+            (2, 'HasAllTasks'),
+            (3, 'HasAllSubmissions'),
+            (4, 'HasAllGrades'),
+            (5, 'Finalized'),
+        )        
 class Session(models.Model):
 	code=models.SlugField();
 	task_def=models.ForeignKey(Task);
@@ -86,27 +112,42 @@ class Session(models.Model):
 
         owner=models.ForeignKey(User, null=True, blank=True)
 
+	hit_type=models.CharField(max_length=100,
+                                  blank=True,
+				  default="",
+                                  help_text="mechanical turk's id");
+
+	state=models.IntegerField(choices=SESSION_STATE,default=1);
+
 	def parse_parameters(self):
-		if not self.parameters:
-			return {'' : ''};
-		params={};
-		for parm in self.parameters.split("\n"):
-			(k,x,v)=parm.partition("=");
-			params[k.strip()]=v.strip();
-		return params;
+		return {};
 	
 	def __str__(self):
         	return self.code
 
+	def num_open_submissions(self):
+		return self.submittedtask_set.exclude(state=3).exclude(state=4).count();
+	def num_submissions(self):
+		return self.submittedtask_set.count();
 
+
+HIT_STATE = (
+            (1, 'New'),
+            (2, 'Submitted'),
+            (3, 'Graded'),
+            (4, 'Finalized'),
+        )        
 
 class MTHit(models.Model):
 	session=models.ForeignKey(Session);
+
+	#mt_hitid=models.TextField(null=True,defalut=null);
 	ext_hitid=models.TextField();
 	int_hitid=models.TextField();
 	parameters=models.TextField();
 	submitted = models.DateTimeField(auto_now_add=True);
 
+	state=models.IntegerField(choices=HIT_STATE,default=1);
 
         def __str__(self):
           return str(self.int_hitid)
@@ -121,6 +162,15 @@ class MTHit(models.Model):
 			params[k.strip()]=v.strip();
 		return params;
 
+	def get_view_url(self):
+		te=type.get_engine();
+		return te.get_task_view_url(self)
+
+	def get_thumbnail_url(self):
+		te=type.get_engine();
+		return te.get_thumbnail_url(self)
+
+
 class AssignedTask(models.Model):
 	session = models.ForeignKey(Session);
 	hit	= models.ForeignKey(MTHit);
@@ -129,6 +179,12 @@ class AssignedTask(models.Model):
 	assignment_id = models.TextField(); 
 	metadata = models.TextField();
 
+SUBMISSION_STATE = (
+            (1, 'New'),
+            (2, 'Graded'),
+            (3, 'Approved'),
+            (4, 'Rejected'),
+        )        
 class SubmittedTask(models.Model):
 	hit = models.ForeignKey(MTHit);
 	session = models.ForeignKey(Session);
@@ -141,6 +197,12 @@ class SubmittedTask(models.Model):
 	shapes = None;
 	comments = None;
 
+	valid   = models.BooleanField(default=True);
+	final_grade=models.DecimalField(max_digits=7,decimal_places=4,
+                                 default="0.0",
+                                 help_text="The final grade assigned to submission.");
+	state   = models.IntegerField(choices=SUBMISSION_STATE,default=1);
+
         def get_delay(self):
           if self.submitted and self.hit.submitted:
             return self.submitted - self.hit.submitted
@@ -150,10 +212,38 @@ class SubmittedTask(models.Model):
 		v=self.get_parsed();
 		return v.comments
 
+
+	def get_xml_str(self):
+		te=self.session.task_def.type.get_engine()
+		return te.get_submission_xml(self)
+
 	def get_parsed(self):
 		#print "SELF:", self
 		if self.shapes is not None:
 			return self;
+
+		te=self.session.task_def.type.get_engine()
+		self.shapes = te.get_submission_xml(self)
+
+		(GET,POST)=self.get_response();
+		comment_key="Comments";
+		if comment_key in GET:
+			self.comments=GET[comment_key];
+		elif comment_key in POST:
+			self.comments=POST[comment_key];
+		else:
+			self.comments="";
+		return self
+
+
+	unpickled_response =None
+	def get_response(self):
+		if self.unpickled_response:
+			return self.unpickled_response;
+		self.unpickled_response=pickler.loads(str(self.response))
+		return self.unpickled_response;
+
+	"""
 
 		if not self.session.parameters:
 			protocol="g-xml"
@@ -163,8 +253,7 @@ class SubmittedTask(models.Model):
 
 		if protocol=="people14":
 			(shapes,comments)=people14_parse_submission(self)
-			self.shapes=shapes;
-			self.comments=comments;
+
 			#print self
 		elif protocol=="g-outlets" or protocol=="g-xml":
 			(shapes_xml,comments)=g_xml_parse_submission(self)
@@ -174,43 +263,29 @@ class SubmittedTask(models.Model):
 		else:
 			raise "Error: unknown protocol "+protocol
 		return self;
-
-
-
-
+		"""
 	def get_view_url(self):
-		viewurl=""
+		te=self.hit.session.task_def.type.get_engine();
+		return te.get_submission_view_url(self)
+	def get_thumbnail_url(self):
+		te=self.hit.session.task_def.type.get_engine();
+		return te.get_thumbnail_url(self)
+	def get_grading_view_url(self):
+		te=self.hit.session.task_def.type.get_engine();
+		print "GV"
+		return te.get_grading_view_url(self)
 
-		url="/code/task.html?swf=label_generic"
-
-		task=self.hit;
-		session=task.session;
-
-		if len(session.parse_parameters())>1:
-			return session.parse_parameters()["viewurl"];
-
-		url=url+"&extid="+task.ext_hitid;
-
-		url=url+"&session="+session.code;
-
-		url=url+"&task="+session.task_def.name
-
-		url=url+"&video="+session.code;
-		url=url+"&frame="+task.parse_parameters()["frame"];
-		url=url+"&img_base="+settings.HOST_NAME_FOR_MTURK;
-
-		url=url+"&mode=display2";
-		url=url+"&swf_w=700&swf_h=700";
-		url=url+"&instructions="+urllib.quote(session.task_def.instructions_url);
-		return url
-
-
+	def get_persistent_url(self):
+		return settings.HOST_NAME_FOR_MTURK+"mt/submission_data_xml/"+str(self.id)+"/"+self.hit.ext_hitid+"/";
+	def get_persistent_url2(self):
+		return "/mt/submission_data_xml/"+str(self.id)+"/"+self.hit.ext_hitid+"/";
 
 class Worker(models.Model):
-	session = models.ForeignKey(Session);
+	session = models.ForeignKey(Session,null=True, blank=True);
 	worker 	= models.TextField();
 
 	utility = models.IntegerField(default=50);
+	valid   = models.BooleanField(default=True);
 
 
 class GoldStandardGradeRecord(models.Model):
@@ -232,7 +307,8 @@ class ManualGradeRecord(models.Model):
 	quality=models.IntegerField(default=10);
 	feedback=models.TextField(blank=True);
 	worker 	= models.ForeignKey(Worker,null=True, blank=True);
-
+	valid   = models.BooleanField(default=True);
+	reference = models.TextField(blank=True);
 
 def select_sample_task(session):
 	try:
@@ -560,7 +636,7 @@ def score_worker(worker,gold_standard_hit,GoldStandard_session,task,session,subm
 			performance='spurious_shapes';
 			delta_utility=-1;
 		else:
-			#GET,POST=pickler.loads(submission.response)
+			#GET,POST=pickler.loads(str(submission.response))
 			#parse1=POST['sites'].split(";")
 			#locations=parse1[3:17]
 			#locations_xy=map(lambda s:map(lambda v:float(v),s.split(",")[0:2]),locations);
@@ -638,16 +714,9 @@ def score_worker(worker,gold_standard_hit,GoldStandard_session,task,session,subm
 		return None
 
 
-def g_xml_parse_submission(submission):
-	GET,POST=pickler.loads(submission.response)
-
-	shapes_xml=urllib.unquote_plus(POST['sites']);
-	comments=POST['Comments'];
-
-	return (shapes_xml,comments)
 
 def people14_parse_submission(submission):
-	GET,POST=pickler.loads(submission.response)
+	GET,POST=pickler.loads(str(submission.response))
 
 	shapes=POST['sites'].split(";;")
 	comments=POST['Comments'];
@@ -849,8 +918,8 @@ ORDER BY total_contribution DESC
     try:
 	for r in cursor.fetchall():
 		res={'worker':r[0],
-			'num_sessions':r[1],
-			'contribution':r[2]};
+		     'num_sessions':r[1],
+		     'contribution':r[2]};
 		results.append(res);
 	cursor.close();
 	return results
@@ -937,4 +1006,41 @@ LIMIT 1
 	return None
 
 
+def get_grade_conflict_details(session,g1,g2):
+    from django.db import connection
+    cursor = connection.cursor()
+    cursor.execute("""
+ SELECT t.id, r1.id r1_id, r1.quality q1, r2.id r1_id, r2.quality q2
+FROM `mturk_submittedtask` t, mturk_manualgraderecord r1, mturk_manualgraderecord r2
+WHERE t.session_id =%s
+AND t.id = r1.submission_id
+AND t.id = r2.submission_id
+AND r1.valid AND r2.valid
+AND r1.id <> r2.id
+AND r1.quality = %s
+AND r2.quality = %s
+GROUP BY t.id, q1, q2
+""",[session.id,g1,g2]);
+    results=[];
+    try:
+	for r in cursor.fetchall():
+		task_id=r[0];
+		r1_id=r[1];
+		r2_id=r[3];
+		task=SubmittedTask.objects.get(id=task_id);
+		r1=ManualGradeRecord.objects.get(id=r1_id);
+		r2=ManualGradeRecord.objects.get(id=r2_id);
+		res={'task':task,
+		     'grade1':r1,
+		     'grade2':r2};
+		results.append(res);
+	cursor.close();
+	return results
+    except:
+	return None
 
+    return None
+
+def get_grading_tasks_for_grading_submission(session,grading_session,worker_code,task_id):
+	results=[];
+	return results

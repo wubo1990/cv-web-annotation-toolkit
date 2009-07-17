@@ -1,0 +1,25 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>Statistics</title>
+<script language="javascript" src="/code/js/prototype.js" > </script>
+</head>
+
+<body bgcolor="#ffffff">
+
+<hr/>
+<table><tr><td>Session code</td><td>Worker</td><td>Num submissions</td><td>Grades</td><td>Grading link</td><td>Total by worker</td></tr>
+{% for s in session_stats %}
+<tr><td>{{session.code}}</td><td>{{s.worker}}</td><td>{{s.count}}</td>
+
+  <td>{{s.num_good}}/{{s.num_ok}}/{{s.num_bad}}</td>
+
+<td><a href="/mt/grading/by_worker/{{session.code}}/{{s.worker}}/">grade</a></td>
+<td>{{s.total}}</td>
+</tr>
+{% endfor %}
+</table>
+
+</body>
+
+</html>

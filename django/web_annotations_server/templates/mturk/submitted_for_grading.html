@@ -1,0 +1,28 @@
+{% extends "mturk/base_app.html" %}
+
+{% block content %}
+
+{% if user.is_anonymous %}
+<p>
+Please <a href="/accounts/login/?next=/"> login</a> or <a href="/accounts/register/">register</a>.
+{% else %}
+
+{% endif %}
+
+Grading for session {{session}} submitted into session {{grading_session}}.<br/>
+Number of submissions to grade: {{stats.num_to_grade}}. <br/>
+Submitted: {{ stats.num_submitted }} <br/>
+Failed: {{ stats.num_failed }} <br/>
+
+{% ifnotequal stats.num_failed 0 %} 
+<h2>ERRORS</h2>
+{% for m in failed_msgs %}
+Error: {{m}}<br/>
+While submitting: {{m.s}}
+<hr/>
+{% endfor %}
+{% endifnotequal %}
+
+
+{% endblock %}
+

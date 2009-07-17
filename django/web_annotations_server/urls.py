@@ -7,7 +7,7 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = patterns('',
 
-    (r'^$', 'evaluation.views.main'),
+    (r'^$', 'mturk.views.main'),
 
                        
     (r'^code/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.DJ_CODE_RT+'mturk/code/'}),
@@ -33,11 +33,15 @@ urlpatterns = patterns('',
 
 #    ('^([^/]+)/([^/]+)/(.+)/$', 'django.contrib.admin.views.main.change_stage'),
 
-    ('^admin/mturk/session/add/$', 'mturk.adminview.add_session'),
-    ('^admin/mturk/session/(\d+)/$', 'mturk.adminview.edit_session'),
-    ('^admin/mturk/session/(\d+)/delete/$', 'mturk.adminview.delete_session'),
-    ('^admin/mturk/task/(\d+)/$', 'mturk.adminview.edit_task'),
-    ('^admin/mturk/task/(\d+)/delete/$', 'mturk.adminview.delete_task'),
+
+
+#    These functions should work, but they don't #
+#
+#    ('^admin/mturk/session/add/$', 'mturk.adminview.add_session'),
+#    ('^admin/mturk/session/(\d+)/$', 'mturk.adminview.edit_session'),
+#    ('^admin/mturk/session/(\d+)/delete/$', 'mturk.adminview.delete_session'),
+#    ('^admin/mturk/task/(\d+)/$', 'mturk.adminview.edit_task'),
+#    ('^admin/mturk/task/(\d+)/delete/$', 'mturk.adminview.delete_task'),
 
 
 

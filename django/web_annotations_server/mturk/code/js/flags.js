@@ -1,7 +1,7 @@
 function flag_click(ref_annotation,flag_name){
     flag_id="flag_"+flag_name+"_"+ref_annotation;
     im_flag_id="im_flag_"+flag_name+"_"+ref_annotation;
-    
+
     if( $(im_flag_id).hasClassName("flag_on")){
 	$(im_flag_id).addClassName("flag_updating");
 	$(im_flag_id).removeClassName("flag_on");
