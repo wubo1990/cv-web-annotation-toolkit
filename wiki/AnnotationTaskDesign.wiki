@@ -31,9 +31,83 @@ For example, if we want outlines of obstacles and the bounding boxes around peop
 
 This example is sufficient to design simple tasks. There are many useful advanced features. See TaskDefinitionXML for complete specification and more examples.
 
+== Bounding box annotations ==
+
+Bounding box annotations are defined with {{{<annotation type="bbox2" />}}} declaration. 
+
+When the user clicks on the input token, the interface will request annotations of *multiple* bounding boxes. The user clicks and drags to produce a bounding box. The boxes can be edited and deleted (using undo).
+
+== Polygonal annotations ==
+
+Polygonal annotations are defined with {{{<annotation type="outline" />}}} declaration. 
+
+When the user clicks on the input token, the interface will request annotation of a *single* outline. The outline is finished when the user clicks on the first control point again.
+
+== Binary Flags ==              
+
+The flags represent simple binary properties of the image. They are defined with {{{<annotation type="presence"/>}}} declaration. Each binary flag will be shown as a checkbox.
+
+== Multiple Choice Question ==
+
+Multiple choice question is defined with {{{<annotation type="select">}}}.
+
+For example:
+{{{
+                <annotation type="select">
+                  <option name="Unspecified"/>
+                  <option name="Female"/>
+                  <option name="Male"/>
+                </annotation>
+}}}
+
+== Recursive annotations ==
+
+Recursive annotations are defined with {{{<annotation type="2level">}}} declaration. The declaration contains two children: level1 and level2. Level 1 declaration must be
+{{{<level1>  <annotation type="bbox2" /> </level1>}}}. This represents that the user has to draw bounding boxes of the objects. Level 2 declaration defined the full interface for the annotation.
+
+
+{{{
+     <target name="person">
+        <annotation type="2level">
+          <level1>  <annotation type="bbox2" /> </level1>
+          <level2>
+            <targets>
+              <target name="part"> <annotation type="presence"/></target>
+
+              <target name="gender">
+                <annotation type="select">
+                  <option name="Unspecified"/>
+                  <option name="Female"/>
+                  <option name="Male"/>
+                </annotation>
+              </target>
+
+              <target name="head"> <annotation type="outline"  /></target>
+              <target name="hand"> <annotation type="outline" /></target>
+
+            </targets>
+         </level2>
+        </annotation>
+      </target>
+}}}
+
+
+
+== Ordering of the targets ==
+
+The annotation interface will create the targets in the order in which they appear in the XML definition. The first 12 targets will have keyboard shortcuts associated with them. The keys are {{{qwerasdfzxcv}}} in this order.
+
+
+
+
+
+
+
 = Tool output = 
 
-The annotation interface tool outputs an XML document representing the annotations. 
+The annotation interface tool outputs an XML document representing the annotations. The annotations are represented in the coordinate frame of 500x500 box. The image is scaled and centered in that box.
+
+
 An example annotation (1 person and 1 obstacle) is shown below: 
 {{{
 <results>
@@ -48,7 +122,9 @@ An example annotation (1 person and 1 obstacle) is shown below:
 	<pt x="200" y="421" ct="1247310032864"/>
 	<pt x="21" y="361" ct="1247310033688"/>
 	<pt x="55" y="238" ct="1247310034960"/>
-</polygon><bbox name="person" sqn="1" left="232.1" top="137" width="164" height="249">
+</polygon>
+
+<bbox name="person" sqn="1" left="232.1" top="137" width="164" height="249">
 	<pt x="232.1" y="137" ct="1247310039553"/>
 	<pt x="396.1" y="386" ct="1247310040849"/>
 </bbox>
