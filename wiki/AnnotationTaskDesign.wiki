@@ -2,7 +2,7 @@
 
 = Introduction =
 
-The annotation tool is designed to be a modular component for easy integration into web application. The tool supports 3 major modes: input, display and edit. In the *input* mode, the tool gets the image and the task definition and produces the XML annotation. In *display* mode, the tool gets the task definition, the image and the XML annotation. The tool then renders the annotation. In *edit* mode, the tool loads the task definition, image, XML annotation and allows to change the annotation. 
+The annotation tool is designed to be a modular component for easy integration into web applications. The annotation tool supports 3 major modes: input, display and edit(where implemented). In the *input* mode, the tool gets the image and the task definition and produces the XML annotation. In *display* mode, the tool gets the task definition, the image and the XML annotation. The tool then renders the annotation. In *edit* mode, the tool loads the task definition, image, XML annotation and allows to change the annotation. 
 
 = Tool arguments = 
 
@@ -10,7 +10,7 @@ The annotation tool is designed to be a modular component for easy integration i
  * *img_base*: The URL of the server. Must match the server hosting the Flash interface.
  * *image_url*: The URL of the image to work on. The URL must include the name of the server.
  * *task_url*: The URL of the task definition. 
- * *task*: The name of the task. It is mapped onto <server>/tasks/<task>.xml file. The file is served. *task_url* is the preferred way to specify the task.
+ * *task*: The name of the task. It is mapped onto {{{<server>/tasks/<task>.xml}}} file. The file is served. *task_url* is the preferred way to specify the task.
  * *assignmentId*: The ID of the assignment. When set to ASSIGNED_ID_NOT_AVAILABLE, the interface will disable any input. This indicates a "preview" mode in Mechanical Turk.
  * *annotation_url* : The URL of the existing annotations. The annotations will be loaded in display or edit modes.
 
