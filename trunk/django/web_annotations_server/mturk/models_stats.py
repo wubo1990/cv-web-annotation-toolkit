@@ -278,10 +278,10 @@ def compute_session_grade_distribution(session):
  SELECT t.id, r1.quality q1, r2.quality q2, count( * )
 FROM `mturk_submittedtask` t, mturk_manualgraderecord r1, mturk_manualgraderecord r2
 WHERE t.session_id =%s
-AND t.valid
 AND t.id = r1.submission_id
 AND t.id = r2.submission_id
-AND r1.valid AND r2.valid
+AND (1 OR ( t.valid
+AND r1.valid AND r2.valid))
 AND r1.id <> r2.id
 AND r1.quality < r2.quality
 GROUP BY t.id, q1, q2

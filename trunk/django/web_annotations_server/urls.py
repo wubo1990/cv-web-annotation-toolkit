@@ -12,6 +12,7 @@ urlpatterns = patterns('',
                        
     (r'^code/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.DJ_CODE_RT+'mturk/code/'}),
     (r'^frames/(?P<path>.*)$', 'django.views.static.serve', {'document_root': '/var/datasets/'}),
+    (r'^video/(?P<path>.*)$', 'django.views.static.serve', {'document_root': '/var/datasets/video/'}),
     (r'^annotations/(?P<path>.*)$', 'django.views.static.serve', {'document_root': '/var/datasets/annotations/'}),
 
 

@@ -32,6 +32,8 @@ import mturk.protocols.gxml.task;
 task_engines["gxml"]=mturk.protocols.gxml.task.GXmlTaskEngine();
 import mturk.protocols.grading.task;
 task_engines["grading"]=mturk.protocols.grading.task.GradingTaskEngine();
+import mturk.protocols.video_events.task;
+task_engines["video_events"]=mturk.protocols.video_events.task.VideoEventsTaskEngine();
 
 class TaskType(models.Model):
 	name=models.SlugField();
