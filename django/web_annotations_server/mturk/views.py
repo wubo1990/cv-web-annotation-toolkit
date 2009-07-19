@@ -66,7 +66,7 @@ def showtask(request,session_code):
     	return render_to_response('mturk/not_available.html');
 
     te=task.session.task_def.type.get_engine();
-    url=te.get_task_page_url(task);
+    url=te.get_task_page_url(task,request);
 
     for k,v in request.GET.items():	
         url=url+"&"+k+"="+v
@@ -545,11 +545,12 @@ def submit_redo_HITs(request,session_code):
     for h in done_hits:
         hash_done_hits[h.id]=1;
     print hash_done_hits
-    #print "Resubmitting %d tasks " % results.count();
+    print "Resubmitting %d tasks " % results.count();
     
     num_submitted=0;
     for hit in hits:
         if hit.id in hash_done_hits:
+            print "Hit",hit.id ,"is done"
             continue
             
         taskurl=settings.HOST_NAME_FOR_MTURK+"mt/get_task/"+str(session.code)+"/?ExtID="+hit.ext_hitid;
@@ -562,7 +563,27 @@ def submit_redo_HITs(request,session_code):
 
         conn = MTurkConnection(host=awshost,aws_secret_access_key=session.funding.secret_key,aws_access_key_id=session.funding.access_key)
         t=session.task_def;
-        create_hit_rs = conn.create_hit(question=q, hit_type=session.hit_type);
+        if not session.hit_type:
+            qualifications = Qualifications()
+            qualifications.add(PercentAssignmentsApprovedRequirement(comparator="GreaterThan", integer_value="90"))
+            create_hit_rs = conn.create_hit(question=q, 
+                                            lifetime=t.lifetime,
+                                            max_assignments=t.max_assignments,
+                                            title=t.title,
+                                            keywords=str(t.keywords),
+                                            reward = t.reward,
+                                            duration=t.duration,
+                                            approval_delay=t.approval_delay, 
+                                            annotation="IGNORE",
+                                            qualifications=qualifications)
+            assert(create_hit_rs.status == True)
+            print create_hit_rs.HITTypeId
+            session.hit_type=create_hit_rs.HITTypeId;
+            session.save();
+        else:
+            create_hit_rs = conn.create_hit(question=q, hit_type=session.hit_type);
+        print "Hit",hit.id ,"is submitted"
+
         num_submitted += 1;
 
     return HttpResponse("%d" % num_submitted)
