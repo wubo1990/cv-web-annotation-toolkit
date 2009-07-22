@@ -54,7 +54,7 @@ class GradingTaskEngine(TaskEngine):
         return sys.modules["web_annotations_server.mturk.models"]
 
 
-    def get_task_page_url(self,task):
+    def get_task_page_url(self,task,request):
         session=task.session;
 
         url="/code/grading.html?"

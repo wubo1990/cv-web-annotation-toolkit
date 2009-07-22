@@ -45,8 +45,10 @@ def relative_using_date(date):
       s = "(%d day ago)" % dt.days
     elif dt.days < 30:
       s = "(%d days ago)" % dt.days
-    elif dt.months < 12:
-      s = "(%d months ago)" % dt.months
+    elif dt.days < 365:
+      s = "(%d months ago)" % (dt.days / 30)
+    else:
+      s = "(%d years ago)" % (dt.days /365)
   else:
     hours = hours + dt.days * 24
     if hours > 1:

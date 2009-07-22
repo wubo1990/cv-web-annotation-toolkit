@@ -4,6 +4,7 @@ import urllib,uuid,os,sys,shutil,subprocess,copy
 import cPickle as pickler
 
 from django.conf import settings
+from django.core.files.storage import FileSystemStorage
 
 from django.http import HttpResponse,Http404,HttpResponseRedirect
 from django.shortcuts import render_to_response,get_object_or_404 
@@ -44,7 +45,10 @@ def index(request):
 
 
 def main(request):
-    sessions=request.user.session_set.all().order_by('-id');
+    if not request.user.is_anonymous():
+        sessions=request.user.session_set.all().order_by('-id');
+    else:
+        sessions=[];
     return render_to_response('mturk/main.html',{'user':request.user,'sessions':sessions});
 
 	
@@ -78,6 +82,8 @@ def showtask(request,session_code):
 
 
 def submit_result(request):
+
+    print request.POST;
 
     task_id=request.REQUEST['extid']
     task = get_object_or_404(MTHit,ext_hitid=task_id)
@@ -436,10 +442,10 @@ def grading_report_for_worker(request,worker_id):
 
 def newHIT(request):
 	print request.POST
-	session_code = request['session']
-	frame = request['frame']
+	session_code = request.REQUEST['session']
+	frame = request.REQUEST['frame']
 	try:
-		original_name = request['original_name']
+		original_name = request.REQUEST['original_name']
 	except KeyError:
 		original_name = frame
 
@@ -461,9 +467,9 @@ def newHIT(request):
             os.makedirs(image_dir);
 
         image=request.FILES['image']
-        hOut=open(os.path.join(image_dir,frame+".jpg"),'wb');
-        hOut.write(image['content']);
-        hOut.close();
+        storage = FileSystemStorage(image_dir);
+        path = storage.save(os.path.join(image_dir,frame+".jpg"),image);
+
 
     
         print "get_params"
@@ -514,7 +520,7 @@ def newHIT(request):
                                             lifetime=t.lifetime,
                                             max_assignments=t.max_assignments,
                                             title=t.title,
-                                            keywords=t.keywords,
+                                            keywords=str(t.keywords),
                                             reward = t.reward,
                                             duration=t.duration,
                                             approval_delay=t.approval_delay, 
