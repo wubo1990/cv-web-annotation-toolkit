@@ -126,7 +126,7 @@ class GXmlTaskEngine(TaskEngine):
         return url
 
 
-    def get_task_page_url(self,task):
+    def get_task_page_url(self,task,request):
         session=task.session;
 
         url="/code/task.html?swf=label_generic"
@@ -155,5 +155,7 @@ class GXmlTaskEngine(TaskEngine):
 	GET,POST=submission.get_response()
 
 	shapes_xml=urllib.unquote_plus(POST['sites']);
+        print shapes_xml
+        print POST
 
 	return shapes_xml

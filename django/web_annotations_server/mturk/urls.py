@@ -5,8 +5,8 @@ import dashboard.views
 
 urlpatterns = patterns('',
 
-    (r'^/$', 'mturk.views.index'),
-    (r'^index/$', 'mturk.views.index'),
+    (r'^$', 'mturk.views.main'),
+    (r'^index/$', 'mturk.views.main'),
 
     (r'^dashboard/', include('mturk.dashboard.urls')),
 

@@ -75,6 +75,7 @@ class Task(models.Model):
                                            help_text="Amount of time in seconds before automatic approval.")
         # =autoapprovaldelay
 
+
 	def __str__(self):
         	return self.name
 
@@ -151,6 +152,7 @@ class MTHit(models.Model):
 
 	state=models.IntegerField(choices=HIT_STATE,default=1);
 
+
         def __str__(self):
           return str(self.int_hitid)
 
@@ -217,6 +219,7 @@ class SubmittedTask(models.Model):
 
 	def get_xml_str(self):
 		te=self.session.task_def.type.get_engine()
+		print self
 		return te.get_submission_xml(self)
 
 	def get_parsed(self):
