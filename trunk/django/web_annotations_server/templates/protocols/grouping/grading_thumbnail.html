@@ -1,0 +1,196 @@
+{% extends "admin/base.html" %}
+{% load time_extras %}
+
+{% block extrahead %}
+<style>
+.good {background-color:#FFF; }
+.bad {background-color:#F00;}
+.with_errors {background-color:#0F0;}
+.exceptional {background-color:#00F;}
+.grade_msg {background-color:#FFF; }
+</style>
+
+<script src="/code/js/prototype.js" language="javascript"></script>
+<script src="/code/js/easy_selection.js"></script>
+<script>
+var update_tag=function(target_element)
+{
+   new_class=cycle_class('target_td_'+target_element,['good','bad','with_errors','exceptional']);
+   $('grade_msg_'+target_element).innerHTML='grade: '+new_class;
+   if(new_class=="with_errors")
+   {
+     $("div_"+target_element+"_feedback").style.display="block";
+   }else{
+     $("div_"+target_element+"_feedback").style.display="none";
+   }
+}
+</script>
+{% endblock %}
+
+
+{% block title %}Grading {% endblock %}
+
+{% block branding %}
+<h1 id="site-name">Grading  </h1>
+{% endblock %}
+
+{% block content %}
+
+
+
+
+<form id='grading_form'>
+Click on the "grade:.xxx..." text to change the grade<br/>
+<br/>
+Bad - the annotator was negligent/made very clear mistakes. <br/>
+With errors - some minor, but visible errors. The errors are possibly due to misunderstanding. <br/>
+Good - good annotation. (No annotation for empty images)<br/>
+Exceptional - some really outstanding annotation. <br/>
+
+<hr/>
+{% comment %}
+{% if has_previous %}
+<a href="../p{{previous}}/">{{previous}}</a>
+{% endif %}
+{{page}}
+{% if has_next %}
+<a href="../p{{next}}/">{{next}}</a>
+{% endif %} | {{num_pages}}
+{% for p in page_range %}
+{{p}} 
+{% endfor %}
+{% endcomment %}
+<hr/>
+<script>
+
+var all_submission_ids=[
+{% for s in object_list %}
+'{{s.id}}',
+{% endfor %}
+];
+
+  var set_display_mode=function(s_id,mode){
+    id="div_"+s_id;
+    if(mode=="graded")
+    {
+    $(id).style.display="none";	      
+    $(id+"_feedback").style.display="none";	      
+    $(id+"_grade").style.display="none";	      
+    $(id+"_info").style.display="none";	      
+    $(id+"_raw").style.display="none";	      
+    $(id+"_graded_msg").style.display="block";	      
+
+    $(id+"_r1").style.display="none";
+    $(id+"_r2").style.display="none";
+    $(id+"_r3").style.display="none";
+    $(id+"_r4").style.display="none";
+
+    $(id+"_r5").style.display="block";
+    }else{
+    $(id).style.display="block";	      
+    $(id+"_feedback").style.display="block";	      
+    $(id+"_grade").style.display="block";	      
+    $(id+"_info").style.display="block";	      
+    $(id+"_raw").style.display="block";	      
+    $(id+"_graded_msg").style.display="block";	      
+    $(id+"_r2").style.display="block";
+    $(id+"_r3").style.display="block";
+    $(id+"_r4").style.display="block";
+    $(id+"_r1").style.display="block";
+
+    $(id+"_r5").style.display="none";
+}
+  } 
+
+</script>
+<table border=1>
+
+
+
+{% for s in object_list %}
+{% cycle <tr>,, %}
+<td>
+<div class="good" id="target_td_{{s.id}}" onclick="update_tag('{{s.id}}');">
+
+<div id="div_{{s.id}}" style="display:block">
+<iframe height=500 width=600 src="{{s.get_thumbnail_url}}"></iframe>
+</div><br/>
+{%if s.get_parsed.comments %}
+<b>Comment: </b>{{ s.get_parsed.comments }}<br/>
+{% endif %}
+<div class="grade_msg" id="grade_msg_{{s.id}}">
+grade: good
+</div><br/>
+</div>
+<div id="div_{{s.id}}_feedback" style="display:none"><br/>
+Feedback:<br/><textarea rows="5" cols="50" name="message_{{s.id}}"></textarea>
+</div>
+
+{% cycle </td>,</td>,</td></tr> %}
+{% endfor %}
+
+
+</table>
+<noscript>
+Error. Javascript is required.
+</noscript>
+
+<hr/>
+<table>
+<tr>
+{% for s in object_list %}
+<td>
+<div id='upd_{{s.id}}' >
+{{s.id}} |
+</div></td>
+{% endfor %}
+</tr>
+</table>
+<hr/>
+
+<hr/>
+
+
+<script>
+var all_submissions=[
+{% for s in object_list %}
+'{{s.id}}',
+{% endfor %}
+];
+
+
+function submit_id(sID){
+      $('upd_'+sID).innerHTML='submitting ...';
+      class_id=get_active_class_id('target_td_'+sID,['good','bad','with_errors','exceptional']);
+      class_grades=[10,3,7,15];
+      grade=class_grades[class_id];
+      feedback = $('grading_form')['message_'+sID].value;
+
+      new Ajax.Updater('upd_'+sID, '/mt/grading_submit/'+sID+'/', {
+         parameters: { 
+	    quality: grade,
+	    feedback: feedback
+	    }
+          });
+}
+
+function submit_results(){
+   for(var i=0;i<all_submissions.length;i++)
+   {
+      sID=(all_submissions[i]);
+      submit_id(sID);
+   }
+   $('submit_div').style.display='none';
+}
+</script>
+
+<hr/>
+
+<div id="submit_div">
+<input type="button" onclick="javascript:submit_results()" value="submit">
+</div>
+</form>
+
+
+{% endblock %}
+
