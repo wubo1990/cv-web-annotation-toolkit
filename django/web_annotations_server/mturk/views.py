@@ -538,6 +538,70 @@ def newHIT(request):
 	return HttpResponse("%s" % hit.ext_hitid)
 
 
+def new_HIT_generic(request):
+	session_code = request.REQUEST['session']
+
+	session = get_object_or_404(Session,code=session_code)
+
+
+	if session.mthit_set.count()>=session.HITlimit:
+		return HttpResponse("HIT creation failed: maximum HIT count (%d) reached" % session.HITlimit)
+
+        id = session.mthit_set.count()+1;
+
+	rand_id=str(uuid.uuid4())+"-"+str(id)
+
+	
+        params = request.REQUEST['parameters']
+
+        hit=MTHit(session=session,ext_hitid=rand_id,int_hitid=id,parameters=params);
+	hit.save();
+
+	if session.standalone_mode:
+            return HttpResponse("%s" % hit.ext_hitid)
+
+        taskurl=settings.HOST_NAME_FOR_MTURK+"mt/get_task/"+str(session.code)+"/?ExtID="+hit.ext_hitid;
+
+        q = ExternalQuestion(external_url=taskurl, frame_height=800)
+
+	if session.sandbox:
+            awshost='mechanicalturk.sandbox.amazonaws.com'
+        else:
+            awshost='mechanicalturk.amazonaws.com'
+
+        conn = MTurkConnection(host=awshost,aws_secret_access_key=session.funding.secret_key,aws_access_key_id=session.funding.access_key)
+
+        keywords=session.task_def.get_keywords()
+
+        t=session.task_def;
+        if not session.hit_type:
+            qualifications = Qualifications()
+            qualifications.add(PercentAssignmentsApprovedRequirement(comparator="GreaterThan", integer_value="90"))
+
+
+
+            create_hit_rs = conn.create_hit(question=q, 
+                                            lifetime=t.lifetime,
+                                            max_assignments=t.max_assignments,
+                                            title=t.title,
+                                            keywords=str(t.keywords),
+                                            reward = t.reward,
+                                            duration=t.duration,
+                                            approval_delay=t.approval_delay, 
+                                            annotation="IGNORE",
+                                            qualifications=qualifications)
+            assert(create_hit_rs.status == True)
+            print create_hit_rs
+            print create_hit_rs.HITTypeId
+            session.hit_type=create_hit_rs.HITTypeId;
+            session.save();
+        else:
+            create_hit_rs = conn.create_hit(question=q, hit_type=session.hit_type);
+            print create_hit_rs
+
+	return HttpResponse("%s" % hit.ext_hitid)
+
+
 
 
 def submit_redo_HITs(request,session_code):
@@ -771,28 +835,6 @@ def add_hit_to_session(session,params):
 
 
 
-def get_hit_results_xml(request,ext_id):
-    task_id=ext_id;
-    print task_id;
-
-	 #request.REQUEST['extid']
-    task = get_object_or_404(MTHit,ext_hitid=task_id);
-    print task
-
-    s="";
-    for st in task.submittedtask_set.all():
-        s=s+st.get_parsed().shapes;
-        print st
-
-    if s=="":
-        raise Http404;
-
-    s="<annotations>"+s+"</annotations>";
-    return HttpResponse(s, mimetype="text/plain");
-
-
-
-
 
 def dynamic_task(request,path):
     print path[0:-4]
@@ -820,9 +862,19 @@ def get_session_images3(request,session_code):
 	for hit in session.mthit_set.all():            
             parms=hit.parse_parameters();
             
-            response.write("%s\t/mt/good_hit_results_xml/%s/\t%s\t%s\t%s\t%s\t%s\n" % (settings.HOST_NAME_FOR_MTURK,hit.ext_hitid,session_code,parms['frame'],parms['frame_id'],parms['ref_time'],parms['topic_in']))
+            frame=parms.get('frame','n/a');
+            frame_id=parms.get('frame_id','n/a')
+            ref_time=parms.get('ref_time','n/a')
+            topic_in=parms.get('topic_in','n/a')
+            original_name=parms.get('original_name','n/a')
+            print parms
+            response.write("%s\t/mt/good_hit_results_xml/%s/\t%s\t%s\t%s\t%s\t%s\t%s\n" % (settings.HOST_NAME_FOR_MTURK,hit.ext_hitid,session_code,frame,frame_id,ref_time,topic_in,original_name))
 
         return response
+
+
+
+
 
 def get_session_images(request,session_code,filterGood=False):
 	session = get_object_or_404(Session,code=session_code)
@@ -1060,20 +1112,6 @@ def get_ros_publishers(request):
     else:
         s=ros_sender.get_pub_string();
         return HttpResponse(s)
-
-
-
-def get_session_images3(request,session_code):
-	session = get_object_or_404(Session,code=session_code)
-
-        response = HttpResponse();
-
-	for hit in session.mthit_set.all():            
-            parms=hit.parse_parameters();
-            
-            response.write("%s\t/mt/good_hit_results_xml/%s/\t%s\t%s\t%s\t%s\t%s\n" % (settings.HOST_NAME_FOR_MTURK,hit.ext_hitid,session_code,parms['frame'],parms['frame_id'],parms['ref_time'],parms['topic_in']))
-
-        return response
 
 
 

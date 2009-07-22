@@ -69,7 +69,9 @@ urlpatterns = patterns('',
     (r'^results_report/(?P<session_code>[\w\-]+)/perfect/$', 'mturk.views.get_perfect_results'),
     (r'^results_report/(?P<session_code>[\w\-]+)/non_perfect/$', 'mturk.views.get_non_perfect_results'),
 
+    (r'^newHIT/$', 'mturk.views.newHIT'),
     (r'^newHIT2/$', 'mturk.views.newHIT'),
+    (r'^new_HIT_generic/$', 'mturk.views.new_HIT_generic'),
 
     (r'^stats/all/$', 'mturk.views.stats_all'),
 
@@ -138,8 +140,6 @@ urlpatterns = patterns('',
     (r'^results_report/(?P<session_code>[\w\-]+)/perfect/$', 'mturk.views.get_perfect_results'),
     (r'^results_report/(?P<session_code>[\w\-]+)/non_perfect/$', 'mturk.views.get_non_perfect_results'),
 
-    (r'^newHIT/$', 'mturk.views.newHIT'),
-    (r'^newHIT2/$', 'mturk.views.newHIT2'),
 
     (r'^stats/all/$', 'mturk.views.stats_all'),
 

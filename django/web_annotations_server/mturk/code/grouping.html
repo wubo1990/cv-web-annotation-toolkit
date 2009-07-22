@@ -1,0 +1,346 @@
+<html>
+
+<script src="js/prototype.js" type="text/javascript"></script>
+<script src="js/scriptaculous.js" type="text/javascript"></script>
+<script src="js/mt.js" type="text/javascript"></script>
+
+<script>
+
+function gup( name )
+{
+  var regexS = "[\\?&]"+name+"=([^&#]*)";
+  var regex = new RegExp( regexS );
+  var tmpURL = window.location.href;
+  var results = regex.exec( tmpURL );
+  if( results == null )
+    return "";
+  else
+    return results[1];
+}
+
+//
+// This method decodes the query parameters that were URL-encoded
+//
+function decode(strToDecode)
+{
+  var encoded = strToDecode;
+  return unescape(encoded.replace(/\+/g,  " "));
+}
+
+
+</script>
+
+<style>
+div.aspect {border:solid};
+img.example {height:60px};
+</style>
+<!-- img.example {width:100px}; -->
+
+<body>
+
+<form id="MT_form" name="MT_form" action="/mt/submit/" method="POST"
+onsubmit="return collect_results_on_submit()">
+
+<div id="instructions_div">
+IMPORTANT: Read the <a id="a_instructions" href="instructions.html" target="wnd_instructions">instructions</a>!! <!--<b>Instructions have been updated!</b><br/>-->
+</div>
+
+<table border=1>
+<tr><td colspan=2>
+<table><tr><td><div id="aspectT" class="aspect">Junk bin<br/></div> </td>
+</tr>
+<tr><td width=600>
+<div id="images_div">
+
+</div>
+<!--<table>
+
+<tr><td>
+<div id="aspect1" class="aspect">Aspect1<br/></div></td><td>
+<div id="aspect2" class="aspect">Aspect2<br/></div></td><td>
+<div id="aspect3" class="aspect">Aspect3<br/></div></td></tr></table>-->
+</td><td valign=top>
+
+<div id="aspect1" class="aspect">Group1<br/></div><hr/>
+<div id="aspect2" class="aspect">Group2<br/></div><hr/>
+<div id="aspect3" class="aspect">Group3<br/></div><hr/>
+<div id="aspect4" class="aspect">Group4<br/></div><hr/>
+<div id="aspect5" class="aspect">Group5<br/></div><hr/>
+<div id="aspect6" class="aspect">Group6<br/></div><hr/>
+<div id="aspect7" class="aspect">Group7<br/></div><hr/>
+<div id="aspect8" class="aspect">Group8<br/></div><hr/>
+<div id="aspect9" class="aspect">Group9<br/></div><hr/>
+<div id="aspect10" class="aspect">Group10<br/></div><hr/>
+
+</td></tr></table>
+Any comments/suggestions/etc: <input type=text name="Comments" id="Comments" value=""><br/>
+<input type=hidden name="assignmentId" id="assignmentId" value="">
+<input type=hidden name="hitId" id="hitId" value="ignored">
+<input type=hidden name="answer" id="answer" value="">
+<input type=hidden name="extid" id="extid" value="">
+<input type=hidden name="session" id="session" value="">
+<input type=hidden name="workerId" id="workerId" value="">
+<input type=submit id="submitButton" value="submit">
+
+</form>
+</body>
+
+<script>
+
+MT_setup_instructions();
+
+
+
+function collect_results_on_submit(){
+
+answer="";
+for(i=0;i<images.length;i++){
+imgID="im"+(i+1);
+if(i>0) answer+=",";
+aspect=$(imgID).aspect;
+if(aspect){
+    aspect=aspect.replace("aspect","");
+}else{
+    aspect="-1";
+}
+answer+=aspect;
+}
+document.getElementById('answer').value = answer;
+return true;
+}
+images=[
+"http://vm7.willowgarage.com:8080/datastore/wnd2/hands-1-s/095aa65f-ce50-4b3a-a28f-7bf61258ab60.jpg/300/0/100/100/",
+"http://vm7.willowgarage.com:8080/datastore/wnd2/hands-1-s/095aa65f-ce50-4b3a-a28f-7bf61258ab60.jpg/300/100/100/100/",
+"http://vm7.willowgarage.com:8080/datastore/wnd2/hands-1-s/095aa65f-ce50-4b3a-a28f-7bf61258ab60.jpg/300/200/100/100/",
+"http://vm7.willowgarage.com:8080/datastore/wnd2/hands-1-s/095aa65f-ce50-4b3a-a28f-7bf61258ab60.jpg/300/300/100/100/",
+"http://vm7.willowgarage.com:8080/datastore/wnd2/hands-1-s/095aa65f-ce50-4b3a-a28f-7bf61258ab60.jpg/300/400/100/100/",
+];
+
+
+
+img_base=decode(gup("image_base")); //"" by default
+
+
+
+
+
+var existing_comments;
+var display_mode;
+var    query_args=document.location.toString();
+       query_args=query_args.split("?")[1];
+var    args_list=query_args.split("&");
+
+for (i = 0; i <= args_list.length; i++)
+{
+	arg=args_list[i];
+	if(arg){
+	arg_pair=arg.split("=");
+	arg_n=arg_pair[0];
+	arg_v=arg_pair[1];
+	if( arg_n=="assignmentId"){
+		$('MT_form')[arg_n].value=arg_v;
+	}else if( arg_n=="hitId"){
+		$('MT_form')[arg_n].value=arg_v;
+	}else if( arg_n=="workerId"){
+		$('MT_form')[arg_n].value=arg_v;
+	}else if( arg_n=="extid"){
+	        $('MT_form')[arg_n].value=arg_v;
+	}else if( arg_n=="session"){
+	        $('MT_form')[arg_n].value=arg_v;
+	}else if( arg_n=="display_mode"){
+	        display_mode=arg_v;
+	}else if( arg_n=="comments"){
+	        existing_comments=arg_v;
+        }
+	}
+}
+
+
+
+var setup_images=function (new_images)
+{
+images=new_images;
+
+for(i=0;i<images.length;i++){
+   imgID="im"+(i+1);
+   img=new Element("img",{'id':imgID,'class':'example','src':img_base+images[i]});
+   img.height=300;
+   $('images_div').appendChild(img);
+   new Draggable(img,{'revert':true});
+}
+
+}
+
+var active_task_data;
+var annotation_data;
+var data_done=0;
+var annotation_done=0;
+
+var check_after_load=function()
+{
+  if(data_done && annotation_done)
+  {
+      var items=annotation_data.getElementsByTagName('img')
+    for( var iID=0;iID<items.length;iID++)
+    {
+      var i=items[iID];
+      var grp = i.getAttribute("group");
+      if(grp=="-1")
+       continue;
+
+      var tgt="aspect"+grp;
+
+      var imgID="im"+(iID+1);
+
+      $(tgt).appendChild($(imgID));
+      $(imgID).aspect=$(tgt).id;
+      $(imgID).height=60;
+
+    }
+
+  }
+}
+
+var active_task_data;
+var onTaskXMLLoaded=function(transport)
+{
+  if (transport.responseXML)
+  {
+    active_task_data = transport.responseXML;
+    var items=active_task_data.getElementsByTagName('img');
+    var img_names=[];
+
+    for( var iID=0;iID<items.length;iID++)
+    {
+      var i=items[iID];
+			 
+      var url = i.getAttribute("src");
+      img_names.push(url);
+    }
+    setup_images(img_names);		
+
+    data_done=1;
+    check_after_load();			
+   }
+}
+
+
+var onAnnotationXMLLoaded=function(transport)
+{
+  if (transport.responseXML)
+  {
+    annotation_data = transport.responseXML;
+
+    var items=annotation_data.getElementsByTagName('group')
+
+    annotation_done=1;
+    check_after_load();
+
+  }
+}
+
+
+
+
+
+
+
+
+
+mode=gup("mode");
+
+queryargs_image_list=decode(gup("image_list"));
+queryargs_images=queryargs_image_list.split(",");
+
+if(queryargs_image_list!="")
+{
+      setup_images(queryargs_images);
+}else if(mode=="input")
+{
+    data_url=decode(gup("data_url"));
+    var upd=new Ajax.Request(data_url, {
+			       method: 'get',
+			       onSuccess: onTaskXMLLoaded,
+			     });	
+
+}else if(mode=="display")
+{
+    data_url=unescape(gup("data_url"));
+
+    var upd=new Ajax.Request(data_url, {
+			       method: 'get',
+			       onSuccess: onTaskXMLLoaded,
+			     });
+
+
+    var annotation_URL=unescape(gup("annotation_url"));
+    var upd=new Ajax.Request(annotation_URL, {
+			       method: 'get',
+			       onSuccess: onAnnotationXMLLoaded,
+			     });
+}
+
+
+for(a=1;a<=10;a++){
+   aspectID="aspect"+a;
+   Droppables.add(aspectID,{
+      onDrop: function(element) {
+
+      element.height=60;
+      //element.width=50;
+      this.element.appendChild(element);
+      element.aspect=this.element.id;
+  }});
+}
+
+aspectID="aspectT";
+
+Droppables.add(aspectID,{
+    onDrop: function(element) {
+    //this.inner_html=('Dropped the ' + element.src + ' on me.');
+	    element.height=60;
+    //element.width=50;
+    this.element.appendChild(element);
+    element.aspect=this.element.id;
+    //Event.target.appendChild(element);
+    //element.style.display="none";
+}});
+
+/*
+aspectID="aspectO";
+
+Droppables.add(aspectID,{
+    onDrop: function(element) {
+    //this.inner_html=('Dropped the ' + element.src + ' on me.');
+      element.height=60;
+    //element.width=50;
+    this.element.appendChild(element);
+    element.aspect=this.element.id;
+    //Event.target.appendChild(element);
+    //element.style.display="none";
+}});
+*/
+
+    document.getElementById('assignmentId').value = gup('assignmentId');
+
+    //
+    // Check if the worker is PREVIEWING the HIT or if they've ACCEPTED the HIT
+    //
+    if (gup('assignmentId') == "ASSIGNMENT_ID_NOT_AVAILABLE")
+    {
+        // If we're previewing, disable the button and give it a helpful message
+	document.getElementById('submitButton').disabled = true;
+	document.getElementById('submitButton').value = "You must ACCEPT the HIT before you can submit the results.";
+    } else {
+        var form = document.getElementById('MT_form');
+        if (document.referrer && ( document.referrer.indexOf('workersandbox') != -1) ) {
+            //form.action = "https://workersandbox.mturk.com/mturk/externalSubmit";
+        }
+    }
+</script>
+
+
+</html>
+
+
+

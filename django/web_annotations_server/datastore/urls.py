@@ -27,8 +27,8 @@ urlpatterns = patterns('',
     (r'^tag_images/(?P<dataset_name>[\w-]+)/$', 'datastore.views.tag_images'),
 
     (r'^wnd/(?P<item_id>[\w.-]+)/(?P<l>[\w.-]+),(?P<t>[\w.-]+),(?P<w>[\w.-]+),(?P<h>[\w.-]+)/$', 'datastore.views.get_wnd'),
-    (r'^wnd2/(?P<item_name>[\w.-/]+)/(?P<l>[\w.-]+)/(?P<t>[\w.-]+)/(?P<w>[\w.-]+)/(?P<h>[\w.-]+)/$', 'datastore.views.get_wnd2'),
-    (r'^wnd2/(?P<item_name>[\w.-/]+)/(?P<l>[\w.-]+),(?P<t>[\w.-]+),(?P<w>[\w.-]+),(?P<h>[\w.-]+)/$', 'datastore.views.get_wnd2'),                                                                                                                 
+    (r'^wnd2/(?P<item_name>[\w\-\./]+)/(?P<l>[\w.-]+)/(?P<t>[\w.-]+)/(?P<w>[\w.-]+)/(?P<h>[\w.-]+)/$', 'datastore.views.get_wnd2'),
+    (r'^wnd2/(?P<item_name>[\w\-\./]+)/(?P<l>[\w.-]+),(?P<t>[\w.-]+),(?P<w>[\w.-]+),(?P<h>[\w.-]+)/$', 'datastore.views.get_wnd2'),                                                                                                                 
 
     (r'^data/(?P<dataset_name>[\w-]+)/$', 'datastore.views.show_data_items'),
     (r'^data/(?P<dataset_name>[\w-]+)/p(?P<page>[\w]+)/$', 'datastore.views.show_data_items'),
