@@ -24,8 +24,7 @@ This is a very rough installation guide. I hopefully lists all dependencies.
  * Run syncdb: {{{python manage.py syncdb}}}
 
  * Download required javascripts into web_annotations_server/mturk/code/js/:
-   * [http://vision-app1.cs.uiuc.edu/code/js/prototype.js prototype.js]
-   * [http://vision-app1.cs.uiuc.edu/code/js/scriptaculous.js scriptaculous.js]
+   * [http://vm7.willowgarage.com/code/all_js.tgz all_js.tgz]
 
 
  * [optional] Run development server: {{{python manage.py runserver <host>:8080}}}
