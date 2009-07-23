@@ -280,7 +280,7 @@ FROM `mturk_submittedtask` t, mturk_manualgraderecord r1, mturk_manualgraderecor
 WHERE t.session_id =%s
 AND t.id = r1.submission_id
 AND t.id = r2.submission_id
-AND (1 OR ( t.valid
+AND (0 OR ( t.valid
 AND r1.valid AND r2.valid))
 AND r1.id <> r2.id
 AND r1.quality < r2.quality

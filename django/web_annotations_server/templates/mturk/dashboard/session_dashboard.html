@@ -24,9 +24,14 @@ Submissions: Total {{session.submittedtask_set.count}}. Approved {{stats.submiss
 
 <hr/>
 <h2>Grading</h2>
+
+Local:<br/>
 <a href="/mt/result_stats/{{session.code}}/by_worker/">Grading by worker</a><br/>
 <a href="/mt/grading/thumbnails_random/{{session.code}}/">Random grading in thumbnails</a><br/>
+
 <br/>
+<hr/>
+Mech Turk:<br/>
 <a href="/mt/grading/submit/session/{{session.code}}/{{session.code}}-grading/">Submit all for grading</a><br/><br/>
 &nbsp;&nbsp;&nbsp;&nbsp;<a href="/mt/dashboard/session/{{session.code}}-grading/">dashboard: grading session</a>
 <hr/>

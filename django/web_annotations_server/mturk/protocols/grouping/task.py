@@ -40,6 +40,8 @@ class GroupingTaskEngine(TaskEngine):
         url=url+"&data_url="+urllib.quote(hit_parameters_url);
 
         url=url+"&annotation_url="+urllib.quote(submission.get_persistent_url2());
+        url=url+"&parameters_url="+urllib.quote(settings.HOST_NAME_FOR_MTURK+"tasks/"+session.task_def.name+".xml")
+
         return url
 
 
@@ -78,6 +80,8 @@ class GroupingTaskEngine(TaskEngine):
         url=url+"&instructions="+urllib.quote(session.task_def.instructions_url);
         hit_parameters_url=settings.HOST_NAME_FOR_MTURK+"mt/hit_parameters/"+task.ext_hitid+"/";
         url=url+"&data_url="+urllib.quote(hit_parameters_url);
+        url=url+"&parameters_url="+urllib.quote(settings.HOST_NAME_FOR_MTURK+"tasks/"+session.task_def.name+".xml")
+
         
         return url    
 

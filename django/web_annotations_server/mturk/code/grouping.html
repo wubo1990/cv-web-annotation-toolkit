@@ -156,6 +156,13 @@ for (i = 0; i <= args_list.length; i++)
 }
 
 
+mode=gup("mode");
+
+full_max_H=300;
+full_max_W=300;
+
+thumbnail_max_H=60;
+thumbnail_max_W=60;
 
 var setup_images=function (new_images)
 {
@@ -164,23 +171,35 @@ images=new_images;
 for(i=0;i<images.length;i++){
    imgID="im"+(i+1);
    img=new Element("img",{'id':imgID,'class':'example','src':img_base+images[i]});
-   img.height=300;
+   img.class="full";
+   img.style.maxHeight=full_max_H;
+   img.style.maxWidth=full_max_W;
+
    $('images_div').appendChild(img);
    new Draggable(img,{'revert':true});
 }
 
 }
 
-var active_task_data;
-var annotation_data;
-var data_done=0;
-var annotation_done=0;
-
-var check_after_load=function()
+var create_images=function()
 {
-  if(data_done && annotation_done)
-  {
-      var items=annotation_data.getElementsByTagName('img')
+    var items=active_task_data.getElementsByTagName('img');
+    var img_names=[];
+
+    for( var iID=0;iID<items.length;iID++)
+    {
+      var i=items[iID];
+			 
+      var url = i.getAttribute("src");
+      img_names.push(url);
+    }
+    setup_images(img_names);		
+
+}
+
+var assign_annotations=function()
+{
+    var items=annotation_data.getElementsByTagName('img')
     for( var iID=0;iID<items.length;iID++)
     {
       var i=items[iID];
@@ -194,48 +213,34 @@ var check_after_load=function()
 
       $(tgt).appendChild($(imgID));
       $(imgID).aspect=$(tgt).id;
-      $(imgID).height=60;
+	    $(imgID).style.maxHeight=thumbnail_max_H;
+	    $(imgID).style.maxWidth=thumbnail_max_W;
+
 
     }
+}
 
+var parse_parameters = function()
+{
+  full_max_H=mt_get_param(parameters_data,'full_max_height',300);
+  full_max_W=mt_get_param(parameters_data,'full_max_width',300);
+
+  thumbnail_max_H=mt_get_param(parameters_data,'thumbnail_max_height',60);
+  thumbnail_max_W=mt_get_param(parameters_data,'thumbnail_max_width',60);
+}
+
+
+var grouping_after_load=function()
+{
+  parse_parameters();
+  if(mode=="input")
+  {
+      create_images();
   }
-}
-
-var active_task_data;
-var onTaskXMLLoaded=function(transport)
-{
-  if (transport.responseXML)
+  else if(mode=="display")
   {
-    active_task_data = transport.responseXML;
-    var items=active_task_data.getElementsByTagName('img');
-    var img_names=[];
-
-    for( var iID=0;iID<items.length;iID++)
-    {
-      var i=items[iID];
-			 
-      var url = i.getAttribute("src");
-      img_names.push(url);
-    }
-    setup_images(img_names);		
-
-    data_done=1;
-    check_after_load();			
-   }
-}
-
-
-var onAnnotationXMLLoaded=function(transport)
-{
-  if (transport.responseXML)
-  {
-    annotation_data = transport.responseXML;
-
-    var items=annotation_data.getElementsByTagName('group')
-
-    annotation_done=1;
-    check_after_load();
-
+      create_images();
+      assign_annotations();
   }
 }
 
@@ -247,47 +252,22 @@ var onAnnotationXMLLoaded=function(transport)
 
 
 
-mode=gup("mode");
+
 
 queryargs_image_list=decode(gup("image_list"));
 queryargs_images=queryargs_image_list.split(",");
 
-if(queryargs_image_list!="")
-{
-      setup_images(queryargs_images);
-}else if(mode=="input")
-{
-    data_url=decode(gup("data_url"));
-    var upd=new Ajax.Request(data_url, {
-			       method: 'get',
-			       onSuccess: onTaskXMLLoaded,
-			     });	
-
-}else if(mode=="display")
-{
-    data_url=unescape(gup("data_url"));
-
-    var upd=new Ajax.Request(data_url, {
-			       method: 'get',
-			       onSuccess: onTaskXMLLoaded,
-			     });
-
-
-    var annotation_URL=unescape(gup("annotation_url"));
-    var upd=new Ajax.Request(annotation_URL, {
-			       method: 'get',
-			       onSuccess: onAnnotationXMLLoaded,
-			     });
-}
-
+mt_load_task_componentes(mode,grouping_after_load);
+//mt_load_task_components(onParametersXMLLoaded,onTaskXMLLoaded,onAnnotationXMLLoaded,on_all_loaded)
 
 for(a=1;a<=10;a++){
    aspectID="aspect"+a;
    Droppables.add(aspectID,{
       onDrop: function(element) {
+	    
+	    element.style.maxHeight=thumbnail_max_H;
+	    element.style.maxWidth=thumbnail_max_W;
 
-      element.height=60;
-      //element.width=50;
       this.element.appendChild(element);
       element.aspect=this.element.id;
   }});
@@ -298,7 +278,9 @@ aspectID="aspectT";
 Droppables.add(aspectID,{
     onDrop: function(element) {
     //this.inner_html=('Dropped the ' + element.src + ' on me.');
-	    element.height=60;
+	    element.style.maxHeight=thumbnail_max_H;
+	    element.style.maxWidth=thumbnail_max_W;
+
     //element.width=50;
     this.element.appendChild(element);
     element.aspect=this.element.id;
@@ -312,7 +294,8 @@ aspectID="aspectO";
 Droppables.add(aspectID,{
     onDrop: function(element) {
     //this.inner_html=('Dropped the ' + element.src + ' on me.');
-      element.height=60;
+	    element.style.maxHeight=thumbnail_max_H;
+	    element.style.maxWidth=thumbnail_max_W;
     //element.width=50;
     this.element.appendChild(element);
     element.aspect=this.element.id;
@@ -320,6 +303,19 @@ Droppables.add(aspectID,{
     //element.style.display="none";
 }});
 */
+
+
+
+Droppables.add("images_div",{
+    onDrop: function(element) {
+
+    element.style.maxHeight=full_max_H;
+    element.style.maxWidth=full_max_W;
+
+    this.element.appendChild(element);
+    element.aspect="-1"
+
+}});
 
     document.getElementById('assignmentId').value = gup('assignmentId');
 
