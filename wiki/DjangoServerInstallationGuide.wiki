@@ -8,6 +8,10 @@ This is a very rough installation guide. I hopefully lists all dependencies.
 
  * Install Django 1.0.2
  * mysql
+ * check out the code (web_annotations_server)
+   * Put the code in /var/django
+   * Create /var/datasets
+
  * create user and database for django. Write them to settings.py
  * Install django-tagging  (for django 1.0.2)
  * Install python-mysqldb 
@@ -18,6 +22,11 @@ This is a very rough installation guide. I hopefully lists all dependencies.
  * Install a local smtp server (to e-mail things from python)
  * Enable appropriate applications (mturk contains some templates used by other apps).
  * Run syncdb: {{{python manage.py syncdb}}}
+
+ * Download required javascripts into web_annotations_server/mturk/code/js/:
+   * [http://vision-app1.cs.uiuc.edu/code/js/prototype.js prototype.js]
+   * [http://vision-app1.cs.uiuc.edu/code/js/scriptaculous.js scriptaculous.js]
+
 
  * [optional] Run development server: {{{python manage.py runserver <host>:8080}}}
 
