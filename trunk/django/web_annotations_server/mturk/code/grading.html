@@ -210,6 +210,7 @@ var check_after_load=function()
   class_list={ 3:'bad',7:'with_errors',10:'good',15:'exceptional' };
   if(data_done && annotation_done)
     {
+
       var items=active_task_data.getElementsByTagName('submission');
 
       for( var iID=0;iID<items.length;iID++)
@@ -232,6 +233,7 @@ var onTaskXMLLoaded=function(transport)
   if (transport.responseXML)
   {
     active_task_data = transport.responseXML;
+
     var items=active_task_data.getElementsByTagName('submission')
 
     var s= "<table>";
@@ -258,7 +260,7 @@ var onTaskXMLLoaded=function(transport)
     }
     s+= "</table>";
 
-    if(in_conflict)
+    if(in_conflict && 0)
       {
 	$('submit_div').style.display="none";
 	$('grading_content').innerHTML ='conflict';
@@ -300,6 +302,7 @@ var onAnnotationXMLLoaded=function(transport)
 
     $('grading_results').innerHTML = s;
     annotation_done=1;
+    check_after_load();
   }
 }
 

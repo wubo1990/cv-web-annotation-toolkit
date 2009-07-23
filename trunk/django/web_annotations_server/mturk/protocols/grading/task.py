@@ -120,10 +120,6 @@ class GradingTaskEngine(TaskEngine):
         w,created=self.get_models().Worker.objects.get_or_create(session=None,worker=submission.worker);
         if created:
             w.save();
-        print original_submission
-        print quality
-        print submission
-        print worker
 
         for sub_id in grades.keys():
             (session_code,submission_id)=sub_id.split("_");

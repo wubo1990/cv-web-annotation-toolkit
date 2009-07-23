@@ -52,6 +52,9 @@ def main(request):
     return render_to_response('mturk/main.html',{'user':request.user,'sessions':sessions});
 
 	
+def get_task_parameters(request,task_name):
+    task = get_object_or_404(Task,name=task_name)
+    return HttpResponse(task.interface_xml,mimetype="text/xml");
 	
 def send_hit_parameters(request,ext_id):
     hit = get_object_or_404(MTHit,ext_hitid=ext_id)
@@ -916,6 +919,7 @@ def reject_poor_results(request,session_code):
         conn = MTurkConnection(host=awshost,aws_secret_access_key=session.funding.secret_key,aws_access_key_id=session.funding.access_key)
 
      	results=session.submittedtask_set.all().exclude(state=4).exclude(state=3);
+     	results=session.submittedtask_set.all();
         te=session.task_def.type.get_engine();
 
 	strAns="assignmentIdToReject\tassignmentIdToRejectComment<br/>";
