@@ -1,0 +1,169 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>Image annotation</title>
+<script language="javascript">AC_FL_RunContent = 0;</script>
+<script src="js/AC_RunActiveContent.js" language="javascript"></script>
+<script language="javascript" src="js/prototype.js" > </script>
+<script language="javascript" src="/code/js/mt.js" > </script>
+</head>
+
+
+
+<body bgcolor="#ffffff">
+
+
+<form id="MT_form" name="MT_form" action="http://www.mturk.com/mturk/externalSubmit" method="POST">
+<div id="instructions_div">
+IMPORTANT: Read the <a id="a_instructions" href="instructions.html" target="wnd_instructions">instructions</a>!! <!--<b>Instructions have been updated!</b><br/>-->
+</div>
+
+<div id="rating_div" style="display:none;"></div>
+
+<div id="existing_comments_div" style="display:none;"></div>
+
+<div id="flash_div"></div>
+
+<noscript>
+Error. Javascript is required.
+</noscript>
+
+<div id="comments_form_div">
+<hr/>
+Any comments/suggestions/etc: <input type=text name="Comments" id="Comments" value="">
+<hr/>
+</div>
+<input type=hidden name="assignmentId" id="assignmentId" value="">
+<input type=hidden name="hitId" id="hitId" value="ignored">
+<input type=hidden name="sites" id="sites" value="">
+<input type=hidden name="extid" id="extid" value="">
+<input type=hidden name="session" id="session" value="">
+<input type=hidden name="workerId" id="workerId" value="">
+<input type=hidden name="mode" id="mode" value="">
+
+</form>
+
+
+
+
+
+<script language="javascript">
+var run_submit=function (){
+    if (gup('assignmentId') == "ASSIGNMENT_ID_NOT_AVAILABLE")
+{
+alert("You must accept the task first");
+}else{
+   $('MT_form').submit();
+}
+}
+
+    //
+    // Check if the worker is PREVIEWING the HIT or if they've ACCEPTED the HIT
+    //
+    mode_value="AmazonMTproduction"
+
+    if (gup('assignmentId') == "ASSIGNMENT_ID_NOT_AVAILABLE")
+    {
+        mode_value=="AmazonMTproduction"
+        // If we're previewing, the flash interface checks that.
+    } else {
+        var form = document.getElementById('MT_form');
+        if (document.referrer && ( document.referrer.indexOf('workersandbox') != -1) ) {
+            form.action = "http://workersandbox.mturk.com/mturk/externalSubmit";
+	    mode_value="AmazonMTsandbox";
+        }
+    }
+
+//PARSE arguments
+
+    query_args=document.location.toString();
+    query_args=query_args.split("?")[1];
+    args_list=query_args.split("&");
+    swf=""
+    swf_w='600';
+    swf_h='400';
+    display_mode="";
+    existing_comments="";
+    no_mode_in_query=1;
+    
+
+for (i = 0; i <= args_list.length; i++)
+{
+	arg=args_list[i];
+	if(arg){
+	arg_pair=arg.split("=");
+	arg_n=arg_pair[0];
+	arg_v=arg_pair[1];
+	if( arg_n=="assignmentId"){
+		$('MT_form')[arg_n].value=arg_v;
+	}else if( arg_n=="hitId"){
+		$('MT_form')[arg_n].value=arg_v;
+	}else if( arg_n=="workerId"){
+		$('MT_form')[arg_n].value=arg_v;
+	}else if( arg_n=="extid"){
+	        $('MT_form')[arg_n].value=arg_v;
+	}else if( arg_n=="session"){
+	        $('MT_form')[arg_n].value=arg_v;
+	}else if( arg_n=="swf"){
+	        swf=arg_v;
+	}else if( arg_n=="swf"){
+	        swf=arg_v;
+	}else if( arg_n=="swf_w"){
+	        swf_w=arg_v;
+	}else if( arg_n=="swf_h"){
+	        swf_h=arg_v;
+	}else if( arg_n=="mode"){
+	        no_mode_in_query=0;
+		$('MT_form')[arg_n].value=arg_v;
+		mode_value=arg_v;
+	}else if( arg_n=="display_mode"){
+	        display_mode=arg_v;
+	}else if( arg_n=="comments"){
+	        existing_comments=arg_v;
+        }
+	}
+}
+
+if( display_mode=="thumbnail"){
+    $('instructions_div').style.display='none';
+    $('comments_form_div').style.display='none';
+}
+
+if( existing_comments != "")
+{
+    d=$('existing_comments_div');
+    d.innerHTML="<b>Comments:</b>"+existing_comments;
+    d.style.display="block";
+}
+
+instructions_URL=unescape(gup("instructions"));
+$('a_instructions').href=instructions_URL;
+
+if ( no_mode_in_query){
+    query_args=query_args+"&mode="+mode_value
+}
+
+
+
+submitURL="";
+if(mode_value=="AmazonMTsandbox"){
+	submitURL="http://workersandbox.mturk.com/mturk/externalSubmit";
+}else if(mode_value=="AmazonMTproduction"){
+	submitURL="http://www.mturk.com/mturk/externalSubmit";
+}else if(mode_value=="MT2"){
+	submitURL="/mt/submit/";
+}else if(mode_value=="sandbox2"){
+	submitURL="/mt/submit/";
+}
+
+
+
+$('MT_form').action=submitURL;
+
+
+
+create_flash_interface(swf,swf_w,swf_h,query_args);
+
+
+</script></body>
+</html>
