@@ -1,10 +1,10 @@
 {% extends "base_site.html" %}
 {% load i18n %}
 
-{% block title %}{{ title }} | {% trans 'Performance evaluation server' %}{% endblock %}
+{% block title %}{{ title }} {% trans 'Pascal VOC Challenge 2009. Performance evaluation server' %}{% endblock %}
 
 {% block branding %}
-<h1 id="site-name">{% trans 'Performance evaluation server' %}</h1>
+<h1 id="site-name">{% trans 'Pascal VOC Challenge 2009. Performance evaluation server' %}</h1>
 {% endblock %}
 
 {% block nav-global %}
@@ -22,3 +22,6 @@ Welcome, {{user.username}} : <!--<a href="/accounts/profile/">Profile</a> /--> <
 {% endif %}
 {% endblock %}
 
+
+
+  {% block footer %}<hr/><div id="footer">For any issues, please contact <b>Alexander Sorokin</b>, syrnick@gmail.com</div>{% endblock %}

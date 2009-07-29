@@ -1,5 +1,15 @@
 {% extends 'evaluation/base_app.html' %}
 
+{% block extrahead %}
+<script src="/code/js/prototype.js"></script>
+<script>
+var do_upload=function()
+{
+$('uploading_message').style.display='block';
+}
+</script>
+{% endblock %}
+
 {% block content %}
 Please upload submissions as defined in the development kit.<br/>
 
@@ -8,6 +18,7 @@ Please upload submissions as defined in the development kit.<br/>
 {% else %}
     <form method="post" action="">
 {% endif %}
+<table><tr><td>
 <table>
  {% for field in form %}
  <tr><td>
@@ -17,8 +28,10 @@ Please upload submissions as defined in the development kit.<br/>
 </tr>
     {% endfor %}
 <tr><td colspan=3 align="center">
-    <input type="submit" value="Upload submission" /></td></tr>
-</table>	  
+<div id="uploading_message" style="display:none"> Uploading. Please wait  ... </div>    <input type="submit" value="Upload submission" onclick="do_upload();return true;"/></td></tr>
+</table>	
+</td><td valign="center">
+</td></tr></table>  
 </form>
   <div>
     {% include 'evaluation/instructions_note.html' %}

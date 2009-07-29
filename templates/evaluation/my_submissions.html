@@ -2,6 +2,11 @@
 {% load switchcase %}
 
 {% block content %}
+{% ifequal objects.count 0 %}
+NO SUBMISSIONS FOUND
+{% else %}
+
+
 <table><tr>
   <td>Active</td>
   <td>Id</td>
@@ -12,6 +17,7 @@
   <td>Score</td>
   <td>When</td>  
 </tr>
+
 {% for s in objects %}
 <tr>
 <td>
@@ -47,5 +53,7 @@
 <hr/>
 <b>active</b> marks the submission, that will enter the competition. Only the most recent submission for each method will count.<br/>
 <b>active+</b> marks active submissions, where evaluation was successful.
+
+{% endifequal %} 
 
 {% endblock %}
