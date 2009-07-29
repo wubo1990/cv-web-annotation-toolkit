@@ -69,7 +69,7 @@ class Submission(models.Model):
     
     when = models.DateTimeField(auto_now_add=True);    
     def __unicode__(self):
-        return self.title
+        return str(self.owner) + "/" + self.method + "/" +self.title
 
     def get_scores(self):
         return submissionscores_set.order_by('category')
