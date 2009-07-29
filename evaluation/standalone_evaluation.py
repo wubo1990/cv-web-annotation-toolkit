@@ -3,7 +3,7 @@
 #export DJANGO_SETTINGS_MODULE=web_annotations_server.settings
 
 
-import os,sys,time
+import os,sys,time,re
 from evaluation.models import *
 from django.conf import settings
 
@@ -21,12 +21,18 @@ def writeMessage(report,msg):
     print >>fError,msg
     fError.close()    
 
+
+
+
 def run_evaluation():
 	submissions=Submission.objects.filter(state=2);
+	#submissions=Submission.objects.filter(id=44);
 	for s in submissions:
             try:
 		print s.id,s.title
-		
+
+		VOCdevkit=os.path.join(s.to_challenge.data_root,'VOCdevkit/');
+
 	        submission_rt=os.path.join(s.to_challenge.data_root,'submissions/%d/' % s.id);
 		submission_input_rt=os.path.join(submission_rt,'input');
 		work_root=os.path.join(submission_input_rt,'results');
@@ -74,10 +80,10 @@ def run_evaluation():
 
 			cmd=(("%s/run_eval_comp%d.sh " % (VOCdevkit,iComp))+ \
 			     ("%s/ " % MCRroot)+ \
-			     "/home/sorokin2/voc_data/VOCdevkit " + \
+			     VOCdevkit +" " + \
 			     work_root+"/ " + \
 			     report_filename + (" comp%d"% jComp) + \
-			     (" | tee %s.log" % report_filename))
+			     (" 2>&1 | tee %s.log" % report_filename))
 			print cmd
 			if os.system(cmd):
 				msg="Error while evaluating challenge %d." % jComp
@@ -97,10 +103,14 @@ def run_evaluation():
 					f_results=open(report_filename + '.score','r');
 					for score_str in f_results.readlines():
 						(score,category)=score_str.strip().split(' ');
-					print >>scores_file,"%s\tcomp%d.%s" % (score,jComp,category)
+                                                print >>scores_file,"%s\tcomp%d.%s" % (score,jComp,category)
+                                                ss=SubmissionScore(score=score,
+                                                                   category="comp%d.%s" % (jComp,category),
+                                                                   submission=s);
+                                                ss.save();
 					f_results.close()
-			except:
-				msg="Failed to get evaluation results by category for challenge %d." % jComp
+			except Exception, e:
+				msg="Failed to get evaluation results by category for challenge %d: %s" % (jComp,e)
 				writeError(report,msg)
 				writeMessage(report,msg)
 				hasError=True
@@ -112,6 +122,10 @@ def run_evaluation():
 				f_results_final.close()
 				all_scores.append(float(score));
 				print >>scores_file,"%s\tcomp%d" % (score,jComp)
+                                ss=SubmissionScore(score=score,
+                                                   category="comp%d" % (jComp),
+                                                   submission=s);
+                                ss.save();
 			except:
 				msg="Error while evaluating challenge %d. Results were not generated properly." % jComp
 				writeError(report,msg)
@@ -130,6 +144,7 @@ def run_evaluation():
 			final_scores_file=open(final_scores_report_filename,'w');			
 			print >>final_scores_file,final_score
 			final_scores_file.close()
+                
 
 		if hasError:
 			s.state=4;
@@ -138,19 +153,25 @@ def run_evaluation():
 			s.score=str(final_score);
 			s.state=3;
 			s.save();
-            except:
-                print "Mysterious error"
-                s.state=4;
-                s.save();
+            except str:
+                print "err"
+            #except:
+            #    print "Mysterious error"
+            #    s.state=4;
+            #    s.save();
 
 def run_evaluation_cycle():
     while True:
         try:
             run_evaluation();
-        except:
-            print "Mysterious error while running all evaluations"            
+        except str:
+            print "err"
+        #except:
+        #    print "Mysterious error while running all evaluations"            
         time.sleep(5)
         print time.localtime()
 
 if __name__=="__main__":
-	run_evaluation_cycle();
+    if len(sys.argv)>1:
+        VOCdevkit=sys.argv[1];
+    run_evaluation_cycle();

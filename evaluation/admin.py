@@ -9,7 +9,7 @@ class SubmissionAdmin(admin.ModelAdmin):
     list_display = ('title', 'method', 'owner', 'score')
 
 class SubmissionScoreAdmin(admin.ModelAdmin):
-    list_display = ('category', 'score')    
+    list_display = ('id','submission','category', 'score')    
           
 admin.site.register(Challenge, ChallengeAdmin);
 admin.site.register(Submission, SubmissionAdmin);

@@ -96,30 +96,37 @@ def do_upload_submission(request,form,uploaded_file):
             submission_input_rt,
             report_filename,
             challenge.data_root)
-        os.system(cmd)
-        if os.path.exists(report_filename+'.error'):
-            submission.state = 4
-        elif os.path.exists(report_filename+'.final_score'):
-            try:
-                score=open(report_filename+'.final_score','r').readlines()[0];
-                submission.score=score;
-                submission.state = 3
-            except:
-                submission.state = 4                            
-        else:
-            submission.state = 2
-            
-        submission.save()
+	try:
+		os.system(cmd)
 
-        if submission.state==3:
-            category_scores_file=open(report_filename+'.score','r')
-            for s in category_scores_file.readlines():
-                score_parts=s.strip().split(' ');
-                score=score_parts[0];
-                category=score_parts[1];
-                ss=SubmissionScore(score=score,category=category,
-                                   submission=submission);
-                ss.save();
+		if os.path.exists(report_filename+'.error'):
+			submission.state = 4
+		elif os.path.exists(report_filename+'.final_score'):
+			try:
+				score=open(report_filename+'.final_score','r').readlines()[0];
+				submission.score=score;
+				submission.state = 3
+			except:
+				submission.state = 4                            
+		else:
+			submission.state = 2
+            
+		submission.save()
+
+		if submission.state==3:
+			category_scores_file=open(report_filename+'.score','r')
+			for s in category_scores_file.readlines():
+				score_parts=s.strip().split(' ');
+				score=score_parts[0];
+				category=score_parts[1];
+				ss=SubmissionScore(score=score,category=category,
+						   submission=submission);
+				ss.save();
+	except:
+		rpt=Report(text="ERROR: failed to check submission.",submission=submission);
+		rpt.save();
+		submission.state = 4                            
+		submission.save()
 
 	
         return redirect_to(request,"/eval/view_submission/%d/" % (submission.id),permanent=False);                

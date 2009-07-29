@@ -9,7 +9,7 @@ action:
    score   
 """
 
-import os,sys,getopt,random
+import os,sys,getopt,random,re
 
 from xml.dom import minidom
 
@@ -24,6 +24,30 @@ def writeError(report,msg):
     fError=open(report+'.error','a')
     print >>fError,msg
     fError.close()
+
+def check_classifications_format(filename,err_fcn):
+    pattern = re.compile("^([^\ \t]+)([ \t]+)([\-\.1234567890]+)\n$")
+
+    f=open(filename,'r');
+    for i,l in enumerate(f.readlines()):
+        if not pattern.match(l):
+            err_fcn("Detections file has wrong format. Expected <image> <confidence>")
+            return False
+    return True
+    
+def check_detections_format(filename,err_fcn):
+    N="([\-\.1234567890]+)"
+    S="([ \t]+)"
+    pattern = re.compile("^([^\ \t]+)" + S + N + S + N + S + N + S + N + S + N + "\n$")
+
+    f=open(filename,'r');
+    for i,l in enumerate(f.readlines()):
+        if not pattern.match(l):
+            err_fcn("Detections file has wrong format. Expected <image> <confidence> <left> <top> <width> <height>")
+            return False
+    return True
+
+
     
 def main(argv):
     optlist, args = getopt.getopt(argv[1:], "", ["help", "action=", "submission=", "report=",
@@ -76,7 +100,7 @@ def main(argv):
             writeError(report,"Failed to extract the file. It appears to be a gzipped tar file, but tar xvzf failed.")
             hasError=True
     elif submission.endswith('.tar'):
-        print os.system("tar xvCf %s %s" % (work_root,submission));
+        status = os.system("tar xvCf %s %s" % (work_root,submission));
         if status !=0 :
             print >>fReport,"Failed to extract the file. It appears to be a plain tar file, but tar failed."
             writeError(report,"Failed to extract the file. It appears to be a plain tar file, but tar failed.")
@@ -130,6 +154,10 @@ def main(argv):
         (6,'Segmentation/comp6_${setname}_cls','${challenge}/ImageSets/Segmentation/${setname}.txt')
         ]
 
+    def err_fcn(msg):
+        writeError(report,msg);
+        print >>fReport,msg
+
     for (iC,template) in by_class_challenges:
         hasAnyClasses=False
         hasAllClasses=True
@@ -142,9 +170,20 @@ def main(argv):
             expected2_fn=os.path.join('results',challenge,expected_fn);
             expected_full_fn=os.path.join(work_root,expected2_fn);
             if os.path.exists(expected_full_fn):
-                hasAnyClasses=True
-                detected_classes.append(c)
-                presence_by_class[c]=True;
+                if iC==1 or iC==2:
+                    format_check_ok=check_classifications_format(expected_full_fn,err_fcn);
+                if iC==3 or iC==4:
+                    format_check_ok=check_detections_format(expected_full_fn,err_fcn);
+                if format_check_ok:
+                    hasAnyClasses=True
+                    detected_classes.append(c)
+                    presence_by_class[c]=True;
+                else:
+                    hasAllClasses=False
+                    missing_classes.append(c)
+                    presence_by_class[c]=False;
+                    hasError=True                
+                    err_fcn("Error in a file format");
             else:
                 hasAllClasses=False
                 missing_classes.append(c)
@@ -173,7 +212,16 @@ def main(argv):
             imageset_fn=os.path.join(devkit_root,Template(imageset_file_tempalte).substitute({ 'setname': setname,'challenge':challenge}));
             missing_files=[];
             detected_files=[];
-            for img_name in open(imageset_fn,'r').readlines():
+            if not os.path.exists(imageset_fn):
+                print >>fReport,"Challenge %d. Missing imageset files in the DEVKIT." % (iC)
+                writeError(report,"Challenge %d. Missing imageset files in the DEVKIT." % (iC))
+                hasError=True                
+                has_challenge_data[iC]=False
+                continue
+
+            image_names=open(imageset_fn,'r').readlines()
+
+            for img_name in image_names:
                 img_name=img_name.strip();
                 img_file_name=os.path.join(expected_full_fn,img_name+'.png');
                 if not os.path.exists(img_file_name):
