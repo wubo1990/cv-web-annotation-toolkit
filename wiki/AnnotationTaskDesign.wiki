@@ -43,6 +43,10 @@ Polygonal annotations are defined with {{{<annotation type="outline" />}}} decla
 
 When the user clicks on the input token, the interface will request annotation of a *single* outline. The outline is finished when the user clicks on the first control point again.
 
+== Polygonal annotation with a label ==
+
+Use {{{<annotation type="outline_text"/>}}} to create one. It will require the user to input a label and explicitly click "done" after the polygon input is finished. It requires one more click compared to plain polygonal annotation, but is more expressive.
+
 == Binary Flags ==              
 
 The flags represent simple binary properties of the image. They are defined with {{{<annotation type="presence"/>}}} declaration. Each binary flag will be shown as a checkbox.
