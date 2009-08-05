@@ -22,6 +22,7 @@ For example, if we want outlines of obstacles and the bounding boxes around peop
 {{{
 <?xml version="1.0"?>
 <task id="000001" type="image">
+<required_version release="0" major="1" minor="9"/>
   <targets>
      <target name="obstacle"> <annotation type="outline" /></target>
      <target name="person"> <annotation type="bbox2" /></target>
@@ -136,3 +137,20 @@ An example annotation (1 person and 1 obstacle) is shown below:
 
 <meta load_time="1247310026339" submit_time="1247310044429"/></results>
 }}}
+
+= Interface versions =
+
+New versions of the flash tool come with added functionality and fixed bugs. For some reason, the flash GUI doesn't always updates quickly. To force the update, one needs to manually reload the flash file. This can be done by going to
+
+{{{
+/code/label_generic.swf
+}}}
+
+and clicking reload. The exact path depends on the location of the file and should be placed in the instructions.
+
+To inform the users that they need to update the interface, the task definition XML supports *required_version* tag.
+{{{
+<required_version release="0" major="1" minor="9"/>
+}}}
+
+would require the version 0.1.9 or later of the annotation tool. 0.1.9 is the version at which the annotation tool supports this feature. Earlier versions will ignore the tag.
