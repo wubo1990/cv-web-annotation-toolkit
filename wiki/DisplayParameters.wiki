@@ -1,0 +1,47 @@
+#summary Documentation on internal parameters of the flash interface.
+
+= Introduction =
+
+Parameters allow to control internal features of the interface representation. The parameters have hierarchical structure similar to [http://pr.willowgarage.com/wiki/Parameter_Server ROS parameter server].
+
+{{{
+<task >
+<parameters>
+<group ns="polygonal_display">
+  <param name="number_control_points" value="true"/>
+  <param name="tag_font_size" value="55" />
+</group>
+</parameters>
+
+....
+
+</task>
+}}}
+
+The parameters can be specified in the task definition XML. 
+Eventually, URL will be supported as well. 
+
+The parameters set in the task definition XML are stored in the namespace {{{/taskdef/}}}. In the example above, the full name of the first parameter is {{{/taskdef/polygonal_display/number_control_points/}}}
+
+Right now only global parameters are supported. Local parameters may be handy.
+
+= Parameters by component =
+
+== Polygonal annotations ==
+
+Parameter location {{{/taskdef/polygonal_display/}}}
+
+ *  *number_control_points* (true, *false*) - Controls, whether the control points of the polygons get numbered. 
+ *  *tag_font_size* ( Number, *55*) - Sets the font size for the labels. 
+
+Example:
+{{{
+<parameters>
+<group ns="polygonal_display">
+  <param name="number_control_points" value="true"/>
+  <param name="tag_font_size" value="25" />
+</group>
+</parameters>
+}}}
+
+Minimum version: 0.1.11
