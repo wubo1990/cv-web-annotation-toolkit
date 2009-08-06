@@ -65,7 +65,7 @@ class Task(models.Model):
                                             help_text="number of assignments (should be 1 or greater.)") 
         # =assignments
 
-	duration=models.IntegerField(default=5*60,
+	duration=models.IntegerField(default=30*60,
                                      help_text="Amount of time in seconds to allow for this task to be completed.")       
         # assignmentduration
 
@@ -1020,6 +1020,7 @@ def get_grade_conflict_details(session,g1,g2):
  SELECT t.id, r1.id r1_id, r1.quality q1, r2.id r1_id, r2.quality q2
 FROM `mturk_submittedtask` t, mturk_manualgraderecord r1, mturk_manualgraderecord r2
 WHERE t.session_id =%s
+AND (1 OR t.valid )
 AND t.id = r1.submission_id
 AND t.id = r2.submission_id
 AND r1.valid AND r2.valid

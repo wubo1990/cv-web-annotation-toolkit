@@ -97,12 +97,15 @@ ORDER BY c DESC
 
 	    for r in cursor.fetchall():
 		w=r[0];
+                num_to_grade=r[1] - (good.get(w,0)+ ok.get(w,0) + bad.get(w,0));
+
 		res={'worker'  :w,
 		     'count'   :r[1],
 		     'num_good': good.get(w,0),
 		     'num_ok'  : ok.get(w,0),
 		     'num_bad' : bad.get(w,0),
                      'total'   :total_submissions.get(w,0),
+                     'num_to_grade'   :num_to_grade,
 		     }
 		results.append(res);
 
@@ -280,8 +283,8 @@ FROM `mturk_submittedtask` t, mturk_manualgraderecord r1, mturk_manualgraderecor
 WHERE t.session_id =%s
 AND t.id = r1.submission_id
 AND t.id = r2.submission_id
-AND (0 OR ( t.valid
-AND r1.valid AND r2.valid))
+AND ( t.valid )
+AND (0 OR ( r1.valid AND r2.valid ))
 AND r1.id <> r2.id
 AND r1.quality < r2.quality
 GROUP BY t.id, q1, q2

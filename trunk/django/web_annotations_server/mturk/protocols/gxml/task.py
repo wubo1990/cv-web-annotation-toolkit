@@ -155,7 +155,7 @@ class GXmlTaskEngine(TaskEngine):
 	GET,POST=submission.get_response()
 
 	shapes_xml=urllib.unquote_plus(POST['sites']);
-        print shapes_xml
-        print POST
+        #print shapes_xml
+        #print POST
 
 	return shapes_xml

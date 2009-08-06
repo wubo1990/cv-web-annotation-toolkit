@@ -121,18 +121,20 @@ class GradingTaskEngine(TaskEngine):
         if created:
             w.save();
 
+        print "DEACTIVATE"
         for sub_id in grades.keys():
             (session_code,submission_id)=sub_id.split("_");
 
             session=get_object_or_404(self.get_models().Session,code=session_code)
             original_submission=get_object_or_404(self.get_models().SubmittedTask,id=submission_id)
             quality=int(grades[sub_id]);
-            grade_record=self.get_models().ManualGradeRecord.objects.get(
+            grades=self.get_models().ManualGradeRecord.objects.filter(
                 submission=original_submission,
                 quality=quality,
                 worker=w);
-            grade_record.valid=False;
-            grade_record.save();
+            for grade_record in grades:
+                grade_record.valid=False;
+                grade_record.save();
         return None
 
     def get_submission_xml(self,submission):

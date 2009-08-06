@@ -133,7 +133,7 @@ INSTALLED_APPS = (
 
 ACCOUNT_ACTIVATION_DAYS=4
 
-HOST_NAME_FOR_MTURK="http://vm7.willowgarage.com:8080/"
+HOST_NAME_FOR_MTURK="http://vm7.willowgarage.com/"
 
 ## number of hits to show per page
 NUM_HITS_PER_PAGE = 20
