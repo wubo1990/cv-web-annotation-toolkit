@@ -1,6 +1,9 @@
 {% extends "admin/base.html" %}
 {% load time_extras %}
 
+{% block extrahead %}<script src="/code/js/prototype.js"></script>{% endblock %}
+
+
 {% block title %}{{session.code}}:session dashboard{% endblock %}
 
 {% block branding %}
@@ -10,6 +13,14 @@
 
 
 {% block content %}
+<script>
+var deactivate=function(id)
+{
+      new Ajax.Updater('deactivate_'+id, '/mt/grading/deactivate_grade/'+id+'/',{
+	    
+          });
+}
+</script>
 
 Session {{session.code}} [{% if session.sandbox %}
 SANDBOX
@@ -26,13 +37,19 @@ PRODUCTION
 <tr>
 <td><a target="_view_task" href="{{c.task.get_view_url}}">{{c.task.id}}</a></td><td>{{c.grade1.quality}},
 <a href="/mt/dashboard/worker_internal/{{c.grade1.worker.worker}}/">{{c.grade1.worker.worker}}</a>({{c.grade1.worker.utility}}) [<a href="/mt/grading/by_id/{{c.grade1.reference}}/">{{c.grade1.id}}</a>] </td><td>
-<a href="/mt/grading/deactivate_grade/{{c.grade1.id}}/" target="_grade_misc">
-[mark invalid]</a></td>
+<div id="deactivate_{{c.grade1.id}}">
+<a href="#" onclick="deactivate('{{c.grade1.id}}');return false;" >[mark invalid]</a>
+</div></td>
+
 <td>&nbsp;</td>
 <td>{{c.grade2.quality}},<a href="/mt/dashboard/worker_internal/{{c.grade2.worker.worker}}/">{{c.grade2.worker.worker}}</a>({{c.grade2.worker.utility}})
 [<a href="/mt/grading/by_id/{{c.grade2.reference}}/">{{c.grade2.id}}</a>]
 </td><td>
-<a href="/mt/grading/deactivate_grade/{{c.grade2.id}}/" target="_grade_misc">[mark invalid]</a></td>
+<div id="deactivate_{{c.grade2.id}}">
+<a href="#" onclick="deactivate('{{c.grade2.id}}');return false;" >[mark invalid]</a>
+</div></td>
+
+
 </td>
 
 </tr>

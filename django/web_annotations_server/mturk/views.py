@@ -205,7 +205,7 @@ def show_good_results_paged(request,session_code,page=1,order_by=None,num_per_pa
         else:
             results=session.submittedtask_set.all();
 
-        results=results.filter(manualgraderecord__quality__gt=7);
+        results=results.filter(final_grade__gt=7);
         print results.count();
 
         if not num_per_page:
@@ -277,13 +277,19 @@ def grading_by_worker_paged(request,session_code,worker_code,page=1):
 	return object_list(request,queryset=results, paginate_by=num_per_page, page=page,
 			template_name='protocols/' +protocol+'/grading_list.html');
 
-
+@login_required
 def grading_submit(request,submissionID):
 	submission = get_object_or_404(SubmittedTask,id=submissionID)
 
+        (worker,created)=Worker.objects.get_or_create(worker=request.user.username)
+        if created and request.user.is_superuser:
+            worker.utility = 100;
+            worker.save()
+
 	gr=ManualGradeRecord(submission=submission,
 		quality=int(request.REQUEST['quality']),
-		feedback=request.REQUEST['feedback'])
+		feedback=request.REQUEST['feedback'],
+                       worker=worker);      
 	gr.save();
 	return HttpResponse("+")
 
@@ -919,7 +925,6 @@ def reject_poor_results(request,session_code):
         conn = MTurkConnection(host=awshost,aws_secret_access_key=session.funding.secret_key,aws_access_key_id=session.funding.access_key)
 
      	results=session.submittedtask_set.all().exclude(state=4).exclude(state=3);
-     	results=session.submittedtask_set.all();
         te=session.task_def.type.get_engine();
 
 	strAns="assignmentIdToReject\tassignmentIdToRejectComment<br/>";
