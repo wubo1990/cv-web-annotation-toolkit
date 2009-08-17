@@ -121,8 +121,8 @@ An example setup for annotating people is here:
            <node name="left-ankle" label="left ankle" tag="lA" />
            <node name="left-knee" label="left knee" tag="lKn" />
            <node name="left-hip" label="left hip" tag="lH" />
-           <node name="right-hip" label="right shoulder" tag="rH" />
-           <node name="right-knee" label="right knee" tag="rK" />
+           <node name="right-hip" label="right hip" tag="rH" />
+           <node name="right-knee" label="right knee" tag="rKn" />
            <node name="right-ankle" label="right ankle" tag="rA" />
 
            <node name="neck" label="neck" tag="N"  color="0xFFFF00"/>
