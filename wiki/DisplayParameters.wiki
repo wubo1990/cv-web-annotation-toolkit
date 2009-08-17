@@ -45,3 +45,20 @@ Example:
 }}}
 
 Minimum version: 0.1.11
+
+== Tag display for bounding boxes ==
+
+Parameter location {{{/taskdef/bbox2_marker/}}}
+
+ *  *show_object_tag* (*true*, false) - Controls, whether the objects are named. If set to false, the object tags will not appear on display.
+
+Example:
+{{{
+<parameters>
+<group ns="bbox2_marker">
+  <param name="show_object_tag" value="true"/>
+</group>
+</parameters>
+}}}
+
+Minimum version: 0.1.13
