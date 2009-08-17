@@ -102,6 +102,10 @@ class GroupingTaskEngine(TaskEngine):
         answer=POST['answer'];
         answer=answer.split(',');
 
+        parameters= minidom.parseString(submission.hit.parameters);
+                                    
+        images=parameters.getElementsByTagName("img");
+
         x_doc=minidom.Document();
         x_root = x_doc.createElement("groups")
         x_doc.appendChild(x_root);
@@ -110,6 +114,7 @@ class GroupingTaskEngine(TaskEngine):
             x_root.appendChild(x_info);
             x_info.setAttribute("id",str(i+1));
             x_info.setAttribute("group",a);
+            x_info.setAttribute("url",images[i].getAttribute("src"));
 
         print answer
         print x_doc.toxml()

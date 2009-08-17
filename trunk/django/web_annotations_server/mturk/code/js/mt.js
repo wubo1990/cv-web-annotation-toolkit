@@ -1,7 +1,7 @@
 //
 // This method Gets URL Parameters (GUP)
 //
-function gup( name )
+var gup=function( name )
 {
   var regexS = "[\\?&]"+name+"=([^&#]*)";
   var regex = new RegExp( regexS );
@@ -16,14 +16,14 @@ function gup( name )
 //
 // This method decodes the query parameters that were URL-encoded
 //
-function decode(strToDecode)
+var decode= function (strToDecode)
 {
   var encoded = strToDecode;
   return unescape(encoded.replace(/\+/g,  " "));
 }
 
 
-function MT_setup(){
+var MT_setup = function (){
 
     document.getElementById('assignmentId').value = gup('assignmentId');
     //
@@ -43,7 +43,7 @@ function MT_setup(){
 }
 
 
-function MT_setup_instructions()
+var MT_setup_instructions=function()
 {
   instructions_URL=unescape(gup("instructions"));
   $('a_instructions').href=instructions_URL;
@@ -172,7 +172,7 @@ var mt_load_task_componentes =function(mode,completion_handler)
     {
       var upd=new Ajax.Request(parameters_url, {
 				 method: 'get',
-				 onSuccess: mt_onParametersXMLLoaded,
+				 onSuccess: mt_onParametersXMLLoaded
 			       });
     }
 
@@ -182,7 +182,7 @@ var mt_load_task_componentes =function(mode,completion_handler)
     data_url=decode(gup("data_url"));
     var upd=new Ajax.Request(data_url, {
 			       method: 'get',
-			       onSuccess: mt_onTaskXMLLoaded,
+			       onSuccess: mt_onTaskXMLLoaded
 			       });
 
   }
@@ -191,14 +191,14 @@ var mt_load_task_componentes =function(mode,completion_handler)
     data_url=unescape(gup("data_url"));
     var upd=new Ajax.Request(data_url, {
 			       method: 'get',
-			       onSuccess: mt_onTaskXMLLoaded,
+			       onSuccess: mt_onTaskXMLLoaded
 			     });
 
 
     annotation_URL=unescape(gup("annotation_url"));
     var upd=new Ajax.Request(annotation_URL, {
 			       method: 'get',
-			       onSuccess: mt_onAnnotationXMLLoaded,
+			       onSuccess: mt_onAnnotationXMLLoaded
 			     });
   }
 

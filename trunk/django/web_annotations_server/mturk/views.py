@@ -708,8 +708,9 @@ def get_hit_results_xml(request,ext_id,filterGood=False):
     if s=="":
         raise Http404;
 
-    s="<annotations>"+s+"</annotations>";
-    return HttpResponse(s, mimetype="text/plain");
+    if not s.startswith("<?"):
+        s="<?xml version='1.0'?><annotations>"+s+"</annotations>";
+    return HttpResponse(s, mimetype="text/xml");
 
 
 
@@ -836,6 +837,7 @@ def add_hit_to_session(session,params):
         create_hit_rs = conn.create_hit(question=q, hit_type=session.hit_type);
         print create_hit_rs
         print create_hit_rs.HITId
+
     hit.mt_hitid=create_hit_rs.HITId
     hit.save()
     return (True,"%s" % hit.ext_hitid)
@@ -878,6 +880,17 @@ def get_session_images3(request,session_code):
             original_name=parms.get('original_name','n/a')
             print parms
             response.write("%s\t/mt/good_hit_results_xml/%s/\t%s\t%s\t%s\t%s\t%s\t%s\n" % (settings.HOST_NAME_FOR_MTURK,hit.ext_hitid,session_code,frame,frame_id,ref_time,topic_in,original_name))
+
+        return response
+
+
+def get_session_good_results(request,session_code):
+	session = get_object_or_404(Session,code=session_code)
+
+        response = HttpResponse();
+
+	for hit in session.mthit_set.all():            
+            response.write("%s /mt/good_hit_results_xml/%s/ /mt/hit_parameters/%s/\n" % (hit.ext_hitid,hit.ext_hitid,hit.ext_hitid));
 
         return response
 
