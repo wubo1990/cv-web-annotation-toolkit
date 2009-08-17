@@ -130,7 +130,7 @@ Feedback:<textarea rows="5" cols="50" name="message_{{s.id}}"></textarea>
 {% ifequal s.manualgraderecord_set.count 0 %} 
 {% else %}
 <script>
-//  set_display_mode({{s.id}},"graded");
+  set_display_mode({{s.id}},"graded");
 </script>
 {% endifequal %}
 {% endfor %}
@@ -172,9 +172,9 @@ return false;
 <script>
 var all_submissions=[
 {% for s in object_list %}
-//{ ifequal s.manualgraderecord_set.count 0 } 
+{% ifequal s.manualgraderecord_set.count 0 %}
 '{{s.id}}',
-//{ endifequal }
+{% endifequal %}
 {% endfor %}
 ];
 

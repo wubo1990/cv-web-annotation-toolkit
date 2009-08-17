@@ -176,6 +176,20 @@ class MTHit(models.Model):
 		te=type.get_engine();
 		return te.get_thumbnail_url(self)
 
+class MechTurkHit(models.Model):
+	session=models.ForeignKey(Session);
+	mthit=models.ForeignKey(MTHit);
+
+	mechturk_hit_id=models.TextField(null=True,default=None);
+	tentative_grade=models.DecimalField(max_digits=15,decimal_places=4,
+                                 default="0.0",
+                                 help_text="The tentative grade assigned to submission.");
+	final_grade=models.DecimalField(max_digits=15,decimal_places=4,
+                                 default="0.0",
+                                 help_text="The final grade assigned to submission.");
+
+
+	#mt_hitid=models.TextField(null=True,defalut=null);
 
 class AssignedTask(models.Model):
 	session = models.ForeignKey(Session);
