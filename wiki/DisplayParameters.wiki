@@ -51,7 +51,7 @@ Minimum version: 0.1.11
 Parameter location {{{/taskdef/bbox2_marker/}}}
 
  *  *show_object_tag* (*true*, false) - Controls, whether the objects are named. If set to false, the object tags will not appear on display.
- *  *line_alpha*  (*1.0*) - draw bounding boxes with this alpha value.
+ *  *line_alpha*  (*0.7*) - draw bounding boxes with this alpha value.
 
 Example:
 {{{
