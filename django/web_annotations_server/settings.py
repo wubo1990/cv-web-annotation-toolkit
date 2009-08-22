@@ -125,6 +125,7 @@ INSTALLED_APPS = (
     'web_annotations_server.datastore',
     'web_annotations_server.annotations',
     'web_annotations_server.evaluation',
+    'web_annotations_server.autograding',
     'tagging',
     'registration',
     #'annotation.annotation_store',

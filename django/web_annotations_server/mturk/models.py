@@ -176,20 +176,29 @@ class MTHit(models.Model):
 		te=type.get_engine();
 		return te.get_thumbnail_url(self)
 
+MT_HIT_STATE = (
+	(1, 'Active'),
+	(2, 'Review'),
+	(3, 'Graded'),
+	(4, 'Finalized'),
+	(5, 'Expired'),
+        )        
+
 class MechTurkHit(models.Model):
-	session=models.ForeignKey(Session);
-	mthit=models.ForeignKey(MTHit);
+	session   = models.ForeignKey(Session);
+	mthit     = models.ForeignKey(MTHit);
+	state     = models.IntegerField(choices=MT_HIT_STATE,default=1);
 
-	mechturk_hit_id=models.TextField(null=True,default=None);
-	tentative_grade=models.DecimalField(max_digits=15,decimal_places=4,
-                                 default="0.0",
-                                 help_text="The tentative grade assigned to submission.");
-	final_grade=models.DecimalField(max_digits=15,decimal_places=4,
-                                 default="0.0",
-                                 help_text="The final grade assigned to submission.");
+	mechturk_hit_id  = models.TextField(null=True,default=None);
+
+	tentative_grade  = models.DecimalField(max_digits=15,decimal_places=4,
+					       default="0.0",
+					       help_text="The tentative grade assigned to submission.");
+	final_grade      = models.DecimalField(max_digits=15,decimal_places=4,
+					       default="0.0",
+					       help_text="The final grade assigned to submission.");
 
 
-	#mt_hitid=models.TextField(null=True,defalut=null);
 
 class AssignedTask(models.Model):
 	session = models.ForeignKey(Session);

@@ -293,6 +293,41 @@ def grading_submit(request,submissionID):
 	gr.save();
 	return HttpResponse("+")
 
+@login_required
+def adjudicate_by_submission_id(request,session_code,submission_id):
+	session = get_object_or_404(Session,code=session_code)
+	results = session.submittedtask_set.filter(id=submission_id)
+        print results,session,submission_id
+	protocol=session.task_def.type.name;
+
+	return object_list(request,queryset=results, paginate_by=1, page=1,
+                           template_name='protocols/' +protocol+'/grading_list2.html');
+
+@login_required
+def adjudicate_submit(request,submissionID):
+	submission = get_object_or_404(SubmittedTask,id=submissionID)
+
+        (worker,created)=Worker.objects.get_or_create(worker=request.user.username)
+        if created and request.user.is_superuser:
+            worker.utility = 100;
+            worker.save()
+
+	gr=ManualGradeRecord(submission=submission,
+		quality=int(request.REQUEST['quality']),
+		feedback=request.REQUEST['feedback'],
+                       worker=worker);      
+	gr.save();
+        nChanged=0;
+        for grade in submission.manualgraderecord_set.all():
+            if grade.quality <> gr.quality:
+                grade.valid = False;
+                grade.save();
+                nChanged += 1;
+
+	return HttpResponse("+ %d" % nChanged)
+
+
+
 def show_grading_conflict_details(request,session_code,grade_1_id,grade_2_id):
 	session = get_object_or_404(Session,code=session_code)
 
@@ -337,8 +372,6 @@ def grading_report_reject(request,session_code):
 		doReject=1;
 		if grade>3:
 			doReject=0;
-		if not r.get_parsed().comments=="":
-			doReject=0;
 		if doReject:
 			strAns=strAns+'%s\t"%s(let me know if you feel it\'s unfair)"\n'% (r.assignment_id,feedback)
 	return HttpResponse(strAns)
@@ -360,7 +393,7 @@ def grading_report_approve(request,session_code):
 			continue
 
 		doApprove=1;
-		if grade<=3 and r.get_parsed().comments=="":
+		if grade<=3:
 			doApprove=0;
 		if doApprove:
 			if grade<10:
@@ -535,6 +568,7 @@ def newHIT(request):
                                             approval_delay=t.approval_delay, 
                                             annotation="IGNORE",
                                             qualifications=qualifications)
+            print pickler.dumps(create_hit_rs)
             assert(create_hit_rs.status == True)
             print create_hit_rs
             print create_hit_rs.HITTypeId
@@ -542,8 +576,8 @@ def newHIT(request):
             session.save();
         else:
             create_hit_rs = conn.create_hit(question=q, hit_type=session.hit_type);
-            print create_hit_rs
-
+            print pickler.dumps(create_hit_rs)
+        
 	return HttpResponse("%s" % hit.ext_hitid)
 
 
@@ -645,6 +679,7 @@ def submit_redo_HITs(request,session_code):
         if not session.hit_type:
             qualifications = Qualifications()
             qualifications.add(PercentAssignmentsApprovedRequirement(comparator="GreaterThan", integer_value="90"))
+            print t.reward
             create_hit_rs = conn.create_hit(question=q, 
                                             lifetime=t.lifetime,
                                             max_assignments=t.max_assignments,
@@ -655,6 +690,8 @@ def submit_redo_HITs(request,session_code):
                                             approval_delay=t.approval_delay, 
                                             annotation="IGNORE",
                                             qualifications=qualifications)
+            postS=pickler.dumps(create_hit_rs)
+            print postS
             assert(create_hit_rs.status == True)
             print create_hit_rs.HITTypeId
             session.hit_type=create_hit_rs.HITTypeId;
@@ -662,6 +699,10 @@ def submit_redo_HITs(request,session_code):
         else:
             create_hit_rs = conn.create_hit(question=q, hit_type=session.hit_type);
         print "Hit",hit.id ,"is submitted"
+        #print create_hit_rs
+        postS=pickler.dumps(create_hit_rs)
+        print postS
+        #print create_hit_rs.HITId
 
         num_submitted += 1;
 
@@ -682,24 +723,26 @@ def get_hit_results_xml(request,ext_id,filterGood=False):
     for st in task.submittedtask_set.all():
 
 
-        if filterGood:
-            grade=None
-            feedback="";
-            for g in st.manualgraderecord_set.all():
-                if grade:
-                    if grade>g.quality:
-                        grade=g.quality;
-                        feedback=g.feedback;
-                else:
+        grade_xml="<grades>"
+        grade=None
+        feedback="";
+        for g in st.manualgraderecord_set.all():
+            if grade:
+                if grade>g.quality:
                     grade=g.quality;
                     feedback=g.feedback;
+            else:
+                grade=g.quality;
+                feedback=g.feedback;
+            grade_xml+="<grade value='%d'/>" % g.quality
+        grade_xml+="</grades>"
 
-            if grade is None:
-                continue
-            #Return only good. Skip "visible errors"
-            print "Grade:",grade
-            if grade <= 7:
-                continue
+        if grade is None:
+            continue
+        #Return only good. Skip "visible errors"
+        print "Grade:",grade
+        if grade <= 7:
+            continue
 
 
         s=s+st.get_parsed().shapes;
@@ -711,6 +754,7 @@ def get_hit_results_xml(request,ext_id,filterGood=False):
     if not s.startswith("<?"):
         s="<?xml version='1.0'?><annotations>"+s+"</annotations>";
     return HttpResponse(s, mimetype="text/xml");
+
 
 
 
@@ -1009,8 +1053,6 @@ def approve_good_results(request,session_code):
 
 		doAccept=0;
 		if grade>3:
-			doAccept=1;
-		if grade>1 and not r.get_parsed().comments=="":
 			doAccept=1;
 
 		if doAccept:

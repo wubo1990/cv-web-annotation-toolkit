@@ -11,6 +11,7 @@
 
 {% block content %}
 
+<table><tr><td>
 Session {{session.code}} [{% if session.sandbox %}
 SANDBOX
 {% else %}
@@ -34,9 +35,23 @@ Local:<br/>
 Mech Turk:<br/>
 <a href="/mt/grading/submit/session/{{session.code}}/{{session.code}}-grading/">Submit all for grading</a><br/><br/>
 &nbsp;&nbsp;&nbsp;&nbsp;<a href="/mt/dashboard/session/{{session.code}}-grading/">dashboard: grading session</a>
+
+<br/>
+<br/>
 <hr/>
+Automatic (<a href="/autograding/">info</a>):<br/>
+<ul>
+<li>
+<a href="/autograding/apply_auto_grades/{{session.code}}/">Grade automatically</a></li>
+
+<li>
+(<a href="/autograding/deactivate_auto_grades/{{session.code}}/">Deactivate </a> | <a href="/autograding/activate_auto_grades/{{session.code}}/">Activate </a> ) automatic grades <br/><br/></li>
+<li>
+<a href="/autograding/build_model_from_session/{{session.code}}/">Build</a> model from this session</li>
+</ul>
 
 <h2>Grade statistics</h2>
+(contains multiple counts per submission)<br/>
 Good :{{stats.total_grades.num_good}}<br/>
 With errors: {{stats.total_grades.num_ok}}<br/>
 Bad :{{stats.total_grades.num_bad}}<br/>
@@ -115,4 +130,7 @@ Filename: {{ s.hit.get_filename }}
 <br>
 {% endcomment %}
 
+</td><td>
+<iframe src="http://www.google.com/friendconnect/discuss?scope=web&topic={{session.task_def.name}}%3A%20clarifications%3A(MechTurk)" style="width:250px;height:440px;" scrolling="no" allowtransparency="true" border="0" frameborder="0" ></iframe>
+</td></tr></table>
 {% endblock %}
