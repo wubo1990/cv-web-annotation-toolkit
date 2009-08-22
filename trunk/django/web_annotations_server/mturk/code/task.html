@@ -22,8 +22,14 @@ IMPORTANT: Read the <a id="a_instructions" href="instructions.html" target="wnd_
 
 <div id="existing_comments_div" style="display:none;"></div>
 
-<div id="flash_div"></div>
 
+<table><tr><td>
+<div id="flash_div"></div>
+</td><td>
+<a id='help_frame_ref' target="_blank" href="#">Open help chat in a new window</a><br/>
+<iframe id='help_frame' src="" style="width:250px;height:440px;" scrolling="no" allowtransparency="true" border="0" frameborder="0" ></iframe>
+
+</td></tr></table>
 <noscript>
 Error. Javascript is required.
 </noscript>
@@ -87,7 +93,8 @@ var run_submit=function (){
     display_mode="";
     existing_comments="";
     no_mode_in_query=1;
-    
+    task_id='generic';
+
 
 for (i = 0; i <= args_list.length; i++)
 {
@@ -122,13 +129,26 @@ for (i = 0; i <= args_list.length; i++)
 	        display_mode=arg_v;
 	}else if( arg_n=="comments"){
 	        existing_comments=arg_v;
+	}else if( arg_n=="task"){
+	        task_id=arg_v;
+
         }
 	}
 }
 
+
+$('help_frame').src='http://www.google.com/friendconnect/discuss?scope=web&topic='+task_id+'%3A%20clarifications%3A(MechTurk)'
+$('help_frame_ref').href='http://www.google.com/friendconnect/discuss?scope=web&topic='+task_id+'%3A%20clarifications%3A(MechTurk)'
+
 if( display_mode=="thumbnail"){
     $('instructions_div').style.display='none';
     $('comments_form_div').style.display='none';
+    $('help_frame').style.display='none';
+    $('help_frame_ref').style.display='none';
+}
+if( mode_value=="display"){
+    $('help_frame').style.display='none';
+    $('help_frame_ref').style.display='none';
 }
 
 if( existing_comments != "")

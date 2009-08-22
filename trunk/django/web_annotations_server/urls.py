@@ -24,6 +24,8 @@ urlpatterns = patterns('',
     (r'^ic/', include('image_collector.urls')),
 
     (r'^eval/', include('evaluation.urls')),
+
+    (r'^autograding/', include('autograding.urls')),
                        
 
     (r'^tasks/(?P<path>.*)$', 'mturk.views.dynamic_task'),

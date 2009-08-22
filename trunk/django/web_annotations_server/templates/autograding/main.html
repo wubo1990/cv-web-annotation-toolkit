@@ -1,0 +1,39 @@
+{% extends "mturk/base_app.html" %}
+
+{% block content %}
+
+{% if user.is_anonymous %}
+<p>
+Please <a href="/accounts/login/?next=/"> login</a> or <a href="/accounts/register/">register</a>.
+{% else %}
+
+{% endif %}
+
+Available models:<br/>
+<table>
+<tr>
+<td>Task name</td>
+<td>Model file</td>
+<td>Model type</td>
+<td>Benchmark report</td>
+</tr>
+{% for m in models %}
+<tr>
+<td>
+{{m.0}}
+</td>
+<td>
+{{m.1}}
+</td>
+<td>
+<a href="http://www.cs.cmu.edu/~daria/TreeExtra.htm">Additive Groves</a>
+</td>
+<td>
+<a href="/frames/autograding_models/{{m.0}}/training/preds.txt.report.txt">report</a>
+</td>
+</tr>
+{% endfor %}
+</table>
+
+{% endblock %}
+

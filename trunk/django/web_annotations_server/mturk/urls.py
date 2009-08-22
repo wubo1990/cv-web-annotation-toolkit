@@ -61,6 +61,9 @@ urlpatterns = patterns('',
 
     (r'^grading_submit/(?P<submissionID>[0-9]+)/$', 'mturk.views.grading_submit'),
 
+    (r'^adjudicate/(?P<session_code>[\w\-]+)/(?P<submission_id>[\w\-]+)/$', 'mturk.views.adjudicate_by_submission_id'),
+    (r'^adjudicate_submit/(?P<submissionID>[0-9]+)/$', 'mturk.views.adjudicate_submit'),
+
     (r'^grading_report/(?P<session_code>[\w\-]+)/reject/$', 'mturk.views.grading_report_reject'),
     (r'^grading_report/(?P<session_code>[\w\-]+)/approve/$', 'mturk.views.grading_report_approve'),
 
@@ -134,6 +137,8 @@ urlpatterns = patterns('',
     (r'^grading/(?P<session_code>[\w\-]+)/p(?P<page>[0-9]+)/$', 'mturk.views.grading_paged'),
 
     (r'^grading_submit/(?P<submissionID>[0-9]+)/$', 'mturk.views.grading_submit'),
+    (r'^adjudication_submit/(?P<submissionID>[0-9]+)/$', 'mturk.views.grading_submit'),
+
 
     (r'^grading_report/(?P<session_code>[\w\-]+)/reject/$', 'mturk.views.grading_report_reject'),
     (r'^grading_report/(?P<session_code>[\w\-]+)/approve/$', 'mturk.views.grading_report_approve'),
