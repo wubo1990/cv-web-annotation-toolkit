@@ -30,11 +30,12 @@ The ability to input data is nice, but we sometimes want to take a look at the r
 
 The XML format is simple as well. An interesting part is the segmentation format. The segmentation masks are stored separately and only references are kept inside the XML.
 
+<wiki:comment>
 = Example - edit = 
 
 To edit the annotations, we simply set the *mode* variable to "edit". This tells the interface to load the data (image, task specification,the annotations) and switch into edit mode.  In the
 [http://vision-app1.cs.uiuc.edu:8080/code/generic2.html?swf=label_generic&swf_w=700&swf_h=700&img_base=http://vision-app1.cs.uiuc.edu:8080/&video=VOC2008&frame=2007_003143&task=car&mode=edit&annotationID=demo_annotation3 third example] we can modify the annotations by clicking on the annotated boxes and moving the resize markers. To edit hierarchical annotations, it is necessary to select the top level box (car) first and then select a child box. 
-
+</wiki:comment>
 
 ----
 Questions? Send me an e-mail. 
