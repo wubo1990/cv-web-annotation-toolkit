@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+"""
+(C) Alexander Sorokin, 2009
+License: BSD
+"""
 
 import os,sys, getopt
 
