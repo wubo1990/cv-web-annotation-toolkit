@@ -13,7 +13,7 @@ def extract_submission_features(submission):
     x_str = submission.get_xml_str();
     #print x_str
     if x_str=="":
-        return [0, "?", "?", "?", "?", "?", "?"];
+        return [0, "?", "?", "?", "?", "?", "?", "?"];
 
     has_data=1;
     x_doc = minidom.parseString(x_str);
@@ -42,7 +42,14 @@ def extract_submission_features(submission):
     else:
         median_time="?"
 
-    return [has_data, duration, num_poly, num_bbox, num_bbox-num_poly, num_pts-2*num_bbox, median_time];
+    if num_poly==0:
+        num_poly_fixed=1
+        pts_per_poly=(num_pts-2*num_bbox)/num_poly_fixed;
+    else:
+        num_poly_fixed=num_poly
+        pts_per_poly=(num_pts-2*num_bbox)/num_poly_fixed;
+
+    return [has_data, duration, num_poly, num_bbox, num_bbox-num_poly, num_pts-2*num_bbox, median_time,pts_per_poly];
     
 def get_attribute_list():
     return \
@@ -52,7 +59,8 @@ num_poly: cont.
 num_bbox: cont.
 diff_num_bbox_num_poly: cont.
 num_poly_points: cont.
-time_per_point: cont."""
+time_per_point: cont.
+pts_per_poly: cont."""
 
 def write_dataset(root,examples, attr_list, split_ratios):
     random.seed(1234);

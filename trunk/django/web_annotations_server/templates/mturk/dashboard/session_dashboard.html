@@ -18,11 +18,19 @@ SANDBOX
 PRODUCTION
 {% endif %}].<br/>
 
-HITs {{session.mthit_set.count}} of {{session.HITlimit}}.<br/>
+HITs {{stats.hits.count}} of {{session.HITlimit}}. <b>Idle {{stats.hits.num_idle}}</b><br/>
 Submissions: Total {{session.submittedtask_set.count}}. Approved {{stats.submissions.approved}}. Rejected {{stats.submissions.rejected}}. <b>Open {{stats.submissions.open}}.</b><br/>
 
 <hr/>
-
+<hr/>
+<h2>Tasks</h2>
+{% if session.sandbox %}
+<a href="https://workersandbox.mturk.com/mturk/preview?groupId=R16ZSVZ8ZX3ZQ6YVCWXZ">On MechTurk (sandbox)</a>
+{% else %}
+<a href="https://www.mturk.com/mturk/preview?groupId=R16ZSVZ8ZX3ZQ6YVCWXZ">On MechTurk (production)</a>
+{% endif %}<br/>
+Internally: <a href="/mt/session_hits/{{session.code}}/0/">All</a> || 
+<a href="/mt/session_hits/{{session.code}}/1/">New</a> | <a href="/mt/session_hits/{{session.code}}/2/">Submitted</a>
 <hr/>
 <h2>Grading</h2>
 
@@ -39,7 +47,7 @@ Mech Turk:<br/>
 <br/>
 <br/>
 <hr/>
-Automatic (<a href="/autograding/">info</a>):<br/>
+Automatic (<a href="/autograding/">info</a>) - very very very experimental (use port 8080):<br/>
 <ul>
 <li>
 <a href="/autograding/apply_auto_grades/{{session.code}}/">Grade automatically</a></li>
@@ -92,6 +100,7 @@ Browse:<br/>
 <ul>
 <li><a href="/mt/results/{{session.code}}/">All results</a><br/></li>
 <li><a href="/mt/good_results/{{session.code}}/">Good results</a><br/></li>
+<li> /mt/good_results_w_filter/{{session.code}}/p1/ FILTER / - lists results by this filter. Try image name or timestamp.
 </ul>
 
 Convert good anntoations to messages:<br/>

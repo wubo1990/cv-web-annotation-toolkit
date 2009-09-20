@@ -136,6 +136,8 @@ ACCOUNT_ACTIVATION_DAYS=4
 
 HOST_NAME_FOR_MTURK="http://vm7.willowgarage.com/"
 
+MTURK_BLOCK_WORKER_MIN_UTILITY=30
+
 ## number of hits to show per page
 NUM_HITS_PER_PAGE = 20
 

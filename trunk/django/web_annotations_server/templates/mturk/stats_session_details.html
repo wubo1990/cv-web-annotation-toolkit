@@ -1,0 +1,33 @@
+{% extends "mturk/base_app.html" %}
+
+{% block extrahead %}
+    <script language="javascript" src="/code/js/bluff/js-class.js" type="text/javascript"></script>
+    <script language="javascript" src="/code/js/bluff/bluff.js" type="text/javascript"></script>
+    <script language="javascript" src="/code/js/bluff/excanvas.js" type="text/javascript"></script>
+
+{% endblock %}
+
+{% block content %}
+
+{{session.code}}
+
+<canvas id='submission_graph'>
+
+<script>
+   var g = new Bluff.Line('submission_graph', 400);
+
+  // Set theme and options
+  g.theme_keynote();
+  g.title = 'My Graph';
+
+  // Add data and labels
+  var subm=[
+{% for s in submissions %}{{s.diff}}, {% endfor %}
+  ];
+  g.data('Submission time from start',subm); 
+  g.labels = {0: '2003',10:'213'};
+
+  // Render the graph
+  g.draw();
+</script>
+{% endblock %}

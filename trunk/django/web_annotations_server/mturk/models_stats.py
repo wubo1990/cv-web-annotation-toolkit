@@ -170,9 +170,14 @@ SELECT MIN(s.submitted - h.submitted), MAX(s.submitted - h.submitted), AVG(s.sub
     except:
 	    pass
 
+    hit_stats={};
+    hit_stats['count']=session.mthit_set.count();
+    hit_stats['num_idle']=session.mthit_set.filter(state=5).count();
+    hit_stats['num_active']=session.mthit_set.filter(state=6).count();
+    print hit_stats
     conflicts=compute_session_conflicts(session);
     session_grades_distribution=compute_session_grade_distribution(session);
-    all_stats= {'total_grades':total_grades,'submissions':submissions,'timing':timing_stats,'conflicts':conflicts,'session_grades':session_grades_distribution};
+    all_stats= {'total_grades':total_grades,'submissions':submissions,'timing':timing_stats,'conflicts':conflicts,'session_grades':session_grades_distribution,'hits':hit_stats};
 
     return all_stats;
 
@@ -290,7 +295,7 @@ AND r1.quality < r2.quality
 GROUP BY t.id, q1, q2
 """,[session.id])
             for r in cursor.fetchall():
-                print r
+                print "X",r
                 (id,q1,q2,c)=r;
                 #if id not in grades_no_conflict and id not in conflicts :
                 #    grades_no_conflict[id]=r
@@ -306,7 +311,7 @@ GROUP BY t.id, q1, q2
                 
     #except:
     #    pass
-                    
+    print conflict_distribution
     conflict_distribution_tbl=format_as_table(conflict_distribution,{3:'bad',7:'with_errors',10:'good',15:'exceptional'})
     #            'grades_no_conflict':grades_no_conflict,
 
@@ -339,3 +344,36 @@ def compute_session_conflicts(session):
             num_conflicts+=1;
     conflicts={'stats':{'num_conflicts':num_conflicts}};
     return conflicts
+
+
+def workers_overview(worker):
+    from django.db import connection
+
+    grade_counts={};
+    try:
+    	    cursor = connection.cursor()
+
+	    cursor.execute("""
+SELECT worker, final_grade, count( * ) c
+FROM `mturk_submittedtask`
+GROUP BY worker, final_grade
+ORDER BY worker, final_grade
+""")
+	    for r in cursor.fetchall():
+                (worker,grade,count)=r
+
+                if r[0] is None:
+                    grade_counts['Null']=r[1];
+                else:
+		    grade_counts[r[0]]=r[1];
+	    cursor.close();
+    except:
+        raise
+        #pass
+
+
+    total_grades={
+         'num_good': grade_counts.get(10,0)+grade_counts.get(15,0),
+         'num_ok': grade_counts.get(7,0),
+         'num_bad': grade_counts.get(3,0)+grade_counts.get(0,0),
+         }

@@ -1,0 +1,21 @@
+{% extends "admin/base.html" %}
+{% load time_extras %}
+
+{% block extrahead %}<script src="/code/js/prototype.js"></script>{% endblock %}
+
+
+{% block title %}{{session.code}}:session dashboard{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">Session dashboard: {{session.code}} </h1>
+{% endblock %}
+
+
+
+{% block content %}
+
+{% for h in results %}
+{{h}}<br/>
+{% endfor %}
+
+{% endblock %}
