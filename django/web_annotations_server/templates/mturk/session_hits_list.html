@@ -1,0 +1,87 @@
+{% extends "admin/base.html" %}
+{% load time_extras %}
+
+{% block extrahead %}<script src="/code/js/prototype.js"></script>{% endblock %}
+
+
+{% block title %}{{session.code}}:session dashboard{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">Session dashboard: {{session.code}} </h1>
+{% endblock %}
+
+
+
+{% block content %}
+
+page number:
+{% if has_previous %}
+<a href="../p{{previous}}/">previous</a>
+{% endif %}
+{{page}}
+{% if has_next %}
+<a href="../p{{next}}/">next</a>
+{% endif %} | {{num_pages}}
+<br>
+jump to page: {% for p in page_range %}
+<a href="../p{{p}}/">{{p}}</a> 
+{% endfor %}
+<hr/>
+<table>
+{% for h in object_list %}
+<tr><td><a href="/mt/get_task/{{session.code}}/?ExtID={{h.ext_hitid}}">{{h.id}}</a></td><td>{{h.get_state_display}}</td></tr>
+{% endfor %}
+</table>
+{% endblock %}
+
+
+
+
+{% block tmp %}
+
+<script>
+var deactivate=function(id)
+{
+      new Ajax.Updater('deactivate_'+id, '/mt/grading/deactivate_grade/'+id+'/',{
+	    
+          });
+}
+</script>
+
+Session {{session.code}} [{% if session.sandbox %}
+SANDBOX
+{% else %}
+PRODUCTION
+{% endif %}].<br/>
+{{g1}} VS {{g2}}
+<hr/>
+<a href="/mt/result_stats/{{session.code}}-grading/by_worker/">Grading session by worker</a> <br/>
+<a href="/mt/result_stats/{{session.code}}/by_worker/">Input session by worker</a> 
+<hr/>
+<table>
+<tr><td>adjudicate</td><td>submission</td><td>grade 1</td><td>grade 2</td></tr>
+{% for c in conflicts %}
+<tr>
+<td><a href="/mt/adjudicate/{{session.code}}/{{c.task.id}}/">adj({{c.task.id}})</a></td>
+<td><a target="_view_task" href="{{c.task.get_view_url}}">{{c.task.id}}</a></td><td>{{c.grade1.quality}},
+<a href="/mt/dashboard/worker_internal/{{c.grade1.worker.worker}}/">{{c.grade1.worker.worker}}</a>({{c.grade1.worker.utility}}) [<a href="/mt/grading/by_id/{{c.grade1.reference}}/">{{c.grade1.id}}</a>] </td><td>
+<div id="deactivate_{{c.grade1.id}}">
+<a href="#" onclick="deactivate('{{c.grade1.id}}');return false;" >[mark invalid]</a>
+</div></td>
+
+<td>&nbsp;</td>
+<td>{{c.grade2.quality}},<a href="/mt/dashboard/worker_internal/{{c.grade2.worker.worker}}/">{{c.grade2.worker.worker}}</a>({{c.grade2.worker.utility}})
+[<a href="/mt/grading/by_id/{{c.grade2.reference}}/">{{c.grade2.id}}</a>]
+</td><td>
+<div id="deactivate_{{c.grade2.id}}">
+<a href="#" onclick="deactivate('{{c.grade2.id}}');return false;" >[mark invalid]</a>
+</div></td>
+
+
+</td>
+
+</tr>
+
+{% endfor %}
+</table>
+{% endblock %}

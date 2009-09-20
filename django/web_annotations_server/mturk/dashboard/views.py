@@ -18,3 +18,9 @@ def worker_internal_dashboard(request,worker_id):
     stats = models_stats.worker_stats(worker)
     return render_to_response('mturk/dashboard/worker_internal_dashboard.html', {'worker':worker,'stats':stats})
 
+@login_required
+def workers_overview_dashboard(request,worker_id):
+    worker = get_object_or_404(Worker,session=None,worker=worker_id);	
+    stats = models_stats.worker_stats(worker)
+    return render_to_response('mturk/dashboard/worker_internal_dashboard.html', {'worker':worker,'stats':stats})
+

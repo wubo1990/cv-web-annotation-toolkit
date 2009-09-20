@@ -1,5 +1,5 @@
 from django.contrib import admin
-from models import Session,FundingAccount,MTHit,SubmittedTask,Worker,Task,TaskType
+from models import Session,FundingAccount,MTHit,SubmittedTask,Worker,Task,TaskType,MTurkQualificationDefinition,MTurkQualification
 
 
 class FundingAccountAdmin(admin.ModelAdmin):
@@ -8,7 +8,9 @@ class FundingAccountAdmin(admin.ModelAdmin):
 
 class SessionAdmin(admin.ModelAdmin):
     list_display = ('code', 'task_def', 'funding', 'owner')
-    fields = ('code', 'task_def', 'funding', 'standalone_mode', 'sandbox', 'HITlimit', 'hit_type', 'owner');
+    fields = ('code', 'task_def', 'funding', 'standalone_mode', 'sandbox', 'HITlimit', 'hit_type', 'owner',
+              'gold_standard_qualification',
+              'mturk_qualification');
 
 
 class MTHitAdmin(admin.ModelAdmin):
@@ -25,6 +27,12 @@ class TaskAdmin(admin.ModelAdmin):
 
 class TaskTypeAdmin(admin.ModelAdmin):
     list_display = ('id','name');
+
+class MTQualAdmin(admin.ModelAdmin):
+    list_display = ('id','name','qualification_def','comparator','value','is_sandbox');
+
+class MTQualDefAdmin(admin.ModelAdmin):
+    list_display = ('id','name');
     
 
 
@@ -36,4 +44,7 @@ admin.site.register(FundingAccount, FundingAccountAdmin);
 admin.site.register(Worker,WorkerAdmin);
 admin.site.register(Task,TaskAdmin);
 admin.site.register(TaskType,TaskTypeAdmin);
+
+admin.site.register(MTurkQualification,MTQualAdmin);
+admin.site.register(MTurkQualificationDefinition,MTQualDefAdmin);
 

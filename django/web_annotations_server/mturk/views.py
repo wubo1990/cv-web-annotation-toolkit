@@ -11,6 +11,7 @@ from django.shortcuts import render_to_response,get_object_or_404
 from django.views.generic.list_detail import object_list
 
 from django.contrib.auth.decorators import login_required
+from subprocess import *
 
 try:
     from boto.mturk.connection import MTurkConnection
@@ -51,6 +52,11 @@ def main(request):
         sessions=[];
     return render_to_response('mturk/main.html',{'user':request.user,'sessions':sessions});
 
+@login_required
+def main_all(request):
+    sessions=Session.objects.all().order_by('-id');
+    return render_to_response('mturk/main.html',{'user':request.user,'sessions':sessions});
+
 	
 def get_task_parameters(request,task_name):
     task = get_object_or_404(Task,name=task_name)
@@ -63,11 +69,34 @@ def send_hit_parameters(request,ext_id):
     else:
         return HttpResponse(hit.parameters,mimetype="text/plain");
 
+def show_session_hits(request,session_code,hit_state,page=1):
+    session = get_object_or_404(Session,code=session_code)
+    if int(hit_state)>0:
+        hits=session.mthit_set.filter(state=int(hit_state))
+    else:
+        hits=session.mthit_set.all();
+    print session
+    print hits
+
+    page_range=map(lambda x:int(math.floor(x/settings.NUM_HITS_PER_PAGE)+1),range(1,hits.count(),settings.NUM_HITS_PER_PAGE));
+
+    return object_list(request,queryset=hits, paginate_by=settings.NUM_HITS_PER_PAGE, page=page,
+                       template_name='mturk/session_hits_list.html',extra_context={'session':session,'page_range':page_range});
+
 
 def showtask(request,session_code):
     session = get_object_or_404(Session,code=session_code)
 
     task = get_object_or_404(MTHit,ext_hitid=request.GET['ExtID'])
+
+    if "workerId" in request.GET:
+        worker_id=request.GET["workerId"]
+        print worker_id
+        (worker,created)=Worker.objects.get_or_create(session=None,worker=worker_id)
+        if created:
+            worker.save();
+        if worker.utility<settings.MTURK_BLOCK_WORKER_MIN_UTILITY:
+            return render_to_response('mturk/not_available.html');
 
     if task is None:
     	return render_to_response('mturk/not_available.html');
@@ -110,6 +139,8 @@ def submit_result(request):
     submission.save();
 
     session.task_def.type.get_engine().on_submit(submission);
+    task.state=2; #Submitted
+    task.save()
     if ros_sender:
         print "Sending results"
 
@@ -218,6 +249,33 @@ def show_good_results_paged(request,session_code,page=1,order_by=None,num_per_pa
 
 	return object_list(request,queryset=results, paginate_by=num_per_page, page=page,
 			template_name=template_name,extra_context={'page_range':page_range});
+
+
+
+
+def show_good_results_w_filter_paged(request,session_code,page=1,filter=None,order_by=None,num_per_page=None,template_name=None):
+        session = get_object_or_404(Session,code=session_code)
+
+        protocol=session.task_def.type.name;
+
+        if order_by:
+            results=session.submittedtask_set.order_by(order_by);
+        else:
+            results=session.submittedtask_set.all();
+
+        results=results.filter(final_grade__gt=7,hit__parameters__contains=filter);
+        print results.count();
+
+        if not num_per_page:
+            num_per_page=settings.NUM_HITS_PER_PAGE;
+
+        page_range=map(lambda x:int(math.floor(x/num_per_page)+1),range(1,results.count(),num_per_page));
+
+        if not template_name:
+            template_name='protocols/' +protocol+'/show_list.html'
+
+        return object_list(request,queryset=results, paginate_by=num_per_page, page=page,
+                        template_name=template_name,extra_context={'page_range':page_range});
 
 
 import math
@@ -470,6 +528,13 @@ def stats_all(request):
 	return render_to_response('mturk/stats_all.html',
 				{'worker_contributions':worker_contributions,
 				'submissions_per_session':submissions_per_session});
+@login_required
+def ban_worker(request,worker_id):
+    worker=get_object_or_404(Worker,session=None,worker=worker_id);
+    worker.utility=0;
+    worker.save();
+
+    return HttpResponse("banned");
 
 
 def grading_report_for_worker(request,worker_id):
@@ -481,6 +546,14 @@ def grading_report_for_worker(request,worker_id):
 
 
 
+def add_session_qualifications(qualifications,session):
+    for q in session.mturk_qualification.all():
+        qualifications.add(Requirement(
+                qualification_type_id=q.mt_qual_id,
+                comparator=q.comparator,
+                integer_value=q.value, 
+                required_to_preview=False));
+        pass
 
 def newHIT(request):
 	print request.POST
@@ -556,6 +629,7 @@ def newHIT(request):
             qualifications = Qualifications()
             qualifications.add(PercentAssignmentsApprovedRequirement(comparator="GreaterThan", integer_value="90"))
 
+            add_session_qualifications(qualifications,session);
 
 
             create_hit_rs = conn.create_hit(question=q, 
@@ -621,7 +695,7 @@ def new_HIT_generic(request):
             qualifications = Qualifications()
             qualifications.add(PercentAssignmentsApprovedRequirement(comparator="GreaterThan", integer_value="90"))
 
-
+            add_session_qualifications(qualifications,session);
 
             create_hit_rs = conn.create_hit(question=q, 
                                             lifetime=t.lifetime,
@@ -679,6 +753,8 @@ def submit_redo_HITs(request,session_code):
         if not session.hit_type:
             qualifications = Qualifications()
             qualifications.add(PercentAssignmentsApprovedRequirement(comparator="GreaterThan", integer_value="90"))
+
+            add_session_qualifications(qualifications,session);
             print t.reward
             create_hit_rs = conn.create_hit(question=q, 
                                             lifetime=t.lifetime,
@@ -690,8 +766,8 @@ def submit_redo_HITs(request,session_code):
                                             approval_delay=t.approval_delay, 
                                             annotation="IGNORE",
                                             qualifications=qualifications)
-            postS=pickler.dumps(create_hit_rs)
-            print postS
+            #postS=pickler.dumps(create_hit_rs)
+            #print postS
             assert(create_hit_rs.status == True)
             print create_hit_rs.HITTypeId
             session.hit_type=create_hit_rs.HITTypeId;
@@ -699,9 +775,11 @@ def submit_redo_HITs(request,session_code):
         else:
             create_hit_rs = conn.create_hit(question=q, hit_type=session.hit_type);
         print "Hit",hit.id ,"is submitted"
+        hit.state=6;
+        hit.save();
         #print create_hit_rs
-        postS=pickler.dumps(create_hit_rs)
-        print postS
+        #postS=pickler.dumps(create_hit_rs)
+        #print postS
         #print create_hit_rs.HITId
 
         num_submitted += 1;
@@ -726,7 +804,7 @@ def get_hit_results_xml(request,ext_id,filterGood=False):
         grade_xml="<grades>"
         grade=None
         feedback="";
-        for g in st.manualgraderecord_set.all():
+        for g in st.manualgraderecord_set.filter(valid=True).all():
             if grade:
                 if grade>g.quality:
                     grade=g.quality;
@@ -863,6 +941,8 @@ def add_hit_to_session(session,params):
     if not session.hit_type:
         qualifications = Qualifications()
         qualifications.add(PercentAssignmentsApprovedRequirement(comparator="GreaterThan", integer_value="90"))
+
+        add_session_qualifications(qualifications,session);
         create_hit_rs = conn.create_hit(question=q, 
                                         lifetime=t.lifetime,
                                         max_assignments=t.max_assignments,
@@ -1010,6 +1090,9 @@ def reject_poor_results(request,session_code):
                         r.final_grade=str(grade);
                         r.save()
                         te.on_deactivate(r);
+
+                        r.hit.state=5; # Open
+                        r.hit.save();
                         print resp
                         strAns=strAns+'Rejected: %s\t"%s"<br/>'% (r.assignment_id,feedback)
                     except Exception,e:
@@ -1067,6 +1150,8 @@ def approve_good_results(request,session_code):
                         r.final_grade=str(grade);
                         r.state=3;
                         r.save();
+                        r.hit.state=4; # Finalized
+                        r.hit.save();
                     except:
                         e = sys.exc_info()[1]
                         strAns=strAns+'Approve FAILED: %s\t"%s" : %s <br/>'% (r.assignment_id,feedback,str(e))
@@ -1094,6 +1179,8 @@ def approve_all_results(request,session_code):
                 print resp
                 r.state=3;
                 r.save();
+                r.hit.state=4; # Finalized
+                r.hit.save();
                 strAns=strAns+'Approved: %s\t"%s"<br/>'% (r.assignment_id,feedback)
             except:
                 e = sys.exc_info()[1]
@@ -1179,6 +1266,70 @@ def get_ros_publishers(request):
 
 
 
+
+
+
+def stats_session_detail(request,session_code):
+    session = get_object_or_404(Session,code=session_code)
+    submissions=session.submittedtask_set.all();
+    for s in submissions:
+        s.diff=(s.submitted - s.hit.submitted).seconds;
+
+    return render_to_response('mturk/stats_session_details.html',
+                              {'user':request.user,'session':session,'submissions':submissions});
+
+
+
+
+
+def create_qualifications(request):
+
+    results=[]
+    for q in MTurkQualification.objects.all():
+        if q.mt_qual_id=="":
+            wrk=os.path.join(settings.MTURK_WORK,"qual",str(q.id));
+            if not os.path.exists(wrk):
+                os.makedirs(wrk);
+            fn_q=os.path.join(wrk,'workload.question');
+            fn_a=os.path.join(wrk,'workload.answer');
+            fn_p=os.path.join(wrk,'workload.properties');
+
+            fQ=open(fn_q,'w')
+            print >>fQ,q.qualification_def.question
+            fQ.close();
+
+            fA=open(fn_a,'w')
+            print >>fA,q.qualification_def.answer
+            fA.close();
+
+            fP=open(fn_p,'w')
+            print >>fP,q.qualification_def.properties
+            fP.close();
+            
+            if q.is_sandbox:
+                sandbox_flag='-sandbox'
+            else:
+                sandbox_flag=''
+
+            cmd=os.path.join(settings.MTURK_ENV,'MT_create_qualification.sh')
+            env_file=os.path.join(settings.MTURK_ENV,'env.source');
+            print [cmd, env_file, wrk, sandbox_flag]
+            (output,err) = Popen(cmd +" "+env_file +" " + wrk +" "+ sandbox_flag, shell=True, stdout=PIPE,executable="/bin/bash").communicate()
+            print output,err
+            qual_file=os.path.join(wrk,'workload.properties.success');
+            fID=open(qual_file,'r')
+            qual=fID.readlines()[1].strip();
+            q.mt_qual_id=qual
+            q.save();
+
+        if q.qualification_def is None:
+            qd_name="Built-in"
+        else:
+            qd_name=q.qualification_def.name
+        results.append((str(q),q.mt_qual_id,q.is_sandbox,qd_name));
+
+    return render_to_response('mturk/internal_qual_report.html',
+                              {'results':results});
 
 
 

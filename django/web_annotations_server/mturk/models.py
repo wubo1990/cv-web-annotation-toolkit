@@ -97,6 +97,8 @@ class Task(models.Model):
 		
 		return self.parsed_parameters;
 
+
+
 SESSION_STATE = (
             (1, 'Active'),
             (2, 'HasAllTasks'),
@@ -124,6 +126,10 @@ class Session(models.Model):
 
 	state=models.IntegerField(choices=SESSION_STATE,default=1);
 
+	
+	gold_standard_qualification = models.ForeignKey('GoldStandardQualification',null=True,blank=True);
+	mturk_qualification = models.ManyToManyField('MTurkQualification',blank=True,null=True);
+
 	def parse_parameters(self):
 		return {};
 	
@@ -141,6 +147,8 @@ HIT_STATE = (
             (2, 'Submitted'),
             (3, 'Graded'),
             (4, 'Finalized'),
+            (5, 'Open'),
+            (6, 'Active'),
         )        
 
 class MTHit(models.Model):
@@ -151,6 +159,7 @@ class MTHit(models.Model):
 	int_hitid=models.TextField();
 	parameters=models.TextField();
 	submitted = models.DateTimeField(auto_now_add=True);
+
 
 	state=models.IntegerField(choices=HIT_STATE,default=1);
 
@@ -221,6 +230,7 @@ class SubmittedTask(models.Model):
 	assignment_id = models.TextField(); 
 
 	response = models.TextField();
+	#started    = models.DateTimeField(null=True,blank=True);
 	submitted = models.DateTimeField(auto_now_add=True);
 
 	shapes = None;
@@ -317,6 +327,38 @@ class Worker(models.Model):
 	utility = models.IntegerField(default=50);
 	valid   = models.BooleanField(default=True);
 
+
+
+
+class GoldStandardQualification(models.Model):
+	gold_session = models.ForeignKey(Session);
+
+	num_tasks              = models.IntegerField(default=3);
+	random_check_frequency = models.DecimalField(max_digits=7,decimal_places=4);
+	min_score              = models.DecimalField(max_digits=7,decimal_places=4,
+                                 default="100.0",
+                                 help_text="The minimum score required to pass.");
+
+
+class MTurkQualification(models.Model):
+
+	name             = models.TextField()
+	qualification_def = models.ForeignKey('MTurkQualificationDefinition',null=True,blank=True);
+	mt_qual_id       = models.TextField(blank=True)
+	comparator       = models.TextField()
+	value            = models.TextField()
+	qualification_url = models.URLField(blank=True);
+	is_sandbox = models.BooleanField();
+        def __str__(self):
+          return self.name;
+
+class MTurkQualificationDefinition(models.Model):
+	name             = models.TextField()
+	question         = models.TextField()
+	answer           = models.TextField()
+	properties       = models.TextField()
+        def __str__(self):
+          return self.name;
 
 class GoldStandardGradeRecord(models.Model):
 	session = models.ForeignKey(Session);
@@ -1043,14 +1085,13 @@ def get_grade_conflict_details(session,g1,g2):
  SELECT t.id, r1.id r1_id, r1.quality q1, r2.id r1_id, r2.quality q2
 FROM `mturk_submittedtask` t, mturk_manualgraderecord r1, mturk_manualgraderecord r2
 WHERE t.session_id =%s
-AND (1 OR t.valid )
+AND ( t.valid )
 AND t.id = r1.submission_id
 AND t.id = r2.submission_id
 AND r1.valid AND r2.valid
 AND r1.id <> r2.id
 AND r1.quality = %s
 AND r2.quality = %s
-GROUP BY t.id, q1, q2
 """,[session.id,g1,g2]);
     results=[];
     try:
