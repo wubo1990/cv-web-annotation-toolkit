@@ -34,6 +34,7 @@ urlpatterns = patterns('',
 
     (r'^sense/(?P<path>.*)$', 'django.views.static.serve', {'document_root': '/var/datasets/sense_annotation/'}),
 
+    (r'^mt_latex/', include('mturk_latex.urls')),
 #    ('^([^/]+)/([^/]+)/(.+)/$', 'django.contrib.admin.views.main.change_stage'),
 
 

@@ -126,10 +126,11 @@ INSTALLED_APPS = (
     'web_annotations_server.annotations',
     'web_annotations_server.evaluation',
     'web_annotations_server.autograding',
+    'web_annotations_server.mturk_latex',
     'tagging',
     'registration',
     #'annotation.annotation_store',
-    #'annotation.image_collector',
+    'web_annotations_server.image_collector',
 )
 
 ACCOUNT_ACTIVATION_DAYS=4
