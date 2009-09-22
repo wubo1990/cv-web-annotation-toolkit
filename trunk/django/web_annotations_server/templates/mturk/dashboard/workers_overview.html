@@ -10,6 +10,14 @@
 
 
 {% block content %}
+
+<table>
+
+{% for u in stats.utility %}
+<tr><td>{{u.0}}</td><td> {{u.1}}</td> <td>{{u.3}}</td> <td>{{u.4}}</td> <td>{{u.5}}</td><td><a href="/mt/dashboard/worker_internal/{{u.2}}/">{{u.2}}</a></td></tr>
+
+{% endfor %}
+</table>
 Worker {{worker.worker}}<br/>
 
 Total submissions: {{stats.num_submissions}}<br/>

@@ -1,0 +1,23 @@
+<html>
+<head>
+<script language="javascript" src="js/prototype.js" > </script>
+</head>
+<body onload="resizeFrame(document.getElementById('gform'))">
+<script type="text/javascript">
+// Firefox worked fine. Internet Explorer shows scrollbar because of frameborder<br />
+function resizeFrame(f) {
+
+  f.style.height = f.contentWindow.document.body.scrollHeight + "px";
+}
+</script>
+
+<hr/>
+
+<iframe id="gform" src="" width="760" height="1200" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+
+<script>
+form_id="http://spreadsheets.google.com/viewform?formkey=dDVhSkxxR3JaRENValpRVDlQQlNfNnc6MA.."
+$('gform').src=form_id+"&entry_0=qwerty&entry_1=qwertasas";
+resizeFrame('gformf)
+</script>
+</html>

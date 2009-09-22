@@ -1,5 +1,6 @@
 {% extends "admin/base.html" %}
 {% load time_extras %}
+{% load switchcase %}
 
 {% block title %}{{session.code}}:session dashboard{% endblock %}
 
@@ -121,6 +122,19 @@ Max time :{{stats.timing.max}}<br/>
 Avg time :{{stats.timing.avg}}<br/>
 Std time :{{stats.timing.std}}<br/>
 <hr/>
+
+<h2>Upload</h2>
+{% switch session.task_def.type.name %}
+    {% case "video_events" %} <a href="/mt/p/video_events/upload/{{session.code}}/video/">Single video</a> {% endcase %}
+    {% case "gxml" %}
+<a href="/mt/p/gxml/upload/{{session.code}}/image/">Single image</a>
+
+    {% endcase %}
+    {% case 2 %} Evaluation in progress{% endcase %}
+    {% case 3 %} Evaluation completed successfully{% endcase %}
+    {% case 4 %} Evaluation failed {% endcase %}
+{% endswitch %}
+
 <br/>
 <br/>
 <br/>

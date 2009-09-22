@@ -22,4 +22,10 @@ good:{{stats.total_grades.num_good}}<br/>
 <hr/>
 ungraded:{{stats.total_grades.num_ungraded}}<br/>
 
+<table>
+<tr><th>session</th><th>count</th></tr>
+{% for contribution in contributions %}
+<tr><td>{{contribution.session}}</td><td>{{contribution.count}}</td></tr>
+{% endfor %}
+</table>
 {% endblock %}

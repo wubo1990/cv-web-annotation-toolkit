@@ -61,6 +61,9 @@ urlpatterns = patterns('',
     (r'^grading/by_id/(?P<session_code>[\w\-]+)/(?P<submission_id>[\w\-]+)/$', 'mturk.views.grading_by_submission_id'),
     (r'^grading/conflict/show/(?P<session_code>[\w\-]+)/(?P<grade_1_id>[\w\-]+)/(?P<grade_2_id>[\w\-]+)/$', 'mturk.views.show_grading_conflict_details'),
 
+    (r'^grading/by_worker_no_session/(?P<worker_code>[\w\-]+)/$', 'mturk.views.grading_by_worker_no_session_paged_base'),
+    (r'^grading/by_worker_no_session/(?P<worker_code>[\w\-]+)/p(?P<page>[0-9]+)/$', 'mturk.views.grading_by_worker_no_session_paged'),
+
     (r'^grading/deactivate_grade/(?P<grade_id>[\w\-]+)/$', 'mturk.views.deactivate_grade_record'),
 
     (r'^grading_submit/(?P<submissionID>[0-9]+)/$', 'mturk.views.grading_submit'),
@@ -115,6 +118,10 @@ urlpatterns = patterns('',
     (r'^stats/session_details/(?P<session_code>[\w\-]+)/$', 'mturk.views.stats_session_detail'),
 
     (r'^internal/create_qualifications/$', 'mturk.views.create_qualifications'),
+
+
+    (r'^p/video_events/', include('mturk.protocols.video_events.urls')),
+    (r'^p/gxml/', include('mturk.protocols.gxml.urls')),
 
 #    (r'^rospublishers/$', 'mturk.views.get_ros_publishers'),
 );
