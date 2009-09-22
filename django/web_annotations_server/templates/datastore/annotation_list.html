@@ -17,7 +17,8 @@
 <hr/>
 {% for a in object_list %}
 <table><tr><td>
-<a href="/datastore/show/item_annotation/n/{{a.ref_data.get_public_id}}">
+<!--a href="/datastore/show/item_annotation/n/{{a.ref_data.get_public_id}}"-->
+<a href="{{a.ref_data.get_public_id}}">
 {{a.ref_data.url}}</a></td><td> {{a|do_flags}}</td><td>  [add <a
 href="a/{{a.id}}/add/comment/">comment</a> <a
 href="a/{{a.id}}/add/quality/">quality</a>] </td><td>

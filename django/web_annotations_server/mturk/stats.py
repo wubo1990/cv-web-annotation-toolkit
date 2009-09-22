@@ -10,9 +10,6 @@ from django.shortcuts import render_to_response,get_object_or_404
 from django.views.generic.list_detail import object_list
 from django.contrib.auth.decorators import login_required
 
-from boto.mturk.connection import MTurkConnection
-from boto.mturk.question import ExternalQuestion
-from boto.mturk.qualification import Qualifications, PercentAssignmentsApprovedRequirement
 
 from models import *
 import models_stats

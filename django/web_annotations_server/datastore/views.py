@@ -518,7 +518,7 @@ def do_import_predictions(request,dataset_name,form,uploaded_file):
 				author=request.user);
 	pred_set.save();
 
-
+		
 	for chunk in uploaded_file.chunks():
 		for l in chunk.split("\n"):
 			parts=l.strip().split(" ")
@@ -558,9 +558,6 @@ from forms import UploadPredictionsForm
 
 def do_tag_images(request,dataset_name,form,uploaded_file):
 	
-	annotation_type="voc_bbox"
-	ann_type = get_object_or_404(AnnotationType,name=annotation_type);
-
 	dataset=get_object_or_404(Dataset,name=dataset_name);
 
         TM=tagging.models.Tag.objects;
@@ -570,6 +567,7 @@ def do_tag_images(request,dataset_name,form,uploaded_file):
 		for l in chunk.split("\n"):
 			parts=l.strip().split(" ")
                         img=parts[0];
+			print img
                         di=dataset.dataitem_set.filter(url__contains=img)[0]
                         TM.add_tag(di,tag_name);
 
@@ -622,6 +620,19 @@ def show_dataset_annotations(request,dataset_name,annotation_type,page=None):
 
 	return object_list(request,queryset=results, paginate_by=20, page=page,
 			template_name='datastore/annotation_list.html');
+
+
+def show_random_annotations(request,dataset_name,annotation_type,num_samples=30):
+
+	ds = get_object_or_404(Dataset,name=dataset_name)
+	ann_type = get_object_or_404(AnnotationType,name=annotation_type)
+
+	results=ann_type.annotation_set.filter(ref_data__ds__id=ds.id).filter(is_active=True).order_by("?");
+	page=1
+	return object_list(request,queryset=results, paginate_by=num_samples, page=page,
+			template_name='datastore/annotation_list.html');
+
+
 
 
 def show_flagged_annotations(request,dataset_name,flag_name,annotation_type=None,page=None):

@@ -52,7 +52,7 @@ class DataItem(models.Model):
 
     def get_name_parts(self):
         str_img=self.url.split("/")
-        str_img_file=str_img[-1].split(".")[0];
+        str_img_file=str_img[-1].replace('.jpg','');
         path_components=str_img[3:len(str_img)-1];
         if path_components:
             str_img_path=reduce(lambda a,b:a+"/"+b,path_components);

@@ -1,0 +1,49 @@
+{% extends "mturk/base_app.html" %}
+
+{% block extrahead %}
+<script language="javascript" src="/code/js/prototype.js" > </script>
+
+<script>
+var onCompileFinish=function(transport)
+{
+  if (transport.responseXML)
+  {
+    var eqn=transport.responseXML.getElementsByTagName('eqn')[0];
+    var id=eqn.getAttribute("id");
+    $('result').src='img/'+id+'/';
+    $('result_hist').innerHTML += '<hr/>'+id +'&nbsp; <img src="img/'+id+'/">';
+
+  }
+};
+
+var do_submit=function()
+{
+  q=$('latex_text').value;
+  //alert(q);
+  //$('result').src='compile/?query='+encodeURIComponent(q);
+  var upd=new Ajax.Request('compile/', {
+			       method: 'get',
+                               parameters: { query: q},
+			       onSuccess: onCompileFinish,
+			     });
+
+//new Ajax.Updater('result_hist', 'compile/',{method: 'get', parameters: { query: q}});
+}
+</script>
+{% endblock %}
+
+
+{% block content %}
+
+
+<table>
+
+  <tr><td>Image:</td><td></td></tr>
+  <tr><td>Latex:<br/><input type=submit onclick="return do_submit();" value="show"></td><td><textarea id="latex_text" cols=80 rows=10></textarea></td></tr>
+  <tr><td>Result:</td><td><img id="result" /></td></tr>
+  <tr><td>History:</td><td><div id="result_hist" /></td></tr>  
+
+</table>
+
+{% endblock %}
+

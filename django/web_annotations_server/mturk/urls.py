@@ -33,7 +33,8 @@ urlpatterns = patterns('',
     (r'^good_results/(?P<session_code>[\w\-]+)/p(?P<page>[0-9]+)/$', 'mturk.views.show_good_results_paged'),
 
     (r'^good_results_w_filter/(?P<session_code>[\w\-]+)/p(?P<page>[0-9]+)/(?P<filter>.*)/$', 
-     'mturk.views.show_good_results_w_filter_paged'),
+         'mturk.views.show_good_results_w_filter_paged'),
+
 
     (r'^resubmit_bad_results/(?P<session_code>[\w\-]+)/$', 'mturk.views.submit_redo_HITs'),
 

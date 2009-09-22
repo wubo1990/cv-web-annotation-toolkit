@@ -252,6 +252,32 @@ def show_good_results_paged(request,session_code,page=1,order_by=None,num_per_pa
 
 
 
+def show_good_results_paged(request,session_code,page=1,filter=None,order_by=None,num_per_page=None,template_name=None):
+	session = get_object_or_404(Session,code=session_code)
+
+	protocol=session.task_def.type.name;
+
+        if order_by:
+            results=session.submittedtask_set.order_by(order_by);
+        else:
+            results=session.submittedtask_set.all();
+
+        results=results.filter(final_grade__gt=7,hit__parameters__like=filter);
+        print results.count();
+
+        if not num_per_page:
+            num_per_page=settings.NUM_HITS_PER_PAGE;
+
+	page_range=map(lambda x:int(math.floor(x/num_per_page)+1),range(1,results.count(),num_per_page));
+
+        if not template_name:
+            template_name='protocols/' +protocol+'/show_list.html'
+
+	return object_list(request,queryset=results, paginate_by=num_per_page, page=page,
+			template_name=template_name,extra_context={'page_range':page_range});
+
+
+
 
 def show_good_results_w_filter_paged(request,session_code,page=1,filter=None,order_by=None,num_per_page=None,template_name=None):
         session = get_object_or_404(Session,code=session_code)
@@ -276,6 +302,7 @@ def show_good_results_w_filter_paged(request,session_code,page=1,filter=None,ord
 
         return object_list(request,queryset=results, paginate_by=num_per_page, page=page,
                         template_name=template_name,extra_context={'page_range':page_range});
+
 
 
 import math
