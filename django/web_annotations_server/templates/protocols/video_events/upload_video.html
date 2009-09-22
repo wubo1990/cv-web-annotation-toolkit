@@ -1,0 +1,24 @@
+{% extends 'evaluation/base_app.html' %}
+
+{% block content %}
+Please upload video file. Only <b>Flash(.flv)</b> videos are supported right now.<br/>
+
+{% if form.is_multipart %}
+    <form enctype="multipart/form-data" method="post" action="">
+{% else %}
+    <form method="post" action="">
+{% endif %}
+<table>
+ {% for field in form %}
+ <tr><td>
+            {{ field.label_tag }}</td><td>
+	    {{ field }}</td><td>
+            {{ field.errors }}</td>
+</tr>
+    {% endfor %}
+<tr><td colspan=3 align="center">
+    <input type="submit" value="Upload video" /></td></tr>
+</table>	  
+</form>
+
+{% endblock %}

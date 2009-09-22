@@ -23,9 +23,8 @@ class GXmlTaskEngine(TaskEngine):
         url=url+"&img_base="+urllib.quote(settings.HOST_NAME_FOR_MTURK) 
         url=url+"&task_url="+urllib.quote(settings.HOST_NAME_FOR_MTURK+"tasks/"+session.task_def.name+".xml")
 
+        url=url+self.get_frame_part(session,task);
 
-        url=url+"&image_url="+urllib.quote(settings.HOST_NAME_FOR_MTURK+"frames/"+session.code+ \
-                                               "/"+task.parse_parameters()["frame"]+".jpg");
 
 
         url=url+"&mode=display";
@@ -51,9 +50,8 @@ class GXmlTaskEngine(TaskEngine):
         url=url+"&img_base="+urllib.quote(settings.HOST_NAME_FOR_MTURK) 
         url=url+"&task_url="+urllib.quote(settings.HOST_NAME_FOR_MTURK+"tasks/"+session.task_def.name+".xml")
 
+        url=url+self.get_frame_part(session,task);
 
-        url=url+"&image_url="+urllib.quote(settings.HOST_NAME_FOR_MTURK+"frames/"+session.code+ \
-                                               "/"+task.parse_parameters()["frame"]+".jpg");
 
 
         url=url+"&mode=display";
@@ -138,7 +136,8 @@ class GXmlTaskEngine(TaskEngine):
         url=url+"&task="+session.task_def.name
 
         url=url+"&video="+session.code;
-        url=url+"&frame="+task.parse_parameters()["frame"];
+
+        url=url+self.get_frame_part(session,task);
         url=url+"&img_base="+settings.HOST_NAME_FOR_MTURK;
         
         url=url+"&mode=MT2";
@@ -149,7 +148,14 @@ class GXmlTaskEngine(TaskEngine):
             url=url+"&"+k+"="+v
         return url    
 
-
+    def get_frame_part(self,session,task):
+        params=task.parse_parameters();
+        if "frame" in params:
+            #url=url+"&frame="+()["frame"];
+            return "&image_url="+urllib.quote(settings.HOST_NAME_FOR_MTURK+"frames/"+session.code+ \
+                                                  "/"+params["frame"]+".jpg");
+        else:
+            return "&image_url="+params["image_url"]
 
     def get_submission_xml(self,submission):
 	GET,POST=submission.get_response()

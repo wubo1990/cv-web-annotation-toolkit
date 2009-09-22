@@ -335,7 +335,7 @@ def compute_session_conflicts(session):
             if len(quality_statements)>0:
                 tot_quality = sum([ x[1]*x[0] for x in quality_statements]);
                 tot_utility = sum([ x[1] for x in quality_statements]);
-                avg_quality = tot_quality / tot_utility;
+                avg_quality = tot_quality / max(1,tot_utility);
                 tot_disagreements= sum([ round(abs(x[0]-avg_quality)) for x in quality_statements]);
                 if tot_disagreements>0:
                     has_conflicts=True
@@ -346,10 +346,10 @@ def compute_session_conflicts(session):
     return conflicts
 
 
-def workers_overview(worker):
+def workers_overview():
     from django.db import connection
 
-    grade_counts={};
+    worker_grades={};
     try:
     	    cursor = connection.cursor()
 
@@ -362,10 +362,20 @@ ORDER BY worker, final_grade
 	    for r in cursor.fetchall():
                 (worker,grade,count)=r
 
-                if r[0] is None:
-                    grade_counts['Null']=r[1];
-                else:
-		    grade_counts[r[0]]=r[1];
+                if worker not in worker_grades:
+                    worker_grades[worker]={0:0,1:0,3:0,7:0,10:0,15:0};
+                worker_grades[worker][grade]=count;
+
+	    cursor.close();
+            worker_utility=[]
+            for w,grades in worker_grades.items():
+                tot_g=sum(grades.values())
+                good=grades[10]+grades[15]
+                bad=grades[3]+grades[1]
+                unknown=grades[0]+grades[7]
+                utility=float(good)/float(max(1,(bad+good)));
+                worker_utility.append((tot_g,utility,w,bad,good,unknown))
+                worker_utility.sort(reverse=True)
 	    cursor.close();
     except:
         raise
@@ -373,7 +383,33 @@ ORDER BY worker, final_grade
 
 
     total_grades={
-         'num_good': grade_counts.get(10,0)+grade_counts.get(15,0),
-         'num_ok': grade_counts.get(7,0),
-         'num_bad': grade_counts.get(3,0)+grade_counts.get(0,0),
+         'grades': worker_grades,
+         'utility': worker_utility
          }
+    return total_grades
+
+
+def worker_to_session_contributions(worker):
+    from django.db import connection
+
+    contributions=[]
+    try:
+    	    cursor = connection.cursor()
+
+	    cursor.execute("""
+SELECT s.code , count( * ) c
+FROM mturk_session s, `mturk_submittedtask` subm
+WHERE s.id = subm.session_id
+AND subm.worker = %s
+GROUP BY s.id
+ORDER by c DESC
+""",[worker])
+	    for r in cursor.fetchall():
+                (session,count)=r
+                contributions.append({'session':session,'count':count})
+            
+	    cursor.close();
+    except:
+        raise
+
+    return contributions

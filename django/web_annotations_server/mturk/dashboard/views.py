@@ -14,13 +14,14 @@ def session_dashboard(request,session_code):
 
 @login_required
 def worker_internal_dashboard(request,worker_id):
-    worker = get_object_or_404(Worker,session=None,worker=worker_id);	
+    worker,bCreated = Worker.objects.get_or_create(session=None,worker=worker_id);	
     stats = models_stats.worker_stats(worker)
-    return render_to_response('mturk/dashboard/worker_internal_dashboard.html', {'worker':worker,'stats':stats})
+    worker_contibutions=models_stats.worker_to_session_contributions(worker_id);
+
+    return render_to_response('mturk/dashboard/worker_internal_dashboard.html', {'worker':worker,'stats':stats,'contributions':worker_contibutions})
 
 @login_required
-def workers_overview_dashboard(request,worker_id):
-    worker = get_object_or_404(Worker,session=None,worker=worker_id);	
-    stats = models_stats.worker_stats(worker)
-    return render_to_response('mturk/dashboard/worker_internal_dashboard.html', {'worker':worker,'stats':stats})
+def workers_overview_dashboard(request):
+    stats = models_stats.workers_overview()
+    return render_to_response('mturk/dashboard/workers_overview.html', {'stats':stats})
 

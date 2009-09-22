@@ -132,14 +132,15 @@ class VideoEventsTaskEngine(TaskEngine):
 
         url=url+"&session="+session.code;
 
-        url=url+"&task="+session.task_def.name
+        url=url+"&task_url="+urllib.quote(settings.HOST_NAME_FOR_MTURK+"tasks/"+session.task_def.name+".xml")
+        url=url+"&video_url="+task.parse_parameters()["video"];
 
         url=url+"&img_base="+settings.HOST_NAME_FOR_MTURK;
         
         url=url+"&mode=MT2";
         url=url+"&swf_w=700&swf_h=700";
         url=url+"&instructions="+urllib.quote(session.task_def.instructions_url);
-        url=url+"&video_url="+task.parse_parameters()["video"];        
+
         for k,v in request.GET.items():	
             url=url+"&"+k+"="+v
         return url    

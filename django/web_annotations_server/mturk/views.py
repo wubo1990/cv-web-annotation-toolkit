@@ -324,6 +324,9 @@ def grading_thumbnail_random(request,session_code):
 def grading_by_worker_paged_base(request,session_code,worker_code):
     return HttpResponseRedirect("p1/");
 
+def grading_by_worker_no_session_paged_base(request,session_code,worker_code):
+    return HttpResponseRedirect("p1/");
+
 def grading_by_worker_paged(request,session_code,worker_code,page=1):
 	session = get_object_or_404(Session,code=session_code)
 	protocol=session.task_def.type.name;
@@ -350,6 +353,19 @@ def grading_submit(request,submissionID):
                        worker=worker);      
 	gr.save();
 	return HttpResponse("+")
+
+
+def grading_by_worker_no_session_paged(request,worker_code,page=1):
+	session = get_object_or_404(Session,code=session_code)
+	protocol=session.task_def.type.name;
+
+        num_per_page=10
+
+    	results=Submittedtask.objects.filter(worker=worker_code);
+        protocol="gxml"
+	return object_list(request,queryset=results, paginate_by=num_per_page, page=page,
+			template_name='protocols/' +protocol+'/grading_list.html');
+
 
 @login_required
 def adjudicate_by_submission_id(request,session_code,submission_id):
@@ -965,6 +981,55 @@ def add_hit_to_session(session,params):
     hit.mt_hitid=create_hit_rs.HITId
     hit.save()
     return (True,"%s" % hit.ext_hitid)
+
+
+
+def activate_hit(session,hit):
+    if session.standalone_mode:
+        return (True,"%s" % hit.ext_hitid)
+
+    taskurl=settings.HOST_NAME_FOR_MTURK+"mt/get_task/"+str(session.code)+"/?ExtID="+hit.ext_hitid;
+
+    q = ExternalQuestion(external_url=taskurl, frame_height=800)
+
+    if session.sandbox:
+        awshost='mechanicalturk.sandbox.amazonaws.com'
+    else:
+        awshost='mechanicalturk.amazonaws.com'
+        
+    conn = MTurkConnection(host=awshost,aws_secret_access_key=session.funding.secret_key,aws_access_key_id=session.funding.access_key)
+
+    keywords=session.task_def.get_keywords()
+
+    t=session.task_def;
+    if not session.hit_type:
+        qualifications = Qualifications()
+        qualifications.add(PercentAssignmentsApprovedRequirement(comparator="GreaterThan", integer_value="90"))
+
+        add_session_qualifications(qualifications,session);
+        create_hit_rs = conn.create_hit(question=q, 
+                                        lifetime=t.lifetime,
+                                        max_assignments=t.max_assignments,
+                                        title=t.title,
+                                        keywords=str(t.keywords),
+                                        reward = t.reward,
+                                        duration=t.duration,
+                                        approval_delay=t.approval_delay, 
+                                        annotation="IGNORE",
+                                        qualifications=qualifications)
+        assert(create_hit_rs.status == True)
+        print create_hit_rs.HITTypeId
+        session.hit_type=create_hit_rs.HITTypeId;
+        session.save();
+    else:
+        create_hit_rs = conn.create_hit(question=q, hit_type=session.hit_type);
+        print create_hit_rs
+        print create_hit_rs.HITId
+
+    hit.mt_hitid=create_hit_rs.HITId
+    hit.save()
+    return (True,"%s" % hit.ext_hitid)
+
 
 
 
