@@ -1,0 +1,17 @@
+<html>
+<head>
+<title>
+Web menu
+</title>
+</head>
+<body>
+
+<table>
+<tr><th>Menu code</th><th>Menu Title</th><th>Is active</th></tr>
+{% for m in menus %}
+<tr><td><a href="/web_menu/m/{{m.code}}/">{{m.code}}</a></td><td>{{m.title}}</td><td>{% if m.active %}Active{%else%}Idle(<a href="/web_menu/enableMenu/{{m.code}}/">activate</a>){% endif %}</td></tr>
+{% endfor  %}
+</table>
+
+</body>
+</html>

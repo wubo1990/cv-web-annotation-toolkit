@@ -27,6 +27,7 @@ urlpatterns = patterns('',
 
     (r'^autograding/', include('autograding.urls')),
                        
+    (r'^web_menu/', include('web_menu.urls')),
 
     (r'^tasks/(?P<path>.*)$', 'mturk.views.dynamic_task'),
 
