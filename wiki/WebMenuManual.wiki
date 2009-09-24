@@ -31,3 +31,5 @@ The images are stored in settings.WEBMENU_ROOT +"menus/".
 
  * Sample tutorial with the robot simulator
  * Submitting single image manually for ease of testing. 
+ * Shopping basket, nifty drag-n-drop
+ * Pricing and billing. Cross-country shipping and door-to-door delivery.
