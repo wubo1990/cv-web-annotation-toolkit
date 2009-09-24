@@ -1,0 +1,30 @@
+<html>
+<head>
+<title>
+Willow Garage Odwalla Bar
+</title>
+<script src="/code/js/prototype.js"></script>
+<script language="javascript">
+var run_updater=function(){
+	new Ajax.Updater("menu","/web_menu/menu/{{menu.code}}/",{ evalScripts: true });
+	if (keepUpdating)
+	{
+		window.setTimeout("run_updater();", 1000);
+	}
+};
+keepUpdating=true;
+window.setTimeout("run_updater();", 50);
+</script>
+</head>
+<body>
+<div id="wait_msg">
+{% ifequal menu.title "" %}
+Welcome to the menu. Please wait.
+{% else %}
+{{menu.title}}
+{% endifequal %}
+</div>
+<div id="menu"></div>
+</body>
+</html>
+

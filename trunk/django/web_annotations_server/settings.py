@@ -129,6 +129,7 @@ INSTALLED_APPS = (
     'web_annotations_server.mturk_latex',
     'tagging',
     'registration',
+    'web_annotations_server.web_menu',
     #'annotation.annotation_store',
     'web_annotations_server.image_collector',
 )
@@ -146,3 +147,6 @@ NUM_HITS_PER_PAGE = 20
 #Evaluation app settings:
 VOC_DEV_KIT='/home/sorokin2/voc_data/VOCdevkit'
 MCR_ROOT='/opt/MATLAB/MATLAB_Compiler_Runtime/v79'
+
+
+WEBMENU_ROOT = '/var/django2/web_menu/'
