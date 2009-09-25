@@ -57,5 +57,6 @@ urlpatterns = patterns('',
     (r'^enableMenu/(?P<menu_code>[\w-]+)/$','web_menu.views.enableMenu'),
 
     (r'^all/$','web_menu.views.all_menus'),
+    (r'^rospublishers/$','web_menu.views.get_ros_publishers'),
 
 )

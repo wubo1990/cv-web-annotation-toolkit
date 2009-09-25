@@ -58,3 +58,5 @@ class MenuItem(models.Model):
 	menu        = models.ForeignKey(Menu);
 	image_name  = models.TextField(blank=True)
 	metadata    = models.TextField(blank=True)
+
+
