@@ -40,6 +40,7 @@ from django.conf import settings
 from django.http import HttpResponse,Http404,HttpResponseRedirect
 from django.shortcuts import render_to_response,get_object_or_404 
 from django.views.generic.list_detail import object_list
+from django.core.files.storage import FileSystemStorage
 
 from django.contrib.auth.decorators import login_required
 
@@ -54,7 +55,7 @@ except:
 	ros_sender=None
 
 #Comment out to allow ros integration
-ros_sender=None
+#ros_sender=None
 
 def get_ros_publishers(request):
     if not ros_sender:
@@ -98,12 +99,12 @@ def all_menus(request):
 
 def made_selection(request, drink_name,menu_code="default"):
 	menu,created=Menu.objects.get_or_create(code=menu_code)
-	menu.active=False;
-	menu.save()
+	#menu.active=False;
+	#menu.save()
 
 	#os.remove('/var/datasets/menu/'+drink_name);
 	if ros_sender:
-		ros_sender.send_drink_id(drink_name)
+		ros_sender.send_drink_id(str(drink_name))
 		return render_to_response('web_menu/selection_done.html',{'menu':menu,'drink':drink_name})
 
 	else:
@@ -138,19 +139,20 @@ def show_drink_menu(request,menu_code="default"):
 def newImage(request,menu_code="default"):
 	menu,created=Menu.objects.get_or_create(code=menu_code)
 
-	frame = request['frame']
+	frame = request.REQUEST['frame']
 	try:
-		original_name = request['original_name']
+		original_name = request.REQUEST['original_name']
 	except KeyError:
 		original_name = frame
+
+	original_name = original_name.replace("/","_");
 	
 	image_dir=menu.img_dir();
         print image_dir
 
         image=request.FILES['image']
-        hOut=open(os.path.join(image_dir,original_name),'wb');
-        hOut.write(image['content']);
-        hOut.close();
+        storage = FileSystemStorage(image_dir);
+        path = storage.save(os.path.join(image_dir,original_name),image);
 
 	return HttpResponse("image accepted")
 

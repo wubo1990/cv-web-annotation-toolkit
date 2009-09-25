@@ -44,7 +44,6 @@ import rospy
 import random
 import sys
 
-import annotation_converter
 from std_msgs.msg import String
 
 
@@ -55,13 +54,14 @@ class TmpNode:
 
       self.drink_topic="/drink"
       self.drink_pub=rospy.Publisher(self.drink_topic,String)
+      self.drink_topic_type='std_msgs/String'
 
   def send_drink_id(self,drink_id):
 	self.drink_pub.publish(drink_id)
 
   def get_pub_string(self):
       print "HERE"
-      return "%s,%s,%s" % (self.node_name,self.drink_topic,rospy.get_node_uri())
+      return "%s,%s,%s,%s" % (self.node_name,self.drink_topic,self.drink_topic_type,rospy.get_node_uri())
       
 
 if __name__=="__main__":
