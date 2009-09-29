@@ -52,11 +52,74 @@ class Menu(models.Model):
 		if not os.path.exists(d):
 			os.makedirs(d)
 		return d
-		
+
+	def available_items(self):
+		if 0==1:
+			filenames=os.listdir(self.img_dir());
+			drinks = []
+			for filename in filenames:
+				if filename.endswith(".jpg"):
+					d,c=MenuItem.objects.get_or_create(menu=self,image_name=filename)
+					drinks.append(d)
+			return drinks
+		else:
+			return self.menuitem_set.filter(available=True)
 
 class MenuItem(models.Model):
 	menu        = models.ForeignKey(Menu);
 	image_name  = models.TextField(blank=True)
 	metadata    = models.TextField(blank=True)
+	base_pose   = models.TextField(blank=True)
+	object_pose = models.TextField(blank=True)
+	available   = models.BooleanField(default=True)
 
+ORDER_STATE = (
+            (1, 'Incomplete'),
+            (2, 'Submitted'),
+            (3, 'Active'),
+            (4, 'Rejected'),
+            (5, 'Served'),
+            (6, 'Aborted'),
+        )        
+
+class Order(models.Model):
+	item        = models.ForeignKey(MenuItem,blank=True,null=True);
+	delivery_location    = models.TextField(blank=True)
+	tip         = models.DecimalField(max_digits=15,decimal_places=4,
+					       default="0.0",
+					       help_text="The tip to speed the maybe bump the priority up.");
+
+	ETA_seconds = models.DecimalField(max_digits=15,decimal_places=4,
+					       default="0.0");
+	queue_position = models.IntegerField(blank=True,default="-1");
+	server      = models.ForeignKey('Server',blank=True,null=True);
+	state       = models.IntegerField(choices=ORDER_STATE,default=1);
+
+	image_name  = models.TextField(blank=True)
+	metadata    = models.TextField(blank=True)
+
+
+
+class Server(models.Model):
+	code      = models.SlugField()
+	name      = models.TextField(blank=True)
+	pic       = models.TextField(blank=True)
+	def __str__(self):
+		return "%s [%s]" %(self.name,self.code)
+
+class Map(models.Model):
+	code      = models.SlugField()
+	image     = models.TextField(blank=True)
+	frame_id  = models.TextField(blank=True)
+	cell_size = models.DecimalField(max_digits=15,decimal_places=4,
+					       default="0.0");
+	def __str__(self):
+		return "%s [%s @ %s]" %(self.code,self.image,self.cell_size)
+
+class ServiceDomain(models.Model):
+	code      = models.SlugField()
+	servers   = models.ManyToManyField(Server)
+	map       = models.ForeignKey(Map)
+	menus     = models.ManyToManyField(Menu)
+	title     = models.TextField()
 

@@ -35,13 +35,24 @@
 
 from django.conf.urls.defaults import *
 
+from models import *
 import views
 from django.conf import settings
+from django.views.generic import list_detail
+
+active_orders_list_info = {
+    'queryset' :   Order.objects.all().filter(state__in=[2,3]).order_by('-state','queue_position'),
+    'allow_empty': True,
+}
+
+
 
 urlpatterns = patterns('',
     (r'^$', 'web_menu.views.wait'),
     (r'^m/(?P<menu_code>[\w-]+)/$', 'web_menu.views.wait'),
     (r'^images/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.WEBMENU_ROOT+'menus/'}),
+    (r'^map_images/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.WEBMENU_ROOT+'maps/'}),
+    (r'^server_images/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.WEBMENU_ROOT+'servers/'}),
 
     (r'^menu/?$', 'web_menu.views.show_drink_menu'),
     (r'^menu//?$', 'web_menu.views.show_drink_menu'),
@@ -49,8 +60,8 @@ urlpatterns = patterns('',
 
     (r'^choose_drink/(?P<menu_code>[\w-]+)/(?P<drink_name>.*)$', 'web_menu.views.made_selection'),
     (r'^choose_drink(?P<drink_name>[^/]*)$', 'web_menu.views.made_selection'),
-    (r'^newImage/$','web_menu.views.newImage'),
-    (r'^newImage/(?P<menu_code>.*)/$','web_menu.views.newImage'),
+    (r'^newImage/$','web_menu.views.new_image'),
+    (r'^newImage/(?P<menu_code>.*)/$','web_menu.views.new_image'),
     (r'^clearImages/$','web_menu.views.clearImages'),
     (r'^clearImages/(?P<menu_code>[\w-]+)/$','web_menu.views.clearImages'),
     (r'^enableMenu/$','web_menu.views.enableMenu'),
@@ -58,5 +69,18 @@ urlpatterns = patterns('',
 
     (r'^all/$','web_menu.views.all_menus'),
     (r'^rospublishers/$','web_menu.views.get_ros_publishers'),
+
+    (r'^queue/$',list_detail.object_list, active_orders_list_info),
+    #(r'^queue/server/(?P<server_code>)/$','web_menu.views.show_queue'),
+    #(r'^queue/service/(?P<service_domain>)/$','web_menu.views.show_domain_queue'),
+
+    (r'^order/new/$',views.new_order),
+    (r'^order/choose_item/(?P<order_id>[\w-]+)/(?P<item_id>[\w-]+)/$',views.choose_order_item),
+    (r'^order/deliver_to/(?P<order_id>[\w-]+)/(?P<map_id>[\w-]+)/$',views.choose_order_map_location),
+    (r'^order/tip/(?P<order_id>[\w-]+)/$',views.order_set_tip),
+    (r'^order/confirm/(?P<order_id>[\w-]+)/$',views.order_confirm),
+
+    (r'^order/update/$',views.update_order),
+    (r'^order/resend/$',views.resend_orders),
 
 )
