@@ -1,0 +1,89 @@
+{% extends "web_menu/base_app.html" %}
+{% block extrahead %}
+<script src="/code/js/prototype.js" language="javascript"></script>
+{% endblock %}
+
+
+
+{% block content %}
+<script>
+var choose_drink=function(order_id,item_id)
+{
+  new Ajax.Updater('choose_drink','/web_menu/order/choose_item/'+order_id+'/'+item_id+'/',
+  {
+    onComplete: function (){ $('choose_location').style.display='block';}
+  });
+}
+var choose_location=function(event,order_id,map_id)
+{
+  x=event.screenX-$('map_img').x;
+
+  x = event.offsetX?(event.offsetX):event.pageX-$('map_img').offsetLeft;
+  ly = event.offsetY?(event.offsetY):event.pageY-$('map_img').offsetTop;
+
+  y=$('map_img').height - ly;
+  new Ajax.Updater('choose_location','/web_menu/order/deliver_to/'+order_id+'/'+map_id+'/',{
+    parameters: {x:x,y:y},
+    onComplete: function (){ $('send_tip').style.display='block';}
+});
+}
+var send_tip=function(order_id){
+  tip_amount = $('tip_input').value;
+  new Ajax.Updater('send_tip','/web_menu/order/tip/'+order_id+'/',{
+    parameters: {tip: tip_amount},
+    onComplete: function (){ $('confirm').style.display='block';}
+});
+}
+var confirm_order=function(order_id)
+{
+  new Ajax.Updater('confirm','/web_menu/order/confirm/'+order_id+'/',{
+    onComplete: function (){ $('server').style.display='block';}
+  });
+}
+</script>
+
+
+<div id="choose_drink">
+Please choose a drink:
+<br/>
+{% for item in menu.available_items %}
+<a href="#" onclick="choose_drink({{order.id}},{{item.id}});"><img src="/web_menu/images/{{menu.code}}/{{item.image_name}}"></a>
+{% endfor %}
+</div>
+
+
+
+<hr/>
+<div id="choose_location" style="display:none">
+Choose delivery location:
+<br/>
+<!--<a href="/web_menu/order/deliver_to/{{order.id}}/{{map.id}}/"></a>-->
+<img border="1" id="map_img" src="/web_menu/map_images/{{map.image}}" onclick="choose_location(event,{{order.id}},{{map.id}});">
+
+</div>
+
+
+<hr/>
+<div id="send_tip" style="display:none">
+<input type="text" id="tip_input" value="0.0"> <a href="#" onclick="send_tip({{order.id}});">tip</a>
+</div>
+
+
+
+<hr/>
+<div id="confirm" style="display:none">
+<a href="#" onclick="confirm_order({{order.id}});">Confirm order</a>
+</div>
+
+
+
+<hr/>
+<div id="server"style="display:none">
+Thank you! You server today is:
+
+<b>{{server.name}}</b><br/>
+<img src="/web_menu/server_images/{{server.pic}}" />
+</div>
+<hr/>
+
+{% endblock %}

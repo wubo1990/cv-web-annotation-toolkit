@@ -39,5 +39,28 @@ from models import *
 
 class MenuAdmin(admin.ModelAdmin):
     pass	
+
+class MapAdmin(admin.ModelAdmin):
+    pass	
+
+class ServerAdmin(admin.ModelAdmin):
+    pass	
+
+class OrderAdmin(admin.ModelAdmin):
+    pass	
+
+class MenuItemAdmin(admin.ModelAdmin):
+    pass	
+
+
+
+class ServiceDomainAdmin(admin.ModelAdmin):
+    pass	
           
 admin.site.register(Menu, MenuAdmin);
+admin.site.register(MenuItem, MenuItemAdmin);
+admin.site.register(Map, MapAdmin);
+admin.site.register(Order, OrderAdmin);
+admin.site.register(Server, ServerAdmin);
+admin.site.register(ServiceDomain, ServiceDomainAdmin);
+

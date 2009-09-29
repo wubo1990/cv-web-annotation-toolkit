@@ -136,9 +136,10 @@ def show_drink_menu(request,menu_code="default"):
 
 
 
-def newImage(request,menu_code="default"):
+def new_image(request,menu_code="default"):
 	menu,created=Menu.objects.get_or_create(code=menu_code)
 
+	print request.REQUEST.items()
 	frame = request.REQUEST['frame']
 	try:
 		original_name = request.REQUEST['original_name']
@@ -154,7 +155,13 @@ def newImage(request,menu_code="default"):
         storage = FileSystemStorage(image_dir);
         path = storage.save(os.path.join(image_dir,original_name),image);
 
-	return HttpResponse("image accepted")
+	base_pose = request.REQUEST.get('base_pose','')
+	object_pose = request.REQUEST.get('object_pose','')
+
+	mi=MenuItem(menu=menu, image_name=original_name,base_pose=base_pose,object_pose=object_pose);
+	mi.save();
+
+	return HttpResponse("ItemID: %d",mi.id)
 
 
 def clearImages(request,menu_code="default"):
@@ -164,15 +171,149 @@ def clearImages(request,menu_code="default"):
 	for file in os.listdir(img_dir):
 		os.remove(os.path.join(img_dir,file))
 
+	for mi in menu.menuitem_set.filter(available=True):
+		mi.available=False;
+		mi.save();
+
 	return HttpResponse("all gone!")
 
 
 
+DEFAULT_MENU_CODE='test-menu'
+
+def new_order(request):
+	domain_code='default'
+	domain=get_object_or_404(ServiceDomain,code=domain_code);
+
+
+	server=domain.servers.all()[0];
+
+	menu = domain.menus.all()[0]
+	
+	new_order=Order(state=1,server=server);
+	new_order.save();
+	request.session['order_id']=new_order.id;
+
+	return render_to_response('web_menu/new_order.html', {'order':new_order,'menu':menu,'map':domain.map,'server':server})
+
+
+def choose_order_item(request,order_id,item_id):
+	menu_code='drinks';
+	menu,created=Menu.objects.get_or_create(code=menu_code)
+
+	order=get_object_or_404(Order,id=order_id);
+	menu_item=get_object_or_404(MenuItem,id=item_id);
+	order.item = menu_item;
+	order.save();
+
+	return HttpResponse("+")
+
+
+def choose_order_map_location(request,order_id,map_id):
+	x=request.REQUEST['x']
+	y=request.REQUEST['y']
+	order=get_object_or_404(Order,id=order_id);
+	world_map=get_object_or_404(Map,id=map_id);
+	
+	order.delivery_location="%s,%s,%s" % (map_id,x,y);
+	order.save();
+
+	return HttpResponse("+")
+
+def order_set_tip(request,order_id):
+	tip=request.REQUEST['tip']
+	order=get_object_or_404(Order,id=order_id);
+	order.tip=tip;
+	order.save();
+
+	return HttpResponse("+")
+
+
+def send_order(order):
+	(map_id,x,y)=order.delivery_location.split(",")
+	map=get_object_or_404(Map,id=int(map_id));
+	x=float(x) * float(map.cell_size);
+	y=float(y) * float(map.cell_size);
+
+	if ros_sender:
+		ros_sender.send_order(order,map,x,y)
+		return True
+	else:
+		return False
+
+def order_confirm(request,order_id):
+	order=get_object_or_404(Order,id=order_id);
+
+	tip_s=str(order.tip);
+	waiting_orders=Order.objects.filter(state=2).all();
+	num_prior_waiting_orders = 0;
+	for wo in waiting_orders:
+		if wo.tip<= order.tip:
+			num_prior_waiting_orders += 1;
+		else:
+                   wo.queue_position = wo.queue_position+1;
+		   wo.save();
+
+	num_active_orders=Order.objects.filter(state=3).count();
+	queue_position=num_prior_waiting_orders+num_active_orders+1;
+
+	order.state=2;
+	order.ETA_seconds='-1';
+	order.queue_position=queue_position;	
+	order.save();
+
+	sent=send_order(order);
+	if sent:
+		return HttpResponse("+");
+	else:
+		return HttpResponse("-");
 
 
 
 
+def accept_order(request,order_id,ETA="-1"):
+	order.state=3;
+	order.ETA_seconds=ETA;
+	order.save();
+
+	return HttpResponse("+");
+
+def update_order(request,order_id=None,ETA=None,queue_position=None):
+	if order_id is None:
+		order_id=request.REQUEST["order_id"];
+
+	print request.REQUEST.items()
+	order=get_object_or_404(Order,id=order_id);		
+
+	if ETA is None :
+		ETA=request.REQUEST.get("ETA",None)
+
+	if ETA is not None :
+		order.ETA_seconds=ETA;
+
+	if queue_position is None:
+		queue_position=request.REQUEST.get("rank",None)
+
+	if queue_position is not None:
+		order.queue_position=queue_position;
+
+	new_state=None;
+	if new_state is None:
+		new_state=request.REQUEST.get("state",None)
+	if new_state is not None:
+		order.state=int(new_state);
+
+	order.save();
+
+	return HttpResponse("+");
 
 
 
 
+def resend_orders(request):
+	server_code=request.REQUEST["server"];
+	server=get_object_or_404(Server,code=server_code);	
+	for order in server.order_set.filter(state__in=[2,3]):
+		sent=send_order(order);
+
+	return HttpResponse("+");

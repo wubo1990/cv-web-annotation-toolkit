@@ -1,0 +1,20 @@
+{% load switchcase %}
+
+<table>
+<tr><td>Position</td><td>Order</td><td>Status</td><td>Arrival time</td><td>Tip</td></tr>
+
+{% for o in object_list  %}
+<tr>
+<td>{{o.queue_position}}</td>
+<td>
+<img width=30 src="/web_menu/images/{{o.item.menu.code}}/{{o.item.image_name}}"/>
+</td>
+<td>{% switch o.state %}
+    {% case 2 %} In queue {% endcase %}
+    {% case 3 %} <b>Active</b> {% endcase %}
+{% endswitch %}</td>
+<td>{% ifequal o.ETA_seconds -1 %} N/A {% else %} {{o.ETA_seconds }} seconds{% endifequal %}</td>
+<td>{{ o.tip }}</td>
+</tr>
+{% endfor %}
+</table>

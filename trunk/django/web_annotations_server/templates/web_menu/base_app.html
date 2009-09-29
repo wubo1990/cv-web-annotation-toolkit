@@ -1,0 +1,37 @@
+{% extends "base_site.html" %}
+{% load i18n %}
+
+{% block title %}{{ title }} | {% trans 'Personal delivery' %}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">{% trans 'Personal delivery' %}</h1>
+{% endblock %}
+
+
+{% block nav-global %}
+{% if user %} 
+<a href="/accounts/login/?next=/"> New order</a> / <a href="/accounts/register/">Registration</a> 
+{% if user.is_anonymous %}
+<a href="/accounts/login/?next=/"> Login</a> / <a href="/accounts/register/">Registration</a> 
+{% else %}
+Welcome, {{user.username}} : 
+
+
+<a href="/mt/">My sessions</a> 
+/ <a href="/mt/all/">All sessions</a> 
+{% if user.is_staff %}
+/ <a href="/admin/">Admin interface</a>.
+{% endif %}
+/ <a href="/logout">Log out</a>
+{% endif %}
+{% else %}
+{% endif %}
+{% endblock %}
+
+    {% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="/web_menu/order/new/">{% trans 'New order' %}</a> |  <a href="/web_menu/queue/">{% trans 'Order queue'%}</a>
+
+</div>{% endblock %}
+
+

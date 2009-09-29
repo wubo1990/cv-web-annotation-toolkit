@@ -39,12 +39,15 @@ import sys
 
 import roslib
 import roslib.scriptutil
-roslib.load_manifest('cv_mech_turk')
+roslib.load_manifest('web_object_menu')
 import rospy
 import random
 import sys
+import pickle
 
 from std_msgs.msg import String
+import geometry_msgs.msg
+from web_object_menu.msg import Order
 
 
 class TmpNode:
@@ -56,12 +59,42 @@ class TmpNode:
       self.drink_pub=rospy.Publisher(self.drink_topic,String)
       self.drink_topic_type='std_msgs/String'
 
+      self.orders_topic="/order"
+      self.orders_pub=rospy.Publisher(self.orders_topic,Order)
+      self.orders_topic_type='web_object_menu/Order'
+
   def send_drink_id(self,drink_id):
 	self.drink_pub.publish(drink_id)
 
+  def send_order(self,order,map,x,y):
+      print dir(order)
+      msgO=Order();
+      msgO.order_id=str(order.id);
+      msgO.tip=float(order.tip);
+      msgO.delivery_pose.header.frame_id=str(map.frame_id);
+      msgO.delivery_pose.pose.position.x=x;
+      msgO.delivery_pose.pose.position.y=y;
+      msgO.delivery_pose.pose.position.z=0;
+      msgO.delivery_pose.pose.orientation.x=0;
+      msgO.delivery_pose.pose.orientation.y=0;
+      msgO.delivery_pose.pose.orientation.z=0;
+      msgO.delivery_pose.pose.orientation.w=1;
+
+      grab_base_pose=geometry_msgs.msg.PoseStamped()
+      s=str(pickle.loads(str(order.item.base_pose)))
+      grab_base_pose.deserialize(s)
+
+      msgO.object_approach_pose = grab_base_pose
+      
+      self.orders_pub.publish(msgO)
+
+
   def get_pub_string(self):
-      print "HERE"
-      return "%s,%s,%s,%s" % (self.node_name,self.drink_topic,self.drink_topic_type,rospy.get_node_uri())
+      s1= "%s,%s,%s,%s" % (self.node_name,self.drink_topic,self.drink_topic_type,rospy.get_node_uri())
+      #s1= "%s,%s,%s" % (self.node_name,self.drink_topic,rospy.get_node_uri())
+      s2= "%s,%s,%s,%s" % (self.node_name,self.orders_topic,self.orders_topic_type,rospy.get_node_uri())
+      #return s1
+      return s1+"\n"+s2
       
 
 if __name__=="__main__":
