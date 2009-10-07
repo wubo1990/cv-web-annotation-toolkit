@@ -1,0 +1,6 @@
+export PYTHONPATH:/var/django/:/var/django/web_annotations_server:~/ros/ros-pkg/vision/cv_mech_turk/src/
+
+export DJANGO_SETTINGS_MODULE=web_annotations_server.settings
+export MCR_ROOT=/opt/MATLAB/MATLAB_Compiler_Runtime
+
+./standalone_processing.py

@@ -1,0 +1,48 @@
+{% extends "mturk/base_app.html" %}
+
+{% block content %}
+
+{% if user.is_anonymous %}
+<p>
+Please <a href="/accounts/login/?next=/"> login</a> or <a href="/accounts/register/">register</a>.
+{% else %}
+
+{% endif %}
+
+<h2>Models</h2>
+<table>
+<tr>
+<th>Model</th>
+<th>Model type</th>
+<th>Status</th>
+<th>Created</th>
+<th>Targets</th>
+</tr>
+{% for m in models %}
+<tr>
+<td>
+  
+<a href="model/{{m.id}}/">{{m.code}}</a><br/>
+</td>
+<td>{{m.get_model_type_display}}</td>
+<td>{{m.get_model_status_display}}</td>
+<td>{{m.created}}</td>
+<td>
+  {% for t in m.targets.all %}
+<a href="/cv_models/download/{{m.id}}/{{t}}/model_{{m.code}}__{{t}}.{{m.get_ext}}"> {{t}} </a>
+{% endfor %}
+</td>
+
+<td>
+{{s.num_open_submissions}}
+</td>
+<td>
+{{s.num_submissions}}
+</td>
+
+</tr>
+{% endfor %}
+</table>
+
+{% endblock %}
+
