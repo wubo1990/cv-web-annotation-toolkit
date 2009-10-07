@@ -1,6 +1,7 @@
 # Create your views here.
 
 import urllib,uuid,os,sys,shutil,subprocess,copy
+from PIL import Image
 import cPickle as pickler
 
 from django.conf import settings
@@ -631,11 +632,18 @@ def newHIT(request):
 
         image=request.FILES['image']
         storage = FileSystemStorage(image_dir);
-        if 'reduce-quality' in request.FILES:
-            quality=request.FILES['reduce-quality']:
+        if 'reduce-quality' in request.REQUEST or 'reduce-resolution' in request.REQUEST:
+            quality=request.REQUEST.get('reduce-quality',None)
+            resolution=request.REQUEST.get('reduce-resolution',None)
             path = storage.save(os.path.join(image_dir,frame+"-original.jpg"),image);
-            img=Image(os.path.join(image_dir,frame+"-original.jpg"));
-            img.save(os.path.join(image_dir,frame+".jpg"),"JPEG","Quality",quality);
+            img=Image.open(os.path.join(image_dir,frame+"-original.jpg"));
+            if resolution:
+                (newW,newH)=map(lambda s:float(s),resolution.split("x"));
+                img = img.resize((newW,newH),Image.BICUBIC)
+            if quality:
+                img.save(os.path.join(image_dir,frame+".jpg"),"JPEG",quality=int(quality));                
+            else:
+                img.save(os.path.join(image_dir,frame+".jpg"))
 
         else:
             path = storage.save(os.path.join(image_dir,frame+".jpg"),image);
@@ -1107,7 +1115,14 @@ def get_session_images3(request,session_code):
             topic_in=parms.get('topic_in','n/a')
             original_name=parms.get('original_name','n/a')
             print parms
-            response.write("%s\t/mt/good_hit_results_xml/%s/\t%s\t%s\t%s\t%s\t%s\t%s\n" % (settings.HOST_NAME_FOR_MTURK,hit.ext_hitid,session_code,frame,frame_id,ref_time,topic_in,original_name))
+            image_dir=os.path.join(settings.DATASETS_ROOT,session.code);
+            original_fn =os.path.join(image_dir,frame+"-original.jpg");
+            if os.path.exists(original_fn):
+                img_id=frame+"-original"
+            else:
+                img_id=frame
+
+            response.write("%s\t/mt/good_hit_results_xml/%s/\t%s\t%s\t%s\t%s\t%s\t%s\n" % (settings.HOST_NAME_FOR_MTURK,hit.ext_hitid,session_code,img_id,frame_id,ref_time,topic_in,original_name))
 
         return response
 
