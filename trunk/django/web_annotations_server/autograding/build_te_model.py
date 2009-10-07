@@ -6,6 +6,8 @@ License: BSD
 
 import os,sys, getopt
 
+#This is the default BIN location. You don't need to change it.
+#You should use --ag_bin= command line argument to override it.
 TE_BIN_LOCATION="/home/syrnick/daria/TreeExtra.1.2/additive_groves/"
 
 
