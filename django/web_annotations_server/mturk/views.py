@@ -631,7 +631,14 @@ def newHIT(request):
 
         image=request.FILES['image']
         storage = FileSystemStorage(image_dir);
-        path = storage.save(os.path.join(image_dir,frame+".jpg"),image);
+        if 'reduce-quality' in request.FILES:
+            quality=request.FILES['reduce-quality']:
+            path = storage.save(os.path.join(image_dir,frame+"-original.jpg"),image);
+            img=Image(os.path.join(image_dir,frame+"-original.jpg"));
+            img.save(os.path.join(image_dir,frame+".jpg"),"JPEG","Quality",quality);
+
+        else:
+            path = storage.save(os.path.join(image_dir,frame+".jpg"),image);
 
 
     

@@ -44,12 +44,19 @@ active_orders_list_info = {
     'queryset' :   Order.objects.all().filter(state__in=[2,3]).order_by('-state','queue_position'),
     'allow_empty': True,
 }
+active_orders_list_info_xml = {
+    'queryset' :   Order.objects.all().filter(state__in=[2,3]).order_by('-state','queue_position'),
+    'allow_empty': True,
+    'template_name':'web_menu/order_list.xml',
+    'mimetype' : 'text/xml',
+}
 
 
 
 urlpatterns = patterns('',
     (r'^$', 'web_menu.views.wait'),
     (r'^m/(?P<menu_code>[\w-]+)/$', 'web_menu.views.wait'),
+    (r'^s/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.DJ_CODE_RT+'web_menu/html/'}),                       
     (r'^images/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.WEBMENU_ROOT+'menus/'}),
     (r'^map_images/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.WEBMENU_ROOT+'maps/'}),
     (r'^server_images/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.WEBMENU_ROOT+'servers/'}),
@@ -71,6 +78,8 @@ urlpatterns = patterns('',
     (r'^rospublishers/$','web_menu.views.get_ros_publishers'),
 
     (r'^queue/$',list_detail.object_list, active_orders_list_info),
+    (r'^queue.xml$',list_detail.object_list, active_orders_list_info_xml),
+                       
     #(r'^queue/server/(?P<server_code>)/$','web_menu.views.show_queue'),
     #(r'^queue/service/(?P<service_domain>)/$','web_menu.views.show_domain_queue'),
 

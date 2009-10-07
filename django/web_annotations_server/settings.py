@@ -132,11 +132,14 @@ INSTALLED_APPS = (
     'web_annotations_server.web_menu',
     #'annotation.annotation_store',
     'web_annotations_server.image_collector',
+
+    'web_annotations_server.cv_models',
+    'web_annotations_server.state_machine',	
 )
 
 ACCOUNT_ACTIVATION_DAYS=4
 
-HOST_NAME_FOR_MTURK="http://vm7.willowgarage.com/"
+HOST_NAME_FOR_MTURK="http://vision-app1.cs.uiuc.edu:443/"
 
 MTURK_BLOCK_WORKER_MIN_UTILITY=30
 
@@ -148,5 +151,8 @@ NUM_HITS_PER_PAGE = 20
 VOC_DEV_KIT='/home/sorokin2/voc_data/VOCdevkit'
 MCR_ROOT='/opt/MATLAB/MATLAB_Compiler_Runtime/v79'
 
+LEARNING_DS_ROOT='/var/django/learning_datasets'
+MODEL_STORE_ROOT='/var/django/model_store'
 
-WEBMENU_ROOT = '/var/django2/web_menu/'
+WEBMENU_ROOT = '/var/django/web_menu/'
+

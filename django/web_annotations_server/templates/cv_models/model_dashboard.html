@@ -1,0 +1,67 @@
+{% extends "mturk/base_app.html" %}
+
+{% block content %}
+
+{% if user.is_anonymous %}
+<p>
+Please <a href="/accounts/login/?next=/"> login</a> or <a href="/accounts/register/">register</a>.
+{% else %}
+
+{% endif %}
+
+
+<table>
+<tr>
+<th>Model</th>
+<th>Model type</th>
+<th>Status</th>
+<th>Created</th>
+<th>Targets</th>
+</tr>
+
+<tr>
+<td>
+  
+<a href="#">{{m.code}}</a><br/>
+</td>
+<td>{{m.get_model_type_display}}</td>
+<td>{{m.get_model_status_display}}</td>
+<td>{{m.created}}</td>
+<td>
+  {% for t in m.targets.all %}
+<a href="/cv_models/download/{{m.id}}/{{t}}/model_{{m.code}}__{{t}}.{{m.get_ext}}"> {{t}} </a>
+{% endfor %}
+</td>
+
+<td>
+{{s.num_open_submissions}}
+</td>
+<td>
+{{s.num_submissions}}
+</td>
+
+</tr>
+
+</table>
+
+<hr/>
+<h2>Performance reports</h2>
+<table>
+  <tr><td></td>
+{% for tst in accuracy_report.tests %}
+<th>{{tst}}</th>
+{% endfor %}
+</tr>
+
+{% for result in accuracy_report.perf_values %}
+<tr>
+  <th>{{result.t}}</th>
+{% for v in result.v %}
+<td>{{v}}</td>
+{% endfor %}
+  </tr>
+{% endfor %}
+
+
+{% endblock %}
+

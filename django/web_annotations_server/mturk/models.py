@@ -111,9 +111,9 @@ class Session(models.Model):
 	task_def=models.ForeignKey(Task);
 	funding=models.ForeignKey(FundingAccount);
 
-	standalone_mode=models.BooleanField(default=False);
-	sandbox=models.BooleanField(default=True);
-	HITlimit=models.IntegerField(default=100);
+	standalone_mode = models.BooleanField(default=False);
+	sandbox         = models.BooleanField(default=True);
+	HITlimit        = models.IntegerField(default=100);
 
 	parameters=models.TextField(null=True, blank=True); #depreciated
 

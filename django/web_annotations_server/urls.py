@@ -8,7 +8,7 @@ from django.contrib.auth import views as auth_views
 urlpatterns = patterns('',
 
     (r'^$', 'mturk.views.main'),
-
+    (r'^code/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.DJ_CODE_RT+'mturk/code/'}),
                        
     (r'^code/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.DJ_CODE_RT+'mturk/code/'}),
     (r'^frames/(?P<path>.*)$', 'django.views.static.serve', {'document_root': '/var/datasets/'}),
@@ -38,7 +38,7 @@ urlpatterns = patterns('',
     (r'^mt_latex/', include('mturk_latex.urls')),
 #    ('^([^/]+)/([^/]+)/(.+)/$', 'django.contrib.admin.views.main.change_stage'),
 
-
+    (r'^cv_models/', include('cv_models.urls')),
 
 #    These functions should work, but they don't #
 #
