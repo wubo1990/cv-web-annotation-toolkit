@@ -80,11 +80,14 @@ class TmpNode:
       msgO.delivery_pose.pose.orientation.z=0;
       msgO.delivery_pose.pose.orientation.w=1;
 
-      grab_base_pose=geometry_msgs.msg.PoseStamped()
-      s=str(pickle.loads(str(order.item.base_pose)))
-      grab_base_pose.deserialize(s)
+      #grab_base_pose=geometry_msgs.msg.PoseStamped()
+      #s=str(pickle.loads(str(order.item.base_pose)))
+      #grab_base_pose.deserialize(s)
 
-      msgO.object_approach_pose = grab_base_pose
+      msgO.delivery_location=str(order.delivery_location);
+      msgO.object_approach_location=str(order.item.base_pose);
+
+      #msgO.object_approach_pose = grab_base_pose
       
       self.orders_pub.publish(msgO)
 

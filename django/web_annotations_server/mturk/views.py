@@ -16,7 +16,7 @@ from subprocess import *
 try:
     from boto.mturk.connection import MTurkConnection
     from boto.mturk.question import ExternalQuestion
-    from boto.mturk.qualification import Qualifications, PercentAssignmentsApprovedRequirement
+    from boto.mturk.qualification import Qualifications, PercentAssignmentsApprovedRequirement,Requirement
     hasBoto=True
 except Exception,e:
     print e
@@ -262,7 +262,11 @@ def show_good_results_paged(request,session_code,page=1,filter=None,order_by=Non
         else:
             results=session.submittedtask_set.all();
 
-        results=results.filter(final_grade__gt=7,hit__parameters__like=filter);
+        if filter is None:
+            results=results.filter(final_grade__gt=7);
+        else:
+            results=results.filter(final_grade__gt=7,hit__parameters__like=filter);
+
         print results.count();
 
         if not num_per_page:
@@ -590,6 +594,7 @@ def grading_report_for_worker(request,worker_id):
 
 
 def add_session_qualifications(qualifications,session):
+    return
     for q in session.mturk_qualification.all():
         qualifications.add(Requirement(
                 qualification_type_id=q.mt_qual_id,
