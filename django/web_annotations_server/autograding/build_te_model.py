@@ -21,7 +21,7 @@ Parameters:
 -t, --train=     training file
 -v, --val=       validation file
 -r, --attr=      attribute file
--s, --speed=     training file
+-s, --speed=     training mode (fast,slow); default is fast
 -e, --extra=     extra arguments for the model
 
 If the output model exists, it will do noting.
