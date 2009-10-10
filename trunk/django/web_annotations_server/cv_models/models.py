@@ -67,6 +67,7 @@ MODEL_TYPES = (
     (1, 'PF-HOG'),
     (2, 'Dorylus'),
     (3, 'FM3N'),
+    (4, '3D-feature-cloud'),
     );
 
 class LearnedModel(models.Model):
