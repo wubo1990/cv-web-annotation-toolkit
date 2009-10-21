@@ -2,6 +2,10 @@
 {% load time_extras %}
 {% load switchcase %}
 
+{% block extrahead %}
+<script src="/code/js/prototype.js" language="javascript"></script>
+{% endblock %}
+
 {% block title %}{{session.code}}:session dashboard{% endblock %}
 
 {% block branding %}
@@ -11,6 +15,17 @@
 
 
 {% block content %}
+
+<script>
+var run_search=function(session_code,search_inp)
+{
+ loc="/mt/good_results_w_filter/"+session_code+"/p1/"+search_inp+"/";
+ window.location=loc;
+}
+
+
+
+</script>
 
 <table><tr><td>
 Session {{session.code}} [{% if session.sandbox %}
@@ -36,8 +51,11 @@ Internally: <a href="/mt/session_hits/{{session.code}}/0/">All</a> ||
 <h2>Grading</h2>
 
 Local:<br/>
-<a href="/mt/result_stats/{{session.code}}/by_worker/">Grading by worker</a><br/>
-<a href="/mt/grading/thumbnails_random/{{session.code}}/">Random grading in thumbnails</a><br/>
+<ul>
+<li><a href="/mt/grading/{{session.code}}/">Grading paged</a></li>
+<li><a href="/mt/result_stats/{{session.code}}/by_worker/">Grading by worker</a></li>
+<li><a href="/mt/grading/thumbnails_random/{{session.code}}/">Random grading in thumbnails</a></li>
+</ul>
 
 <br/>
 <hr/>
@@ -101,7 +119,7 @@ Browse:<br/>
 <ul>
 <li><a href="/mt/results/{{session.code}}/">All results</a><br/></li>
 <li><a href="/mt/good_results/{{session.code}}/">Good results</a><br/></li>
-<li> /mt/good_results_w_filter/{{session.code}}/p1/ FILTER / - lists results by this filter. Try image name or timestamp.
+<li> Filter by: <input id="search_inp" name="search_inp"> <a href="#" onclick="run_search('{{session.code}}',$F('search_inp'));return false;">search</a>. Try image name or timestamp.
 </ul>
 
 Convert good anntoations to messages:<br/>
@@ -117,10 +135,16 @@ rosrun cv_mech_turk session_results.py --session={{session.code}}
 
 <hr/>
 <h2>Timing statistics</h2>
+<ul>
+<li><a href="/mt/stats/session_details/{{session.code}}/">Details</a></li>
+</ul>
+<br/>
 Min time :{{stats.timing.min}}<br/>
 Max time :{{stats.timing.max}}<br/>
 Avg time :{{stats.timing.avg}}<br/>
 Std time :{{stats.timing.std}}<br/>
+
+
 <hr/>
 
 <h2>Upload</h2>
