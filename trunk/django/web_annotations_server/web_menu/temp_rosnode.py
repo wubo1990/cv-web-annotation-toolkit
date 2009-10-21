@@ -68,12 +68,13 @@ class TmpNode:
 
   def send_order(self,order,map,x,y):
       print dir(order)
+      print order.id
       msgO=Order();
       msgO.order_id=str(order.id);
       msgO.tip=float(order.tip);
-      msgO.delivery_pose.header.frame_id=str(map.frame_id);
-      msgO.delivery_pose.pose.position.x=x;
-      msgO.delivery_pose.pose.position.y=y;
+      #msgO.delivery_pose.header.frame_id=str(map.frame_id);
+      #msgO.delivery_pose.pose.position.x=x;
+      #msgO.delivery_pose.pose.position.y=y;
       msgO.delivery_pose.pose.position.z=0;
       msgO.delivery_pose.pose.orientation.x=0;
       msgO.delivery_pose.pose.orientation.y=0;

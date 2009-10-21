@@ -39,6 +39,7 @@ Filename: {{ s.hit.get_filename }}
 <b>Comment: </b>{{ s.get_parsed.comments }} <br/>
 {% endif %}
 <a href="/mt/submission_data_xml/{{s.id}}/{{s.hit.ext_hitid}}/">raw</a>;
+<a href="/mt/grading/by_id/{{s.session.code}}/{{s.id}}/">grade</a>;
 <hr/>
 {% endfor %}
 

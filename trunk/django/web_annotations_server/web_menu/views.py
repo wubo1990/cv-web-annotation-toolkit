@@ -230,10 +230,17 @@ def order_set_tip(request,order_id):
 
 
 def send_order(order):
-	(map_id,x,y)=order.delivery_location.split(",")
-	map=get_object_or_404(Map,id=int(map_id));
-	x=float(x) * float(map.cell_size);
-	y=float(y) * float(map.cell_size);
+	print dir(order)
+	print order.id
+	#(map_id,x,y)=order.delivery_location.split(",")
+	#map_id=1;
+	#map=get_object_or_404(Map,id=int(map_id));
+	#map=get_object_or_404(Map,id=int(map_id));
+	#x=float(x) * float(map.cell_size);
+	#y=float(y) * float(map.cell_size);
+	map=""
+	x=""
+	y=""
 
 	if ros_sender:
 		ros_sender.send_order(order,map,x,y)

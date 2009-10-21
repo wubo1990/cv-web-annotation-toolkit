@@ -83,6 +83,7 @@ urlpatterns = patterns('',
     (r'^newHIT/$', 'mturk.views.newHIT'),
     (r'^newHIT2/$', 'mturk.views.newHIT'),
     (r'^new_HIT_generic/$', 'mturk.views.new_HIT_generic'),
+    (r'^copy_session/(?P<prototype_session_code>[\w\-]+)/(?P<new_session_code>[\w\-]+)/$', 'mturk.views.copy_session'),
 
     (r'^stats/all/$', 'mturk.views.stats_all'),
 

@@ -294,7 +294,8 @@ def show_good_results_w_filter_paged(request,session_code,page=1,filter=None,ord
         else:
             results=session.submittedtask_set.all();
 
-        results=results.filter(final_grade__gt=7,hit__parameters__contains=filter);
+        #results=results.filter(final_grade__gt=7,hit__parameters__contains=filter);
+        results=results.filter(hit__parameters__contains=filter);
         print results.count();
 
         if not num_per_page:
@@ -718,6 +719,8 @@ def newHIT(request):
 	return HttpResponse("%s" % hit.ext_hitid)
 
 
+
+
 def new_HIT_generic(request):
 	session_code = request.REQUEST['session']
 
@@ -781,8 +784,19 @@ def new_HIT_generic(request):
 
 	return HttpResponse("%s" % hit.ext_hitid)
 
+def copy_session(request,prototype_session_code,new_session_code):
+    session = get_object_or_404(Session,code=prototype_session_code);
+    try:
+        new_session = Session.objects.get(code=new_session_code)
+        return HttpResponse("- %d\nAlready exists" % new_session.id)
+    except:
+        pass
 
-
+    new_session=copy.copy(session);
+    new_session.code=new_session_code;
+    new_session.id = None;
+    new_session.save();
+    return HttpResponse("+ %d" % new_session.id)
 
 def submit_redo_HITs(request,session_code):
     session = get_object_or_404(Session,code=session_code);
@@ -793,7 +807,15 @@ def submit_redo_HITs(request,session_code):
     done_hits=hits.filter(submittedtask__manualgraderecord__quality__gt=7);
     hash_done_hits={};
     for h in done_hits:
-        hash_done_hits[h.id]=1;
+        done=False
+        for s in h.submittedtask_set.all():
+            for g in s.manualgraderecord_set.all():
+                if g.valid and g.quality>7:
+                    print s.id,g.quality,g.valid,g.id,h.id
+                    done=True
+                    break
+        if done:
+            hash_done_hits[h.id]=1;
     print hash_done_hits
     print "Resubmitting %d tasks " % results.count();
     
@@ -802,7 +824,7 @@ def submit_redo_HITs(request,session_code):
         if hit.id in hash_done_hits:
             print "Hit",hit.id ,"is done"
             continue
-            
+        print hit.id," is not done"
         taskurl=settings.HOST_NAME_FOR_MTURK+"mt/get_task/"+str(session.code)+"/?ExtID="+hit.ext_hitid;
         q = ExternalQuestion(external_url=taskurl, frame_height=800)
 
@@ -863,11 +885,12 @@ def get_hit_results_xml(request,ext_id,filterGood=False):
     s="";
     for st in task.submittedtask_set.all():
 
+        print st.id,st.final_grade 
 
         grade_xml="<grades>"
         grade=None
         feedback="";
-        for g in st.manualgraderecord_set.filter(valid=True).all():
+        for g in st.manualgraderecord_set.filter(valid=True):
             if grade:
                 if grade>g.quality:
                     grade=g.quality;
@@ -887,8 +910,8 @@ def get_hit_results_xml(request,ext_id,filterGood=False):
 
 
         s=s+st.get_parsed().shapes;
-        print st
 
+    print s=="","QWE",
     if s=="":
         raise Http404;
 
@@ -1390,9 +1413,11 @@ def get_ros_publishers(request):
 
 def stats_session_detail(request,session_code):
     session = get_object_or_404(Session,code=session_code)
-    submissions=session.submittedtask_set.all();
+    submissions=session.submittedtask_set.all().order_by('submitted');
     for s in submissions:
         s.diff=(s.submitted - s.hit.submitted).seconds;
+    
+    submissions=sorted(submissions,lambda a,b:a.diff-b.diff);
 
     return render_to_response('mturk/stats_session_details.html',
                               {'user':request.user,'session':session,'submissions':submissions});

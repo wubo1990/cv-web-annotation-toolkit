@@ -98,7 +98,8 @@ class Order(models.Model):
 	image_name  = models.TextField(blank=True)
 	metadata    = models.TextField(blank=True)
 
-
+	def __str__(self):
+		return "%d(%d)" % (self.id,self.state)
 
 class Server(models.Model):
 	code      = models.SlugField()
