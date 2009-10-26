@@ -91,7 +91,7 @@ class TmpNode:
       #msgO.object_approach_pose = grab_base_pose
       
       self.orders_pub.publish(msgO)
-
+      self.drink_pub.publish("%s %s" % (str(order.item.base_pose),str(order.delivery_location)));
 
   def get_pub_string(self):
       s1= "%s,%s,%s,%s" % (self.node_name,self.drink_topic,self.drink_topic_type,rospy.get_node_uri())

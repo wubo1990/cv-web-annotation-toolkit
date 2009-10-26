@@ -5,7 +5,7 @@
 
 {% for o in object_list  %}
 <tr>
-<td>{{o.queue_position}}</td>
+<td><a href="/web_menu/order/show/{{o.id}}/">{{o.queue_position}}</a></td>
 <td>
 <img width=30 src="/web_menu/images/{{o.item.menu.code}}/{{o.item.image_name}}"/>
 </td>

@@ -1,0 +1,51 @@
+{% load switchcase %}<?xml version="1.0" encoding="utf-8" ?>
+<root>
+	<destination mode="replace" zone="queue-list" />
+	<data><![CDATA[ <ul class="iArrow">	
+{% for o in object_list  %}
+
+			<ul class="iArrow iShop">
+				<li>
+					<img src="/web_menu/images/{{o.item.menu.code}}/{{o.item.image_name}}" class="iFull" />
+					<em>{{o.item.metadata}}</em>
+					<big>{{o.user_name}}
+						<small><img src="Img/stars.png" style="margin:4px"/> 
+{% ifequal o.ETA_minutes -1 %} scheduling, station {{o.delivery_location}} {% else %} {{o.ETA_minutes|floatformat }} min, station {{o.delivery_location}}{% endifequal %}
+</small>
+					</big>
+				</li>
+
+{% comment %}
+
+	<li><a href="Layer/Article.php?zone=article&amp;id=1#_Article" rev="async">{{o.queue_position}}</a></li>
+<tr>
+<td>{{o.queue_position}}</td>
+<td>
+<img width=30 src="/web_menu/images/{{o.item.menu.code}}/{{o.item.image_name}}"/>
+</td>
+<td>{% switch o.state %}
+    {% case 2 %} In queue {% endcase %}
+    {% case 3 %} <b>Active</b> {% endcase %}
+{% endswitch %}</td>
+<td>{% ifequal o.ETA_seconds -1 %} N/A {% else %} {{o.ETA_seconds }} seconds{% endifequal %}</td>
+<td>{{ o.tip }}</td>
+</tr>
+
+{% endcomment %}
+{% endfor %}
+
+</ul> 
+]]></data>
+</root>
+
+
+{% comment %}
+
+<table>
+<tr><td>Position</td><td>Order</td><td>Status</td><td>Arrival time</td><td>Tip</td></tr>
+
+
+</table>
+
+
+{% endcomment %}

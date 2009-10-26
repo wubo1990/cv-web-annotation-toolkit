@@ -1,0 +1,23 @@
+{% extends "web_menu/base_app.html" %}
+{% block extrahead %}
+<script src="/code/js/prototype.js" language="javascript"></script>
+{% endblock %}
+
+
+
+{% block content %}
+
+Welcome, {{order.user_name}}<hr/>
+
+{{order.id}}<br/>
+
+State:{{order.state}}<br/>
+When: in {{order.ETA_seconds}} secs(<a href="/web_menu/order/cancel/{{order.id}}/">Cancel</a>)<br/>
+What:{{order.item}}<br/>
+Where:{{order.delivery_location}}<br/>
+
+
+<hr/>
+<a href="/web_menu/order/new/">Create new order</a>
+
+{% endblock %}
