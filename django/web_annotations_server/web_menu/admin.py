@@ -41,6 +41,9 @@ class MenuAdmin(admin.ModelAdmin):
     pass	
 
 class MapAdmin(admin.ModelAdmin):
+    pass
+
+class StationAdmin(admin.ModelAdmin):
     pass	
 
 class ServerAdmin(admin.ModelAdmin):
@@ -60,6 +63,7 @@ class ServiceDomainAdmin(admin.ModelAdmin):
 admin.site.register(Menu, MenuAdmin);
 admin.site.register(MenuItem, MenuItemAdmin);
 admin.site.register(Map, MapAdmin);
+admin.site.register(WorldStation, StationAdmin);
 admin.site.register(Order, OrderAdmin);
 admin.site.register(Server, ServerAdmin);
 admin.site.register(ServiceDomain, ServiceDomainAdmin);

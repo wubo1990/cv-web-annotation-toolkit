@@ -1,0 +1,16 @@
+{% extends "web_menu/iphone/new_order_base.html" %}
+
+{% block drinkchoice %}
+{% for item in menu.available_items %}
+<label><input type="radio" name="drinkchoice" value="{{item.id}}" /> {{item.metadata}}</label>
+{% endfor %}
+
+{% endblock %}
+
+{% block locationchoice %}
+{% for s in map.worldstation_set.all %}
+<label><input type="radio" name="station" value="{{s.location}}" /> {{s}}</label>
+{% endfor %}
+{% endblock %}
+
+

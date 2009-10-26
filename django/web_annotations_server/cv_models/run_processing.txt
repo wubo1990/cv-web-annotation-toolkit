@@ -1,6 +1,8 @@
-export PYTHONPATH:/var/django/:/var/django/web_annotations_server:~/ros/ros-pkg/vision/cv_mech_turk/src/
+export PYTHONPATH=$PYTHONPATH:/var/django/:/var/django/web_annotations_server:~/ros/pkgs/wg-ros-pkg-trunk/vision/cv_mech_turk/src/
 
 export DJANGO_SETTINGS_MODULE=web_annotations_server.settings
 export MCR_ROOT=/opt/MATLAB/MATLAB_Compiler_Runtime
 
-./standalone_processing.py
+export LD_LIBRARY_PATH=~/ros/ros_old/ros-pkg/stacks/opencv/opencv_latest/build/opencv-svn/build/lib/:$LD_LIBRARY_PATH
+
+#./standalone_processing.py

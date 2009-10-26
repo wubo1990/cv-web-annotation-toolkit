@@ -47,14 +47,16 @@ active_orders_list_info = {
 active_orders_list_info_xml = {
     'queryset' :   Order.objects.all().filter(state__in=[2,3]).order_by('-state','queue_position'),
     'allow_empty': True,
-    'template_name':'web_menu/order_list.xml',
+    'template_name':'web_menu/iphone/order_list.xml',
     'mimetype' : 'text/xml',
 }
 
 
 
 urlpatterns = patterns('',
-    (r'^$', 'web_menu.views.wait'),
+    #(r'^$', 'web_menu.views.wait'),
+    (r'^$', 'web_menu.views.start'),
+                       
     (r'^m/(?P<menu_code>[\w-]+)/$', 'web_menu.views.wait'),
     (r'^s/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.DJ_CODE_RT+'web_menu/html/'}),                       
     (r'^images/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.WEBMENU_ROOT+'menus/'}),
@@ -79,15 +81,26 @@ urlpatterns = patterns('',
 
     (r'^queue/$',list_detail.object_list, active_orders_list_info),
     (r'^queue.xml$',list_detail.object_list, active_orders_list_info_xml),
+
+    (r'^stats.xml$','web_menu.views.service_stats'),
+
+    #(r'^queue/$',list_detail.object_list, active_orders_list_info),
+    #(r'^queue.xml$',list_detail.object_list, active_orders_list_info_xml),                       
                        
     #(r'^queue/server/(?P<server_code>)/$','web_menu.views.show_queue'),
     #(r'^queue/service/(?P<service_domain>)/$','web_menu.views.show_domain_queue'),
 
     (r'^order/new/$',views.new_order),
+    (r'^order/new/return',views.new_order_submit_full),
     (r'^order/choose_item/(?P<order_id>[\w-]+)/(?P<item_id>[\w-]+)/$',views.choose_order_item),
     (r'^order/deliver_to/(?P<order_id>[\w-]+)/(?P<map_id>[\w-]+)/$',views.choose_order_map_location),
+    (r'^order/deliver_to_station/(?P<order_id>[\w-]+)/(?P<map_id>[\w-]+)/(?P<station_code>[\w-]+)/$',views.choose_order_delivery_station),
     (r'^order/tip/(?P<order_id>[\w-]+)/$',views.order_set_tip),
+    (r'^order/user_name/(?P<order_id>[\w-]+)/$',views.order_set_user_name),
     (r'^order/confirm/(?P<order_id>[\w-]+)/$',views.order_confirm),
+    (r'^order/cancel/(?P<order_id>[\w-]+)/$',views.order_cancel),
+
+    (r'^order/show/(?P<order_id>[\w-]+)/$',views.show_order),                       
 
     (r'^order/update/$',views.update_order),
     (r'^order/resend/$',views.resend_orders),

@@ -1,0 +1,152 @@
+<html>
+    <head>
+        <title>My WebApp</title>
+        <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" />
+
+        <link rel="stylesheet" href="/web_menu/s/WebApp/Design/Render.css" />
+        <script type="text/javascript" src="/web_menu/s/WebApp/Action/Logic.js"></script>
+
+    </head>
+
+    <body>
+    <div id="WebApp">
+
+        <div id="iHeader">
+            <a href="#" id="waBackButton">Back</a>
+            <span id="waHeadTitle">HERB</span>
+        </div>
+
+        <div id="iGroup">
+
+            <div class="iLayer" id="waHome" title="Home">
+            
+            
+            <div class="iMenu">
+            <form action="return WA.Submit(this)" id="placeOrderForm">
+              <h3 style="margin-top:20px">Order a drink from Herb...</h3>
+            	<ul class="iArrow">
+            	
+                    	<li class="iRadio"><img src="/web_menu/s/img/photo.png" class="iFull">Select a Drink
+                        <!-- begin drink choices -->
+		  {% block drinkchoice %}
+							<label><input type="radio" name="drinkchoice" value="1" /> Water</label>
+							<label><input type="radio" name="drinkchoice" value="2"  /> Juice</label>
+							<label><input type="radio" name="drinkchoice" value="3" /> Diet Coke</label>
+							<label><input type="radio" name="drinkchoice" value="4" /> Beer</label>
+
+		  {% endblock %}
+                           <!-- end drink choices -->
+					</li>
+            
+            		<li class="iRadio"><img src="/web_menu/s/img/photo.png" class="iFull">Tell HERB your location
+                	<!-- begin locaiton choices -->
+		{% block locationchoice %}					
+                    		<label><input type="radio" name="station" value="1" /> Station 1</label>
+				<label><input type="radio" name="station" value="2"  /> Station 2</label>
+		{% endblock %}
+                     <!-- end location choices -->
+					</li>
+            	
+            	
+					<li><label>Enter your name</label><input type="text" name="personname" /></li>
+					
+				
+            	</ul>
+               <a href="#"  class="iPush iBGreen" style="display:block;" onClick="return WA.Submit('placeOrderForm')" id="placeOrderBtn">Place Order</a>
+                
+            </form>
+            </div>   
+              
+                <div class="iBlock">
+                <p>There are currently {{info.queue_length}} items in the queue. Wait time is {{ info.ETA_time }} minutes</p>
+                
+                </div>
+                 <div class="iBlock iBlack">
+                <p><a href="/web_menu/stats.xml#_Status" rev="async:np">Status</a> | <a href="/web_menu/queue.xml#_Queue" rev="async:np">Queue</a> | <a href="#_Photos">Photos</a>
+                </div>
+            </div>
+            <!-- end home layer -->
+            
+            <!-- begin status layer -->
+            <div class="iLayer" id="waStatus" title="Herb's Status">
+		<div class="iList" id="status-list">
+			<h2>Drink Info</h2>
+			<ul class="iArrow">
+				<li><em>I've served 13 drinks</em><small>3 diet cokes, 2 waters, 4 juices, 4 beers</small></li>
+				<li><a href="#_Article"><em>List item two</em><small>Additional item info two</small></a></li>
+			</ul>
+			<h2>Info About me</h2>
+			<ul class="iArrow">
+				<li><a href="#_Article"><em>Content Here</em><small>Additional item info three</small></a></li>
+				<li>This item has no link</li>
+			</ul>
+		</div>
+	</div>
+    	<!-- end status layer -->
+        
+        <!-- begtin queue layer -->
+        
+        <div class="iLayer" id="waQueue" title="Queue">
+		<div class="iList" id="queue-list">
+			<!-- <h2>Drinks</h2> -->
+			<ul class="iArrow iShop">
+				<li>
+					<img src="/web_menu/s/WebApp/Img/blank.gif" class="iFull" />
+					<em>Juice</em>
+					<big>Alex
+						<small><img src="Img/stars.png" style="margin:4px"/> 10 min, station X</small>
+					</big>
+				</li>
+                
+                <li>
+					<img src="/web_menu/s/WebApp/Img/blank.gif" class="iFull" />
+					<em>Juice</em>
+					<big>Alex
+						<small><img src="/web_menu/s/Img/stars.png" style="margin:4px"/> Now Serving</small>
+					</big>
+				</li>
+                
+                <li>
+					<img src="/web_menu/s/WebApp/Img/blank.gif" class="iFull" />
+					<em>Water</em>
+					<big>George
+						<small><img src="/web_menu/s/Img/stars.png" style="margin:4px"/> 5 min, station X</small>
+					</big>
+				</li>
+                
+                <li>
+					<img src="/web_menu/s/WebApp/Img/blank.gif" class="iFull" />
+					<em>Water</em>
+					<big>JD
+						<small><img src="/web_menu/s/Img/stars.png" style="margin:4px"/> 9 min, station X</small>
+					</big>
+				</li>
+                
+                <li>
+					<img src="/web_menu/s/WebApp/Img/blank.gif" class="iFull" />
+					<em>Soda</em>
+					<big>Francois
+						<small><img src="/web_menu/s/Img/stars.png" style="margin:4px"/> 12min, station X</small>
+					</big>
+				</li>
+                
+                <li>
+					<img src="/web_menu/s/WebApp/Img/blank.gif" class="iFull" />
+					<em>Soda</em>
+					<big>Michael
+						<small><img src="/web_menu/s/Img/stars.png" style="margin:4px"/> 20 min, station X</small>
+					</big>
+				</li>
+			</ul>
+		</div>
+	</div>
+        <!-- end queue layer -->
+         
+
+          
+
+        </div>
+        
+    </div>
+    </body>
+</html>

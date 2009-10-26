@@ -84,22 +84,34 @@ ORDER_STATE = (
 
 class Order(models.Model):
 	item        = models.ForeignKey(MenuItem,blank=True,null=True);
+	
 	delivery_location    = models.TextField(blank=True)
 	tip         = models.DecimalField(max_digits=15,decimal_places=4,
 					       default="0.0",
 					       help_text="The tip to speed the maybe bump the priority up.");
 
+	user_name   = models.TextField(blank=True)
+	
 	ETA_seconds = models.DecimalField(max_digits=15,decimal_places=4,
-					       default="0.0");
+					       default="-1.0");
 	queue_position = models.IntegerField(blank=True,default="-1");
 	server      = models.ForeignKey('Server',blank=True,null=True);
 	state       = models.IntegerField(choices=ORDER_STATE,default=1);
 
 	image_name  = models.TextField(blank=True)
+
+
+	
 	metadata    = models.TextField(blank=True)
 
 	def __str__(self):
 		return "%d(%d)" % (self.id,self.state)
+
+	def ETA_minutes(self):
+		if self.ETA_seconds==-1:
+			return -1
+		else:
+			return float(self.ETA_seconds)/60.0;
 
 class Server(models.Model):
 	code      = models.SlugField()
@@ -117,6 +129,17 @@ class Map(models.Model):
 	def __str__(self):
 		return "%s [%s @ %s]" %(self.code,self.image,self.cell_size)
 
+
+class WorldStation(models.Model):
+	code      = models.SlugField()
+	image     = models.TextField(blank=True)
+	location  = models.TextField(blank=True)
+	world_map = models.ForeignKey(Map)
+
+	def __str__(self):
+		return "%s [%s @ %s]" %(self.code,self.location,self.world_map.code)
+
+	
 class ServiceDomain(models.Model):
 	code      = models.SlugField()
 	servers   = models.ManyToManyField(Server)

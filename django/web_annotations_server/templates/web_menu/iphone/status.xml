@@ -1,0 +1,32 @@
+{% load switchcase %}<?xml version="1.0" encoding="utf-8" ?>
+<root>
+	<destination mode="replace" zone="queue-list" />
+	<data><![CDATA[ 
+		<div class="iList">
+			<h2>Drink Info</h2>
+			<ul class="iArrow">
+				<li><em>I've served {{stats.total_drinks}} drinks</em><small>
+{% for drink in stats.by_drink %}{{drink.count}} {{drink.name}}
+</small></li>
+				<li><a href="#_Article"><em>List item two</em><small>Additional item info two</small></a></li>
+			</ul>
+			<h2>Info About me</h2>
+			<ul class="iArrow">
+				<li><a href="#_Article"><em>Content Here</em><small>Additional item info three</small></a></li>
+				<li>This item has no link</li>
+			</ul>
+		</div>
+]]></data>
+</root>
+
+
+{% comment %}
+
+<table>
+<tr><td>Position</td><td>Order</td><td>Status</td><td>Arrival time</td><td>Tip</td></tr>
+
+
+</table>
+
+
+{% endcomment %}

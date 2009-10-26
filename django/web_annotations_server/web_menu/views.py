@@ -79,6 +79,25 @@ def wait(request,menu_code="default"):
 	return render_to_response('web_menu/menu.html',{'menu':menu})
 
 
+def start(request):
+	if 'order_id' in request.session:
+		try:
+			order=Order.objects.get(id=request.session['order_id']);
+			return render_to_response('web_menu/my_order.html', {'order':order})
+		except:
+			return HttpResponseRedirect("/web_menu/order/new/")
+	else:
+		return HttpResponseRedirect("/web_menu/order/new/")
+
+
+
+def show_order(request,order_id):
+	order=Order.objects.get(id=order_id)
+	return render_to_response('web_menu/my_order.html', {'order':order})
+
+
+
+
 
 
 def enableMenu(request,menu_code="default"):
@@ -179,10 +198,27 @@ def clearImages(request,menu_code="default"):
 
 
 
-DEFAULT_MENU_CODE='test-menu'
+DEFAULT_MENU_CODE='drinks'
+MENU_DESIGN='iphone';
+
+design_templates={
+	'plain':{'new_order':'web_menu/new_order.html',
+		 'stats':'web_menu/stats.html',
+		 
+		 },
+	'iphone':{'new_order':'web_menu/iphone/new_order.html',
+		  'stats':'web_menu/iphone/stats.xml',
+		  }
+	};
+
+design=design_templates[MENU_DESIGN];
+
+
+
 
 def new_order(request):
-	domain_code='default'
+	print request
+	domain_code='intel'
 	domain=get_object_or_404(ServiceDomain,code=domain_code);
 
 
@@ -194,9 +230,54 @@ def new_order(request):
 	new_order.save();
 	request.session['order_id']=new_order.id;
 
-	return render_to_response('web_menu/new_order.html', {'order':new_order,'menu':menu,'map':domain.map,'server':server})
+	num_orders=0;
+	ETA_time=-1;
+	for o in server.order_set.filter(state__in=[2,3]):
+		num_orders+=1;
+		if ETA_time<o.ETA_minutes():
+			ETA_time=o.ETA_minutes();
+
+	info_stats={'queue_length':num_orders,'ETA_time':ETA_time};
+
+	return render_to_response(design['new_order'], {'order':new_order,'menu':menu,'map':domain.map,'server':server,'info':info_stats})
 
 
+def new_order_submit_full(request):
+	print request
+	order=None
+	if 'order_id' in request.session:
+		try:
+			order=Order.objects.get_object(id=request.session['order_id']);
+			if order.state != 1: # the current order is not new
+				order=None
+		except:
+			order=None
+	if not order:
+		domain_code='intel'
+		domain=get_object_or_404(ServiceDomain,code=domain_code);
+		
+		server=domain.servers.all()[0];
+
+		menu = domain.menus.all()[0]
+	
+		order=Order(state=1,server=server);
+		order.save();
+		request.session['order_id']=order.id;
+
+	order.delivery_location=request.REQUEST['station'];
+	order.user_name=request.REQUEST['personname'];
+	order.item=get_object_or_404(MenuItem,id=request.REQUEST['drinkchoice']);
+	order.state=2 #ready
+	order.save();
+
+	sent = send_order(order)
+	print "Sent:",sent
+	
+	if sent:
+		return HttpResponse("True")
+	else:
+		return HttpResponse("False")
+	
 def choose_order_item(request,order_id,item_id):
 	menu_code='drinks';
 	menu,created=Menu.objects.get_or_create(code=menu_code)
@@ -220,6 +301,18 @@ def choose_order_map_location(request,order_id,map_id):
 
 	return HttpResponse("+")
 
+
+def choose_order_delivery_station(request,order_id,map_id,station_code):
+	order=get_object_or_404(Order,id=order_id);
+	world_map=get_object_or_404(Map,id=map_id);
+	
+	order.delivery_location=station_code;
+	order.save();
+
+	return HttpResponse("+")
+
+
+	
 def order_set_tip(request,order_id):
 	tip=request.REQUEST['tip']
 	order=get_object_or_404(Order,id=order_id);
@@ -228,10 +321,20 @@ def order_set_tip(request,order_id):
 
 	return HttpResponse("+")
 
+def order_set_user_name(request,order_id):
+	user_name=request.REQUEST['user_name']
+	order=get_object_or_404(Order,id=order_id);
+	order.user_name = user_name;
+
+	order.save();
+	return HttpResponse("+")
+
 
 def send_order(order):
 	print dir(order)
 	print order.id
+
+	
 	#(map_id,x,y)=order.delivery_location.split(",")
 	#map_id=1;
 	#map=get_object_or_404(Map,id=int(map_id));
@@ -247,7 +350,17 @@ def send_order(order):
 		return True
 	else:
 		return False
+def order_cancel(request,order_id):
+	order=get_object_or_404(Order,id=order_id);
+	if order.state!=3: #active
+		order.state=6; #aborted
+		order.save();
+		#return HttpResponse("+")
+	#return HttpResponse("-")
+	del request.session['order_id']
+	return HttpResponseRedirect("/web_menu/")
 
+	
 def order_confirm(request,order_id):
 	order=get_object_or_404(Order,id=order_id);
 
@@ -324,3 +437,30 @@ def resend_orders(request):
 		sent=send_order(order);
 
 	return HttpResponse("+");
+
+
+
+def service_stats(request):
+	print request
+	domain_code='intel'
+	domain=get_object_or_404(ServiceDomain,code=domain_code);
+
+	server=domain.servers.all()[0];
+
+	all_orders=server.order_set.filter(state=2) #served only orders
+	all_counts={};
+	total = 0;
+	for o in all_orders:
+		name=o.item.metadata;
+		if name in all_counts:
+			all_counts[name]=all_counts[name]+1;
+		else:
+			all_counts[name]=1;
+		total+=1;
+	by_drink=[];
+	for (k,v) in all_counts.items():
+		by_drink.append({'name':k,'count':v});
+	stats={'total_drinks':total,'by_drink':by_drink};
+
+
+	return render_to_response(design['stats'], {'stats': stats}, mimetype='text/xml');

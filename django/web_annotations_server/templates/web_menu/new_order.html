@@ -14,6 +14,7 @@ var choose_drink=function(order_id,item_id)
     onComplete: function (){ $('choose_location').style.display='block';}
   });
 }
+
 var choose_location=function(event,order_id,map_id)
 {
   x=event.screenX-$('map_img').x;
@@ -27,6 +28,16 @@ var choose_location=function(event,order_id,map_id)
     onComplete: function (){ $('send_tip').style.display='block';}
 });
 }
+
+var choose_location_station=function(event,order_id,map_id,station_name)
+{
+  new Ajax.Updater('choose_location','/web_menu/order/deliver_to_station/'+order_id+'/'+map_id+'/'+station_name+'/',{
+    //onComplete: function (){ $('send_tip').style.display='block';}
+    onComplete: function (){ $('send_user_name').style.display='block';}
+});
+}
+
+
 var send_tip=function(order_id){
   tip_amount = $('tip_input').value;
   new Ajax.Updater('send_tip','/web_menu/order/tip/'+order_id+'/',{
@@ -34,6 +45,17 @@ var send_tip=function(order_id){
     onComplete: function (){ $('confirm').style.display='block';}
 });
 }
+
+
+var send_user_name=function(order_id){
+  user_name = $('user_name_input').value;
+  new Ajax.Updater('send_user_name','/web_menu/order/user_name/'+order_id+'/',{
+    parameters: {user_name: user_name},
+    onComplete: function (){ $('confirm').style.display='block';}
+});
+}
+
+
 var confirm_order=function(order_id)
 {
   new Ajax.Updater('confirm','/web_menu/order/confirm/'+order_id+'/',{
@@ -47,7 +69,7 @@ var confirm_order=function(order_id)
 Please choose a drink:
 <br/>
 {% for item in menu.available_items %}
-<a href="#" onclick="choose_drink({{order.id}},{{item.id}});"><img src="/web_menu/images/{{menu.code}}/{{item.image_name}}"></a>
+<a href="#" onclick="choose_drink({{order.id}},{{item.id}});"><img src="/web_menu/images/{{menu.code}}/{{item.image_name}}"> {{item.metadata}}</a><br/>
 {% endfor %}
 </div>
 
@@ -57,15 +79,23 @@ Please choose a drink:
 <div id="choose_location" style="display:none">
 Choose delivery location:
 <br/>
-<!--<a href="/web_menu/order/deliver_to/{{order.id}}/{{map.id}}/"></a>-->
-<img border="1" id="map_img" src="/web_menu/map_images/{{map.image}}" onclick="choose_location(event,{{order.id}},{{map.id}});">
 
+<!--<img border="1" id="map_img" src="/web_menu/map_images/{{map.image}}" onclick="choose_location(event,{{order.id}},{{map.id}});">-->
+{% for s in map.worldstation_set.all %}
+<a href="#" onclick="choose_location_station(event,{{order.id}},{{map.id}},'{{s.code}}'); return false;"> {{s}}</a><br/>
+{% endfor %}
+  
 </div>
 
 
 <hr/>
 <div id="send_tip" style="display:none">
 <input type="text" id="tip_input" value="0.0"> <a href="#" onclick="send_tip({{order.id}});">tip</a>
+</div>
+
+<hr/>
+<div id="send_user_name" style="display:none">
+Your name <input type="text" id="user_name_input" value=""> <a href="#" onclick="send_user_name({{order.id}});">send</a>
 </div>
 
 
