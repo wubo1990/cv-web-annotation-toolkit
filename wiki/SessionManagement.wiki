@@ -1,0 +1,51 @@
+#summary Session operations
+#labels Doc-Userguide
+
+= Introduction =
+
+Session is a collection of tasks that we want to complete. 
+
+= Details =
+
+== Creating a new session ==
+
+In the admin interface, specify the following:
+ * Session code (no underscores, please).
+ * Task definition
+ * Funding source (Who pays)
+ * Hit Limit (How many hits are allowed maximum)
+ * Task execution engine:
+   * Standalone (no connection to MTurk)
+   * Mturk sandbox (check "sandbox", *default*)
+   * Mturk production (uncheck "sandbox")
+
+
+
+
+== Creating new session in a program ==
+
+You can create a new session as a copy of the existing session. Go to the following URL:
+
+{{{/mt/copy_session/<from>/<to>/}}}
+
+For example:
+
+{{{http://vm7.willowgarage.com/mt/copy_session/gt-chowder-can-s/gt-chowder-can-copy-s/}}}
+
+The response is either {{{"+ <session number>"}}} or {{{"- <session number> Already exists"}}}.
+
+To get this done automatically, you can use:
+ * Shell: {{{wget <url>}}} in shell
+ * Matlab: {{{urlread(<url>) }}}
+ * Python: 
+    {{{ 
+  import urllib2
+  try:
+        print url
+        fp = urllib2.urlopen(url)
+        response = fp.read()              
+
+  except urllib2.URLError, reason:
+        print reason
+        return None
+    }}}
