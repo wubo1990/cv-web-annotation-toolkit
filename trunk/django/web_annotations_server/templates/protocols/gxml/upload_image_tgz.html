@@ -1,0 +1,24 @@
+{% extends 'evaluation/base_app.html' %}
+
+{% block content %}
+Please upload image tar file. The file should be a .tgz: compressed tar with extension <b>.tgz</b>. There should be exactly one directory inside it. The images should be there. It doesn't matter what the directory name is. Only <b>JPEG(.jpg)</b> images are supported right now.<br/>
+
+{% if form.is_multipart %}
+    <form enctype="multipart/form-data" method="post" action="">
+{% else %}
+    <form method="post" action="">
+{% endif %}
+<table>
+ {% for field in form %}
+ <tr><td>
+            {{ field.label_tag }}</td><td>
+	    {{ field }}</td><td>
+            {{ field.errors }}</td>
+</tr>
+    {% endfor %}
+<tr><td colspan=3 align="center">
+    <input type="submit" value="Upload tar file" /></td></tr>
+</table>	  
+</form>
+
+{% endblock %}

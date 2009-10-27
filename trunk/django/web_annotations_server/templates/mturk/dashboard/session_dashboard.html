@@ -47,7 +47,12 @@ Submissions: Total {{session.submittedtask_set.count}}. Approved {{stats.submiss
 {% endif %}<br/>
 Internally: <a href="/mt/session_hits/{{session.code}}/0/">All</a> || 
 <a href="/mt/session_hits/{{session.code}}/1/">New</a> | <a href="/mt/session_hits/{{session.code}}/2/">Submitted</a>
+<br/>
+<br/>
+<a href="/mt/expire_session_hits/{{session.code}}/">Expire all outstanding hits from this session</a>.
+
 <hr/>
+
 <h2>Grading</h2>
 
 Local:<br/>
@@ -151,7 +156,34 @@ Std time :{{stats.timing.std}}<br/>
 {% switch session.task_def.type.name %}
     {% case "video_events" %} <a href="/mt/p/video_events/upload/{{session.code}}/video/">Single video</a> {% endcase %}
     {% case "gxml" %}
-<a href="/mt/p/gxml/upload/{{session.code}}/image/">Single image</a>
+<a href="/mt/p/gxml/upload/{{session.code}}/image/">Single image</a><br/>
+<a href="/mt/p/gxml/upload/{{session.code}}/image_tgz/">Single folder with jpeg images</a>. (smth.tgz with my_folder/abc*.jpg)
+
+    {% endcase %}
+    {% case 2 %} Evaluation in progress{% endcase %}
+    {% case 3 %} Evaluation completed successfully{% endcase %}
+    {% case 4 %} Evaluation failed {% endcase %}
+{% endswitch %}
+
+
+
+<h2>Download</h2>
+{% switch session.task_def.type.name %}
+    {% case "video_events" %} {% endcase %}
+    {% case "gxml" %}
+<a href="/mt/p/gxml/create_download/{{session.code}}/pack/">Create standard pack (images,xml,png masks).</a><br/>
+<ul>
+{% for fn in session.list_downloads.pack %}
+<li><a href="/mt/download/{{session.code}}/pack/{{fn}}">{{fn}}</a></li>
+{% endfor %}
+</ul>
+
+<a href="/mt/p/gxml/create_download/{{session.code}}/xml_masks/">Create xml+masks (no images).</a><br/>
+<ul>
+{% for fn in session.list_downloads.xml_and_masks %}
+<li><a href="/mt/download/{{session.code}}/xml_and_masks/{{fn}}">{{fn}}</a></li>
+{% endfor %}
+</ul>
 
     {% endcase %}
     {% case 2 %} Evaluation in progress{% endcase %}

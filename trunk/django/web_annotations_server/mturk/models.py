@@ -141,6 +141,17 @@ class Session(models.Model):
 	def num_submissions(self):
 		return self.submittedtask_set.count();
 
+	def list_downloads(self):
+		res={};
+		download_rt=os.path.join(settings.DATASETS_ROOT,'downloads',self.code)
+		if not os.path.exists(download_rt):
+			return res
+		for d in os.listdir(download_rt):
+			dirs=os.listdir(os.path.join(download_rt,d));
+			valid_files=filter(lambda s:s.endswith('.tgz'),dirs);
+			res[d]=valid_files;
+		return res
+
 
 HIT_STATE = (
             (1, 'New'),
@@ -159,7 +170,6 @@ class MTHit(models.Model):
 	int_hitid=models.TextField();
 	parameters=models.TextField();
 	submitted = models.DateTimeField(auto_now_add=True);
-
 
 	state=models.IntegerField(choices=HIT_STATE,default=1);
 
@@ -230,7 +240,8 @@ class SubmittedTask(models.Model):
 	assignment_id = models.TextField(); 
 
 	response = models.TextField();
-	#started    = models.DateTimeField(null=True,blank=True);
+
+	started    = models.DateTimeField(null=True,blank=True);
 	submitted = models.DateTimeField(auto_now_add=True);
 
 	shapes = None;

@@ -4,7 +4,8 @@ import os
 
 DEBUG = True
 if "DJANGO_IN_APACHE" in os.environ:
-	DEBUG = False
+	#DEBUG = False
+	pass
 
 
 
@@ -57,7 +58,7 @@ TIME_ZONE = 'America/Chicago'
 LANGUAGE_CODE = 'en-us'
 
 SITE_ID = 1
-SITE_NAME = 'vision-app1.cs.uiuc.edu'
+SITE_NAME = 'vm7.willowgarage.com'
 
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
@@ -134,12 +135,12 @@ INSTALLED_APPS = (
     'web_annotations_server.image_collector',
 
     'web_annotations_server.cv_models',
-    'web_annotations_server.state_machine',	
+    #'web_annotations_server.state_machine',	
 )
 
 ACCOUNT_ACTIVATION_DAYS=4
 
-HOST_NAME_FOR_MTURK="http://vision-app1.cs.uiuc.edu:443/"
+HOST_NAME_FOR_MTURK="http://vm7.willowgarage.com/"
 
 MTURK_BLOCK_WORKER_MIN_UTILITY=30
 
@@ -151,8 +152,8 @@ NUM_HITS_PER_PAGE = 20
 VOC_DEV_KIT='/home/sorokin2/voc_data/VOCdevkit'
 MCR_ROOT='/opt/MATLAB/MATLAB_Compiler_Runtime/v79'
 
-LEARNING_DS_ROOT='/var/django/learning_datasets'
-MODEL_STORE_ROOT='/var/django/model_store'
+LEARNING_DS_ROOT='/var/django2/learning_datasets'
+MODEL_STORE_ROOT='/var/django2/model_store'
 
-WEBMENU_ROOT = '/var/django/web_menu/'
+WEBMENU_ROOT = '/var/django2/web_menu/'
 
