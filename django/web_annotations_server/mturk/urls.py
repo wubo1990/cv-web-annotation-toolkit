@@ -1,4 +1,7 @@
 from django.conf.urls.defaults import *
+from django.conf import settings
+
+import os
 
 import views
 import dashboard.views
@@ -104,6 +107,8 @@ urlpatterns = patterns('',
 
     (r'^session_good_results_list/(?P<session_code>[\w\-]+)/$', 'mturk.views.get_session_good_results'),
 
+    (r'^reject_worker_all/(?P<worker_id>[\w\-]+)/$', 'mturk.views.reject_worker_all'),
+
     (r'^reject_poor_results/(?P<session_code>[\w\-]+)/$', 'mturk.views.reject_poor_results'),
     (r'^approve_good_results/(?P<session_code>[\w\-]+)/$', 'mturk.views.approve_good_results'),
     (r'^approve_all_results/(?P<session_code>[\w\-]+)/$', 'mturk.views.approve_all_results'),
@@ -124,6 +129,9 @@ urlpatterns = patterns('',
 
     (r'^p/video_events/', include('mturk.protocols.video_events.urls')),
     (r'^p/gxml/', include('mturk.protocols.gxml.urls')),
+
+
+    (r'^download/(?P<path>.*)$', 'django.views.static.serve', {'document_root': os.path.join(settings.DATASETS_ROOT,'downloads')}),
 
 #    (r'^rospublishers/$', 'mturk.views.get_ros_publishers'),
 );

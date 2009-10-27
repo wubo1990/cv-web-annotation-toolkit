@@ -118,6 +118,8 @@ def submit_result(request):
 
     print request.POST;
 
+
+
     task_id=request.REQUEST['extid']
     task = get_object_or_404(MTHit,ext_hitid=task_id)
 
@@ -139,9 +141,24 @@ def submit_result(request):
     submission=SubmittedTask(hit=hit,session_id=session.id,worker=workerId,assignment_id=assignmentId, response=postS);
     submission.save();
 
+
+    if hitId in request.REQUEST:
+        mturk_hit_id=request.REQUEST['hitId']
+        try:
+            mthit=MechTurkHit.object.get(mechturk_hit_id);
+        except:
+            mthit=None;
+        if mthit:
+            mthit.state=2; #Review
+            mthit.save();
+
     session.task_def.type.get_engine().on_submit(submission);
     task.state=2; #Submitted
     task.save()
+
+
+
+
     if ros_sender:
         print "Sending results"
 
@@ -859,9 +876,16 @@ def submit_redo_HITs(request,session_code):
             session.save();
         else:
             create_hit_rs = conn.create_hit(question=q, hit_type=session.hit_type);
+        print dir(create_hit_rs)
+
         print "Hit",hit.id ,"is submitted"
         hit.state=6;
         hit.save();
+
+        mt_hit_id=create_hit_rs.HITId
+        mthit=MechTurkHit(session=session,mthit=hit,state=1,mechturk_hit_id=mt_hit_id); #state=Active
+        mthit.save();
+
         #print create_hit_rs
         #postS=pickler.dumps(create_hit_rs)
         #print postS
@@ -1048,8 +1072,13 @@ def add_hit_to_session(session,params):
         print create_hit_rs
         print create_hit_rs.HITId
 
-    hit.mt_hitid=create_hit_rs.HITId
+    #hit.mt_hitid=create_hit_rs.HITId
     hit.save()
+
+    mt_hit_id=create_hit_rs.HITId
+    mthit=MechTurkHit(session=session,mthit=hit,state=1,mechturk_hit_id=mt_hit_id);
+    mthit.save();
+
     return (True,"%s" % hit.ext_hitid)
 
 
@@ -1096,8 +1125,13 @@ def activate_hit(session,hit):
         print create_hit_rs
         print create_hit_rs.HITId
 
-    hit.mt_hitid=create_hit_rs.HITId
+    #hit.mt_hitid=create_hit_rs.HITId
     hit.save()
+
+    mt_hit_id=create_hit_rs.HITId
+    mthit=MechTurkHit(session=session,mthit=hit,state=1,mechturk_hit_id=mt_hit_id);
+    mthit.save();
+
     return (True,"%s" % hit.ext_hitid)
 
 
@@ -1211,6 +1245,8 @@ def reject_poor_results(request,session_code):
 		grade=None
 		feedback="";
 		for g in r.manualgraderecord_set.all():
+                    if not g.valid:
+                        continue
                     if grade:
 			if grade>g.quality:
                             grade=g.quality;
@@ -1378,6 +1414,15 @@ def deactivate_grade_record(request,grade_id):
     grade_record.save()
     return HttpResponse("done")
 
+
+
+
+def expire_hit(conn,hit_id):
+    params = {'HITId' : hit_id,}
+    
+    return conn._process_request('ExtendHIT', params)
+
+
 @login_required
 def expire_session_hits(request,session_code):
     session = get_object_or_404(Session,code=session_code);
@@ -1389,13 +1434,20 @@ def expire_session_hits(request,session_code):
         
     conn = MTurkConnection(host=awshost,aws_secret_access_key=session.funding.secret_key,aws_access_key_id=session.funding.access_key)
 
-    hits=session.mthit_set.all()[0:10]
-    strAns=""
+    hits=session.mechturkhit_set.all()
+    
+    num_skipped =0;
+    num_affected=0;
     for h in hits:
-        print h
-        
+        if h.state==1:
+            expire_hit(conn,h.mechturk_hit_id)
+            h.state=5.
+            h.save()
+            num_affected+=1;
+        else:
+            num_skipped +=1;
 
-    return HttpResponse(strAns)
+    return HttpResponse("+ affected %d, skipped %d"%( num_affected, num_skipped))
 
 
 
@@ -1475,5 +1527,73 @@ def create_qualifications(request):
     return render_to_response('mturk/internal_qual_report.html',
                               {'results':results});
 
+
+
+
+def get_session_context(connections,session):
+    if session.code in connections:
+        return connections[session.code];
+
+    if session.sandbox:
+        awshost='mechanicalturk.sandbox.amazonaws.com'
+    else:
+        awshost='mechanicalturk.amazonaws.com'
+        
+    conn = MTurkConnection(host=awshost,aws_secret_access_key=session.funding.secret_key,aws_access_key_id=session.funding.access_key)
+    te=session.task_def.type.get_engine();
+
+    ctx=(conn,te);
+    connections[session.code]=ctx
+
+    return ctx
+
+@login_required
+def reject_worker_all(request,worker_id):
+    feedback=request.REQUEST['reason']
+    grade_value=3;
+
+    (grader,created)=Worker.objects.get_or_create(worker=request.user.username)
+
+    session_ctx={};
+
+    rejection_counts={};
+    results=SubmittedTask.objects.filter(worker=worker_id).exclude(state=4).exclude(state=3);
+
+    strAns="assignmentIdToReject\tassignmentIdToRejectComment<br/>";
+    for r in results:
+        if r.session.owner != request.user:
+            continue
+
+        g=ManualGradeRecord(submission=r,quality=grade_value,feedback=feedback,worker=grader)
+        g.save();
+
+        (conn,te)=get_session_context(session_ctx,r.session);
+        try:
+            resp = conn.reject_assignment(r.assignment_id,feedback)
+            r.valid=False;
+            r.state=4;
+            r.final_grade=str(grade_value);
+            r.save()
+            te.on_deactivate(r);
+            
+            r.hit.state=5; # Open
+            r.hit.save();
+            #print resp
+            strAns=strAns+'Rejected: %s\t"%s"<br/>'% (r.assignment_id,feedback)
+            if r.session.code in rejection_counts:
+                rejection_counts[r.session.code] = rejection_counts[r.session.code]+1
+            else:
+                rejection_counts[r.session.code] = 1
+
+        except Exception,e:
+            strAns=strAns+'Reject FAILED: %s\t"%s" : %s <br/>'% (r.assignment_id,feedback,str(e))
+
+    strAns=""
+    total=0;
+    for (s,c) in rejection_counts.items():
+        strAns+="rejected %d submissions from session %s<br/>" %( c,s )
+        total+=c;
+    strAns += "<hr/>rejected %d submissions total" % total
+    return HttpResponse(strAns)
 
 

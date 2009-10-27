@@ -1,6 +1,26 @@
 {% extends "admin/base.html" %}
 {% load time_extras %}
 
+{% block extrahead %}<script src="/code/js/prototype.js"></script>
+
+<script>
+var run_block=function( worker )
+{
+      new Ajax.Updater('block_tgt_'+worker, '/mt/ban_worker/'+worker+'/', {
+          });
+}
+
+var run_reject=function( worker ,reason)
+{
+      new Ajax.Updater('reject_tgt_'+worker, '/mt/reject_worker_all/'+worker+'/', {
+               parameters:{'reason':reason}
+          });
+}
+
+</script>
+
+{% endblock %}
+
 {% block title %}{{worker.worker}}:worker internal dashboard{% endblock %}
 
 {% block branding %}
@@ -16,16 +36,30 @@ Total submissions: {{stats.num_submissions}}<br/>
 Invalid submissions: {{stats.num_invalid}}<br/>
 <hr>
 Grading results:<br/>
-bad:{{stats.total_grades.num_bad}}<br/>
-with errors:{{stats.total_grades.num_ok}}<br/>
-good:{{stats.total_grades.num_good}}<br/>
+<table>
+<tr><th>grade</th><th>count</th></tr>
+<tr><td>bad</td><td>{{stats.total_grades.num_bad}}</td></tr>
+<tr><td>with errors</td><td>{{stats.total_grades.num_ok}}</td></tr>
+<tr><td>good</td><td>{{stats.total_grades.num_good}}</td></tr>
+<tr><th>ungraded</th><td>{{stats.total_grades.num_ungraded}}</td>
+</table>
 <hr/>
-ungraded:{{stats.total_grades.num_ungraded}}<br/>
+
 
 <table>
 <tr><th>session</th><th>count</th></tr>
 {% for contribution in contributions %}
-<tr><td>{{contribution.session}}</td><td>{{contribution.count}}</td></tr>
+<tr><td>{{contribution.session}}</td><td>{{contribution.count}}</td><td><a href="/mt/grading/by_worker/{{contribution.session}}/{{worker.worker}}/p1/">grade</a></td></tr>
 {% endfor %}
 </table>
+
+
+<h2>Actions</h2>
+
+<div id='block_tgt_{{worker.worker}}'><a href='#' onclick="run_block('{{worker.worker}}');return false">ban</a></div>
+<hr/>
+Rejection comment: <div id='reject_tgt_{{worker.worker}}'><input id="rej_comment" name="rej_comment" value="You have consistently bad performance." size="80"><br/><a href='#' onclick="run_reject('{{worker.worker}}',$F('rej_comment'));return false">reject all user assignments</a></div>
+<hr/>
+
+
 {% endblock %}
