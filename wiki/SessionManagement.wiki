@@ -3,7 +3,7 @@
 
 = Introduction =
 
-Session is a collection of tasks that we want to complete. The normal work flow is that:
+Session is a collection of tasks that we want to complete. The usual work flow is similar to this:
  # Create a session
  # Submit images (or other data) to the session
  # Wait for the work to complete
