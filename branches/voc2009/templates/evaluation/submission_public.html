@@ -1,0 +1,20 @@
+{% extends 'evaluation/base_app.html' %}
+{% load switchcase %}
+
+{% block content %}
+
+<hr/>
+<table>
+    <tr><td>
+      <b>Method:</b></td><td>{{submission.method}}</td></tr>
+    <tr><td>
+      <b>Title:</b></td><td>{{submission.title}}</td></tr>
+    <tr><td><b>Description:</b></td><td>{{submission.description}}</td></tr>
+    <tr><td><b>Contributors:</b></td><td>{{submission.contributors}}</td></tr>
+    <tr><td><b>Affiliation:</b></td><td>{{submission.affiliation}}</td></tr>
+    <tr><td><b>Contact person:</b></td><td>{{submission.contact_person}}</td></tr>
+
+</table>
+
+{% endblock %}
+

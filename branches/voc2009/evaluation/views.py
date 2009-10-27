@@ -5,16 +5,22 @@ import shutil,os,sys
 from django.http import Http404
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response,get_object_or_404
+from django.template.loader import render_to_string
 from django.core.files.storage import FileSystemStorage
 from forms import UploadSubmissionForm
 from models import *
 from django.views.generic.simple import redirect_to
 
 
+from django.conf import settings
+
 def main(request):
 	if not request.user:
 		return login_required(request);
 	return render_to_response('evaluation/main.html',{'user':request.user})
+
+
+
 
 
 
@@ -39,7 +45,6 @@ def upload_submission(request):
 
 
 
-
 def do_upload_submission(request,form,uploaded_file):
 	
 	user = request.user;
@@ -50,6 +55,9 @@ def do_upload_submission(request,form,uploaded_file):
 	submission=Submission(title=form.cleaned_data['title'],
 			      method=form.cleaned_data['method'],
                               description=form.cleaned_data['description'],
+                              contact_person=form.cleaned_data['contact_person'],
+                              affiliation=form.cleaned_data['affiliation'],
+                              contributors=form.cleaned_data['contributors'],
                               owner=request.user,
                               to_challenge = challenge,
                               to_challenge_state=challenge.state,
@@ -101,6 +109,8 @@ def do_upload_submission(request,form,uploaded_file):
 
 		if os.path.exists(report_filename+'.error'):
 			submission.state = 4
+			notify_on_submission_failure(submission, "format check produced an error");
+
 		elif os.path.exists(report_filename+'.final_score'):
 			try:
 				score=open(report_filename+'.final_score','r').readlines()[0];
@@ -108,6 +118,7 @@ def do_upload_submission(request,form,uploaded_file):
 				submission.state = 3
 			except:
 				submission.state = 4                            
+				notify_on_submission_failure(submission, "exception when reading the score");
 		else:
 			submission.state = 2
             
@@ -127,6 +138,7 @@ def do_upload_submission(request,form,uploaded_file):
 		rpt.save();
 		submission.state = 4                            
 		submission.save()
+		notify_on_submission_failure(submission, "exception when running format check");
 
 	
         return redirect_to(request,"/eval/view_submission/%d/" % (submission.id),permanent=False);                
@@ -212,3 +224,55 @@ def show_submission(request,submission_id):
     print messages
     return render_to_response('evaluation/submission.html',
 			      {'submission':submission,'rpt':rpt,'err_rpt':err_rpt,'user':request.user,'submission_messages':messages});
+
+
+
+
+def show_submission_public(request,submission_id):
+    submission = get_object_or_404(Submission,id=submission_id);
+    return render_to_response('evaluation/submission_public.html',
+			      {'submission':submission})
+
+
+def competition_results(request,challenge_name,competition_name):
+	challenge = get_object_or_404(Challenge,name=challenge_name);	
+	submissions=Submission.objects.filter(to_challenge=challenge,state=5).all();
+	relevant_submissions=[];
+	relevant_submission_scores=[];
+	all_scores={};
+	all_categories={};
+	best_scores={};
+	for s in submissions:
+		scores=s.submissionscore_set.filter(competition=competition_name).all();
+		if len(scores)==0:
+			continue
+		relevant_submissions.append(s);
+		for one_score in scores:
+			if one_score.category != one_score.competition:
+				all_categories[one_score.category]=1;
+			all_scores[(s.id,one_score.category)]=one_score.score;
+			best_score=best_scores.get(one_score.category,-1);
+			if one_score.score>best_score:
+				best_scores[one_score.category]=one_score.score
+
+	
+	all_categories=all_categories.keys()
+	all_categories.sort()
+
+	for s in relevant_submissions:
+		scores=[]
+		n_wins=0;
+		for c in all_categories:
+			sv=all_scores.get( (s.id,c),0);
+			if sv==best_scores[c]:
+				is_winner=1;
+			else:
+				is_winner=0;
+			scores.append((sv,is_winner));
+			n_wins += is_winner;
+
+		relevant_submission_scores.append({'submission':s,'scores':scores,'n_wins':n_wins});
+	print relevant_submission_scores
+	return render_to_response('evaluation/competition_results.html',
+				  {'relevant_submissions':relevant_submissions,'categories':all_categories,'scores':relevant_submission_scores,'competition':competition_name});
+

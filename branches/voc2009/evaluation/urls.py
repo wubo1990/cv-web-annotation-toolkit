@@ -17,5 +17,10 @@ urlpatterns = patterns('',
     (r'^my_submissions/(?P<challenge_name>[\w\-]+)/$', 'evaluation.views.show_my_submissions'),
     (r'^view_submission/(?P<submission_id>[\w\-]+)/$', 'evaluation.views.show_submission'),
 
+    (r'^submission/(?P<submission_id>[\w\-]+)/$', 'evaluation.views.show_submission_public'),
+
+
+    (r'^competition_results/(?P<challenge_name>[\w\-]+)/(?P<competition_name>[\w\-]+)/$', 'evaluation.views.competition_results'),
+
 
 )

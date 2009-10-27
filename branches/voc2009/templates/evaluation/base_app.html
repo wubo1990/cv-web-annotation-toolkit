@@ -4,9 +4,12 @@
 {% block title %}{{ title }} {% trans 'Pascal VOC Challenge 2009. Performance evaluation server' %}{% endblock %}
 
 {% block branding %}
+
 <h1 id="site-name">{% trans 'Pascal VOC Challenge 2009. Performance evaluation server' %}</h1>
 {% endblock %}
-
+{% block logo-icon %}
+<img src="/code/images/pascal2.png" />
+{% endblock %}
 {% block nav-global %}
 {% if user %} 
 {% if user.is_anonymous %}

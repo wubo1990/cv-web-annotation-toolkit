@@ -24,8 +24,8 @@ def writeMessage(report,msg):
 
 
 
-def run_evaluation():
-	submissions=Submission.objects.filter(state=2);
+def run_update():
+	submissions=Submission.objects.filter(state=5);
 	#submissions=Submission.objects.filter(id=44);
 	for s in submissions:
             try:
@@ -40,6 +40,31 @@ def run_evaluation():
 		report=os.path.join(submission_rt,'report.txt' );
 			
 		challenges_file=os.path.join(submission_input_rt,'challenges.txt')
+
+		challenges = open(challenges_file,'r').readlines();
+		for c in challenges:
+			c=int(c.strip())
+                        if c==0:
+                            continue
+			print c
+                        competition="comp%d" % c
+                        f_results=open(submission_rt + "comp%d_report.txt.score" % c,'r')
+                        for score_line in f_results.readlines():
+                            (str_score,category)=score_line.strip().split(' ');
+                            try:
+                                score_rcd = SubmissionScore.objects.get(submission=s,competition=competition,category=category);
+                                if float(str_score) != float(score_rcd.score):
+                                    print "Scores differ"
+                                    print score_rcd.score,str_score,float(str_score) - float(score_rcd.score)
+                            except SubmissionScore.DoesNotExist:
+                                print "Saving score"
+                                score_rcd=SubmissionScore(submission=s,competition=competition,category=category)
+                                score_rcd.score=str_score
+                                score_rcd.save();
+
+
+                continue
+
 		if not os.path.exists(challenges_file):
 			msg="Missing challenges.txt. Most likely the submission is old. Please resubmit results. "
 			writeError(report,msg)
@@ -50,7 +75,7 @@ def run_evaluation():
 			continue
 
 		hasError=False
-		challenges = open(challenges_file,'r').readlines();
+
 		scores_report_filename=os.path.join(submission_rt,'report.txt.score');
 		final_scores_report_filename=os.path.join(submission_rt,'report.txt.final_score');
 		scores_file=open(scores_report_filename,'w');
@@ -163,18 +188,9 @@ def run_evaluation():
             #    s.state=4;
             #    s.save();
 
-def run_evaluation_cycle():
-    while True:
-        try:
-            run_evaluation();
-        except str:
-            print "err"
-        #except:
-        #    print "Mysterious error while running all evaluations"            
-        time.sleep(5)
-        print time.localtime()
+
 
 if __name__=="__main__":
     if len(sys.argv)>1:
         VOCdevkit=sys.argv[1];
-    run_evaluation_cycle();
+    run_update();
