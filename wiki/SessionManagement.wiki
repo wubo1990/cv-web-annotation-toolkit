@@ -3,7 +3,23 @@
 
 = Introduction =
 
-Session is a collection of tasks that we want to complete. 
+Session is a collection of tasks that we want to complete. The normal work flow is that:
+ # Create a session
+ # Submit images (or other data) to the session
+ # Wait for the work to complete
+ # Perform grading 
+   * Manually
+   * Via Turk
+   * Automatically
+ # Adjudicate grades
+ # Approve/Reject submissions
+ # Request more work (for tasks with unsatisfactory results)
+   * Resubmit HITs that don't have a good result
+   * Repeat steps above
+ # Download session results:
+   * Through cv_mech_turk package in ROS
+   * Through "download" section on the session dashboard.
+
 
 = Details =
 
