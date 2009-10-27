@@ -18,13 +18,24 @@
     {% if not is_popup %}
     <!-- Header -->
     <div id="header">
+<table><tr><td style="vertical-align:bottom">
         <div id="branding">
         {% block branding %}{% endblock %}
         </div>
+</td>
+<td rowspan="2">
+{% block logo-icon %}
+{% endblock %}
+</td></tr>
+<tr><td style="vertical-align:bottom">
         {% if user.is_authenticated and user.is_staff %}
-        <div id="user-tools">{% trans 'Welcome,' %} <strong>{% firstof user.first_name user.username %}</strong>. {% block userlinks %}{% url django-admindocs-docroot as docsroot %}{% if docsroot %}<a href="{{ docsroot }}">{% trans 'Documentation' %}</a> / {% endif %}<a href="{{ root_path }}password_change/">{% trans 'Change password' %}</a> / <a href="{{ root_path }}logout/">{% trans 'Log out' %}</a>{% endblock %}</div>
+{% comment %}
+        <div id="user-tools">{% trans 'Welcome,' %} <strong>{% firstof user.first_name user.username %}</strong>. {% block userlinks %}{% url django-admindocs-docroot as docsroot %}{% if docsroot %}<a href="{{ docsroot }}">{% trans 'Documentation' %}</a> / {% endif %}<a href="{{ root_path }}password_change/">{% trans 'Change password' %}</a> / <a href="{{ root_path }}logout/">{% trans 'Log out' %}</a>{% endblock %}</div> 
+
+{% endcomment %}
         {% endif %}
         {% block nav-global %}{% endblock %}
+</td></tr></table>
     </div>
     <!-- END Header -->
     {% block breadcrumbs %}<div class="breadcrumbs"><a href="/">{% trans 'Home' %}</a>{% if title %} &rsaquo; {{ title }}{% endif %}</div>{% endblock %}

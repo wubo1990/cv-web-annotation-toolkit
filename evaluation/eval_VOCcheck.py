@@ -26,24 +26,24 @@ def writeError(report,msg):
     fError.close()
 
 def check_classifications_format(filename,err_fcn):
-    pattern = re.compile("^([^\ \t]+)([ \t]+)([\-\.1234567890]+)\n$")
+    pattern = re.compile("^([^\ \t]+)([ \t]+)([\-\.1234567890eE\+]+)(\r\n|\n)$")
 
     f=open(filename,'r');
     for i,l in enumerate(f.readlines()):
         if not pattern.match(l):
-            err_fcn("Detections file has wrong format. Expected <image> <confidence>")
+            err_fcn("Detections file %s has wrong format at line %d . Expected <image> <confidence>" % (filename,i) )
             return False
     return True
     
 def check_detections_format(filename,err_fcn):
-    N="([\-\.1234567890]+)"
+    N="([\-\.1234567890eE\+]+)"
     S="([ \t]+)"
-    pattern = re.compile("^([^\ \t]+)" + S + N + S + N + S + N + S + N + S + N + "\n$")
+    pattern = re.compile("^([^\ \t]+)" + S + N + S + N + S + N + S + N + S + N + "(\r\n|\n)$")
 
     f=open(filename,'r');
     for i,l in enumerate(f.readlines()):
         if not pattern.match(l):
-            err_fcn("Detections file has wrong format. Expected <image> <confidence> <left> <top> <width> <height>")
+            err_fcn("Detections file %s has wrong format at line %d. Expected <image> <confidence> <left> <top> <width> <height>" % (filename,i) )
             return False
     return True
 
@@ -114,6 +114,10 @@ def main(argv):
 
     if hasError:
         return
+
+    md5str=os.popen("md5sum %s" % submission).readlines()[0]
+    md5str=md5str.split(' ')[0]
+    print >>fReport,"\tSubmission MD5 sum is: %s" % md5str
 
     results_dir=os.path.join(work_root,'results');
     if not os.path.exists(results_dir):

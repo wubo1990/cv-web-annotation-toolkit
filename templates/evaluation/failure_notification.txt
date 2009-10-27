@@ -1,0 +1,5 @@
+Submission failed:
+ID: {{submission.id}} 
+Context: {{failure_context}}
+
+URL: http://vch.cs.uiuc.edu/eval/view_submission/{{submission.id}}/

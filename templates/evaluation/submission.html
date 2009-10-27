@@ -12,15 +12,19 @@ Submission {{submission.id}} ({{submission.title}}) by {{user.username}} to {{su
     <tr><td>
       <b>Title:</b></td><td>{{submission.title}}</td></tr>
     <tr><td><b>Description:</b></td><td>{{submission.description}}</td></tr>
+    <tr><td><b>Contact person:</b></td><td>{{submission.contact_person}}</td></tr>
+    <tr><td><b>Affiliation:</b></td><td>{{submission.affiliation}}</td></tr>
+    <tr><td><b>Contributors:</b></td><td>{{submission.contributors}}</td></tr>
 </table>
 <hr/>
 <h2>Status</h2>
 
+{{s.get_state_display}}
 {% switch submission.state %}
-    {% case 1 %} New {% endcase %}
-    {% case 2 %} Evaluation in progress{% endcase %}
-    {% case 3 %} Evaluation completed successfully{% endcase %}
-    {% case 4 %} Evaluation failed {% endcase %}
+    {% case 4 %} <b>Evaluation failed.</b><br/>
+Please check the error messages below and correct your submission if possible. <br/> 
+If the error message seems too cryptic or you don't know what you need to correct, please e-mail the contact for more information (see below). Please use [VOC2009] in the title and copy the URL of this page in your e-mail. Thank you.
+ {% endcase %}
 {% endswitch %}
 
 <hr/>

@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+from django.core.mail import send_mail,mail_admins
+from django.template.loader import render_to_string
 # Create your models here.
 
 
@@ -47,15 +48,27 @@ def get_best_submissions(challenge):
     
 SUBMISSION_STATE = (
             (1, 'New'),
-            (2, 'Eval-in progress'),
-            (3, 'Eval done'),
-            (4, 'Eval failed'),
+            (2, 'Evaluation in progress'),
+            (3, 'Evaluation completed successfully'),
+            (4, 'Evaluation failed'),
+            (5, 'In competition'),
+            (100, 'Overriden'),
+            (101, 'Hidden'),
+            (102, 'Disabled'),
+
         )        
 
 class Submission(models.Model):
-    title=models.SlugField();
+    title=models.TextField();
     method=models.TextField();
+    contact_person=models.TextField();
+    affiliation=models.TextField();
+    contributors=models.TextField();
+
     description=models.TextField();
+
+
+
     owner=models.ForeignKey(User);
     is_public=models.BooleanField(default=False);
 
@@ -63,7 +76,7 @@ class Submission(models.Model):
     to_challenge_state=models.IntegerField(choices=CHALLENGE_STATE);
 
     state=models.IntegerField(choices=SUBMISSION_STATE,default=1);
-    score=models.DecimalField(max_digits=5,decimal_places=4,
+    score=models.DecimalField(max_digits=15,decimal_places=5,
                               default=0.0,
                               help_text="Submission score in the challenge.");
     
@@ -75,9 +88,10 @@ class Submission(models.Model):
         return submissionscores_set.order_by('category')
 
 class SubmissionScore(models.Model):
-    score=models.DecimalField(max_digits=5,decimal_places=4,
+    score=models.DecimalField(max_digits=15,decimal_places=5,
                               default=0.0,
                               help_text="Submission score in the challenge.");
+    competition=models.TextField();
     category=models.TextField();
     submission=models.ForeignKey(Submission);
 
@@ -85,3 +99,11 @@ class Report(models.Model):
     text=models.TextField();
     when = models.DateTimeField(auto_now_add=True);
     submission=models.ForeignKey(Submission);
+
+
+
+def notify_on_submission_failure(submission, failure_context):
+    print "NOTIFY ON FAILURE"
+    mail_admins('Submission failed: %s ' % failure_context, 
+                render_to_string('evaluation/failure_notification.txt',{'submission':submission,'failure_context':failure_context}),
+                fail_silently=False);
