@@ -10,6 +10,9 @@
    * Flash image annotation toolkit (flash tool *label_generic*)
    * Command line toolkit wrappers for Mechanical Turk (standalone tools)
 
+= Common topics = 
+  * DjangoServerInstallationGuide tell how to install the server and get it running.
+
 = Mech Turk server =
   * AnnotationTaskDesign defines the XML-based language to configure the flash user interface.
 
