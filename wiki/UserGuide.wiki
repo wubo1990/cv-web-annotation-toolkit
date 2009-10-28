@@ -5,7 +5,7 @@
 
  The web framework consists of different django applications and standalone components:
    * Mech Turk server (app *mturk*)
-   * Evaluation server (app *evalution*)
+   * Competition server (app *evalution*)
    * Data storage server (app *datastore*)
    * Flash image annotation toolkit (flash tool *label_generic*)
    * Command line toolkit wrappers for Mechanical Turk (standalone tools)
@@ -13,11 +13,13 @@
 = Common topics = 
   * DjangoServerInstallationGuide tell how to install the server and get it running.
 
-= Mech Turk server =
+= Mech Turk app =
   * AnnotationTaskDesign defines the XML-based language to configure the flash user interface.
+  * GroupingTask is for placing object thumbnails into group bins.
 
 
-= Evaluation app =
+= Competition app =
+  * CompetitionServer gives an overview of what the evaluation server does.
   * SubmissionLimit describes how to set and change limits on the number of submissions.
   * EvaluationMiscFeatures describes numerous small features of the evaluation server
 
