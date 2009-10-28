@@ -25,4 +25,4 @@
   * AnnotationTaskDesign defines the XML-based language to configure the flash user interface.
 
 = Command line toolkit =
-  * MTurkCommandLineWrappers explains how to install and use the command line helper functions.
+  * [http://code.google.com/p/cv-web-annotation-toolkit/wiki/MTurkCommandLineWrappers MTurkCommandLineWrappers] explains how to install and use the command line helper functions.
