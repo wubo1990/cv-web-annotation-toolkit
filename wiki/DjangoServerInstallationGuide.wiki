@@ -1,31 +1,49 @@
 #summary Server installation guide.
+#labels Doc-Userguide
 
 = Introduction =
 
 This is a very rough installation guide. I hopefully lists all dependencies.
 
+= Prerequisites =
+
+ * mysql
+ * python 2.5
+ * PIL (python imaging library) for some image stuff 
+ * django 1.0.2
+ * boto (for Mechanical Turk integration)
+ * Install django-tagging  (for django 1.0.2)
+ * Install python-mysqldb 
+
+= Data locations = 
+
+Create these folders:
+
+ * {{{/var/datasets/}}} - images will be stored in {{{/var/datasets/<session_name>/}}} (can have internal folder structure) 
+ * {{{/var/datasets/tasks/}}}  - task definitions. (xml files for the annotation interface)
+ * {{{/var/datasets/segmentations/}}}  - compressed segmentations storage. The bitmaps are compressed with zlib and encoded into plain text (each byte goes to two chars: 4 bits are encoded with A-P, A=0, P=15).
+
+
+
 = Details =
 
- * Install Django 1.0.2
- * mysql
  * check out the code (web_annotations_server)
    * Put the code in /var/django
    * Create /var/datasets
 
- * create user and database for django. Write them to settings.py
- * Install django-tagging  (for django 1.0.2)
- * Install python-mysqldb 
+ * create user and database for django. Write them to settings.py. Grant all permissions to the created user on the specified database. 
+
  * Install django-registration
    * Install python-setuptools
    * Run easy_install django-registration
- * Install Boto (for Amazon MTurk access)
  * Install a local smtp server (to e-mail things from python)
  * Enable appropriate applications (mturk contains some templates used by other apps).
  * Run syncdb: {{{python manage.py syncdb}}}
 
- * Download required javascripts into web_annotations_server/mturk/code/js/:
+ * Download the required javascripts into web_annotations_server/mturk/code/js/:
    * [http://vm7.willowgarage.com/code/all_js.tgz all_js.tgz]
 
+ * Look into settings.py and set DJ_CODE_RT, DATASETS_ROOT
 
  * [optional] Run development server: {{{python manage.py runserver <host>:8080}}}
 
