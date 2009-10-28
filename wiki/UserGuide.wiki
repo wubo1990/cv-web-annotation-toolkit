@@ -1,0 +1,25 @@
+#summary Index of other documentation pages.
+#labels Doc-Userguide
+
+= Introduction =
+
+ The web framework consists of different django applications and standalone components:
+   * Mech Turk server (app *mturk*)
+   * Evaluation server (app *evalution*)
+   * Data storage server (app *datastore*)
+   * Flash image annotation toolkit (flash tool *label_generic*)
+   * Command line toolkit wrappers for Mechanical Turk (standalone tools)
+
+= Mech Turk server =
+  * AnnotationTaskDesign defines the XML-based language to configure the flash user interface.
+
+
+= Evaluation app =
+  * SubmissionLimit describes how to set and change limits on the number of submissions.
+  * EvaluationMiscFeatures describes numerous small features of the evaluation server
+
+= Flash image annotation toolkit =
+  * AnnotationTaskDesign defines the XML-based language to configure the flash user interface.
+
+= Command line toolkit =
+  * MTurkCommandLineWrappers explains how to install and use the command line helper functions.
