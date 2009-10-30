@@ -87,6 +87,7 @@ class TmpNode:
 
       msgO.delivery_location=str(order.delivery_location);
       msgO.object_approach_location=str(order.item.base_pose);
+      msgO.object_type=str(order.item.object_pose);
 
       #msgO.object_approach_pose = grab_base_pose
       

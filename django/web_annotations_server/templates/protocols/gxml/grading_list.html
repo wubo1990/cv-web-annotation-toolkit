@@ -127,12 +127,11 @@ Feedback:<textarea rows="5" cols="50" name="message_{{s.id}}"></textarea>
 </td>
 </tr>
 
-{% ifequal s.manualgraderecord_set.count 0 %} 
-{% else %}
+{% if s.is_graded %} 
 <script>
   set_display_mode({{s.id}},"graded");
 </script>
-{% endifequal %}
+{% endif %}
 {% endfor %}
 
 </table>

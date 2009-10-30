@@ -2,7 +2,10 @@
 
 {% block drinkchoice %}
 {% for item in menu.available_items %}
-<label><input type="radio" name="drinkchoice" value="{{item.id}}" /> {{item.metadata}}</label>
+<!--img src="/web_menu/images/{{item.menu.code}}/{{item.image_name}}" class="iFull" -->
+<label> 
+<input type="radio" name="drinkchoice" value="{{item.id}}" /> {{item.metadata}}</label>
+
 {% endfor %}
 
 {% endblock %}

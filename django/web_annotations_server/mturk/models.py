@@ -195,6 +195,8 @@ class MTHit(models.Model):
 		te=type.get_engine();
 		return te.get_thumbnail_url(self)
 
+
+
 MT_HIT_STATE = (
 	(1, 'Active'),
 	(2, 'Review'),
@@ -330,6 +332,12 @@ class SubmittedTask(models.Model):
 		return settings.HOST_NAME_FOR_MTURK+"mt/submission_data_xml/"+str(self.id)+"/"+self.hit.ext_hitid+"/";
 	def get_persistent_url2(self):
 		return "/mt/submission_data_xml/"+str(self.id)+"/"+self.hit.ext_hitid+"/";
+
+	def is_graded(self):
+		print "IS_GRADED?"
+		num_active_grades=self.manualgraderecord_set.filter(valid=True).count();
+		print num_active_grades
+		return num_active_grades>0;
 
 class Worker(models.Model):
 	session = models.ForeignKey(Session,null=True, blank=True);
