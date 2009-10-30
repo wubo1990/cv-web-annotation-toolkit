@@ -139,6 +139,20 @@ rosrun cv_mech_turk session_results.py --session={{session.code}}
 
 
 <hr/>
+<h2>Submission statistics</h2>
+Hits:
+<table>
+{% for rcd in stats.hits.counts_by_state %}
+<tr><td>{{rcd.state}}</td><td>{{rcd.state_name}}</td><td>{{rcd.count}}</td></tr>
+{% endfor %}
+</table>
+Submissions:
+<table>
+{% for rcd in stats.submissions.counts_by_state %}
+<tr><td>{{rcd.state}}</td><td>{{rcd.state_name}}</td><td>{{rcd.count}}</td></tr>
+{% endfor %}
+</table>
+<hr/>
 <h2>Timing statistics</h2>
 <ul>
 <li><a href="/mt/stats/session_details/{{session.code}}/">Details</a></li>

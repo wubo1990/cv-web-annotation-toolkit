@@ -142,10 +142,10 @@ def submit_result(request):
     submission.save();
 
 
-    if hitId in request.REQUEST:
+    if 'hitId' in request.REQUEST:
         mturk_hit_id=request.REQUEST['hitId']
         try:
-            mthit=MechTurkHit.object.get(mechturk_hit_id);
+            mthit=MechTurkHit.object.get(mechturk_hit_id=mturk_hit_id);
         except:
             mthit=None;
         if mthit:
@@ -935,7 +935,6 @@ def get_hit_results_xml(request,ext_id,filterGood=False):
 
         s=s+st.get_parsed().shapes;
 
-    print s=="","QWE",
     if s=="":
         raise Http404;
 
@@ -1237,15 +1236,18 @@ def reject_poor_results(request,session_code):
 
         conn = MTurkConnection(host=awshost,aws_secret_access_key=session.funding.secret_key,aws_access_key_id=session.funding.access_key)
 
-     	results=session.submittedtask_set.all().exclude(state=4).exclude(state=3);
+        results=session.submittedtask_set.all().exclude(state=4).exclude(state=3);
+        print results.count()
         te=session.task_def.type.get_engine();
 
 	strAns="assignmentIdToReject\tassignmentIdToRejectComment<br/>";
 	for r in results:
 		grade=None
 		feedback="";
+                num_inactive=0;
 		for g in r.manualgraderecord_set.all():
                     if not g.valid:
+                        num_inactive+=1;
                         continue
                     if grade:
 			if grade>g.quality:
@@ -1255,7 +1257,10 @@ def reject_poor_results(request,session_code):
                         grade=g.quality;
 			feedback=g.feedback;
 		if grade is None:
-			continue
+                    print "Result ",r.id,"doesn't has no grades (",num_inactive," inactive)"
+                    continue
+                else:
+                    print "Result ",r.id,"has grade ",grade
 
 		doReject=1;
 		if grade>3:
@@ -1293,6 +1298,7 @@ def approve_good_results(request,session_code):
 
         conn = MTurkConnection(host=awshost,aws_secret_access_key=session.funding.secret_key,aws_access_key_id=session.funding.access_key)
 
+     	#results=session.submittedtask_set.all()
      	results=session.submittedtask_set.all().exclude(state=4).exclude(state=3)
 	strAns="assignmentIdToReject\tassignmentIdToRejectComment<br/>";
         te=session.task_def.type.get_engine();
@@ -1302,6 +1308,9 @@ def approve_good_results(request,session_code):
 		grade=None
 		feedback="";
 		for g in r.manualgraderecord_set.all():
+                    if not g.valid:
+                        continue
+
                     if grade:
 			if grade>g.quality:
                             grade=g.quality;
@@ -1310,7 +1319,7 @@ def approve_good_results(request,session_code):
                         grade=g.quality;
 			feedback=g.feedback;
 		if grade is None:
-			continue
+                    continue
 
 		doAccept=0;
 		if grade>3:
@@ -1321,6 +1330,7 @@ def approve_good_results(request,session_code):
                         resp = conn.approve_assignment(r.assignment_id,feedback)
                         if r.valid and grade<10:
                             r.valid=False;
+                            r.state=3
                             r.save()
                             te.on_deactivate(r);
                         print resp
@@ -1328,7 +1338,10 @@ def approve_good_results(request,session_code):
                         r.final_grade=str(grade);
                         r.state=3;
                         r.save();
-                        r.hit.state=4; # Finalized
+                        if grade<10:
+                            r.hit.state=5; # Open
+                        else:
+                            r.hit.state=4; # Finalized
                         r.hit.save();
                     except:
                         e = sys.exc_info()[1]

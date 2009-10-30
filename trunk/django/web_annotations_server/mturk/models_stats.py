@@ -117,6 +117,42 @@ ORDER BY c DESC
 
 
 
+def submissions_counts_by_state(session):
+    counts=[];
+
+    cursor = connection.cursor()
+    d=dict(SUBMISSION_STATE);
+
+    cursor.execute("""
+SELECT state, count(*) c  FROM `mturk_submittedtask` s WHERE %s=`session_id` GROUP BY state ORDER BY state
+""",[session.id])
+
+    for r in cursor.fetchall():
+        counts.append({'state':r[0],'state_name':d[r[0]],'count':r[1]})
+    cursor.close();
+
+
+    return counts
+
+def hit_counts_by_state(session):
+    counts=[];
+
+    cursor = connection.cursor()
+    d=dict(HIT_STATE);
+
+    cursor.execute("""
+SELECT state, count(*) c  FROM `mturk_mthit` s WHERE %s=`session_id` GROUP BY state ORDER BY state
+""",[session.id])
+
+    for r in cursor.fetchall():
+        counts.append({'state':r[0],'state_name':d[r[0]],'count':r[1]})
+    cursor.close();
+
+    print counts
+    return counts
+
+
+
 def session_stats(session):
     from django.db import connection
     print  "Stat worker_contributions_to_session", session, type(session.id)
@@ -150,6 +186,8 @@ SELECT g.quality, count(*) c  FROM `mturk_submittedtask` s  left join mturk_manu
         'total':session.submittedtask_set.count(),
         'approved':session.submittedtask_set.all().filter(state=3).count(),
         'rejected':session.submittedtask_set.all().filter(state=4).count(),
+
+        'counts_by_state':submissions_counts_by_state(session)
         }
     submissions['open']=submissions['total']-(submissions['approved']+submissions['rejected']);
 
@@ -174,10 +212,19 @@ SELECT MIN(s.submitted - h.submitted), MAX(s.submitted - h.submitted), AVG(s.sub
     hit_stats['count']=session.mthit_set.count();
     hit_stats['num_idle']=session.mthit_set.filter(state=5).count();
     hit_stats['num_active']=session.mthit_set.filter(state=6).count();
+
+    hit_stats['counts_by_state']=hit_counts_by_state(session);
+
     print hit_stats
     conflicts=compute_session_conflicts(session);
     session_grades_distribution=compute_session_grade_distribution(session);
-    all_stats= {'total_grades':total_grades,'submissions':submissions,'timing':timing_stats,'conflicts':conflicts,'session_grades':session_grades_distribution,'hits':hit_stats};
+
+    all_stats= {'total_grades':total_grades,
+                'submissions':submissions,
+                'timing':timing_stats,
+                'conflicts':conflicts,
+                'session_grades':session_grades_distribution,
+                'hits':hit_stats};
 
     return all_stats;
 
