@@ -17,6 +17,12 @@ To create exclusion, go to the administration interface:
 
 = Automatic exclusion rules =
 
-*NOT IMPLEMENTED YET*
  1. Automatic exclusion rules are created for the grading session, when it is created through session dashboard.
  1. Automatic exclusion rules are created between the grading sessions, when they are created through the session dashboard.
+
+= Advisory notes =
+
+At present, we can't prevent people from accepting the HITs from which they are excluded. As such, it's better to not have two grading sessions simultaneously. Having them together, would confuse people, because they'll get "you can't do this" for every other task they accept.
+
+
+
