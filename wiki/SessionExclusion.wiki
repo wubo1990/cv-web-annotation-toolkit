@@ -1,4 +1,4 @@
-#summary One-sentence summary of this page.
+#summary Session exclusion rules allow to make sure a worker can't work on tasks from two specific sessions.
 #labels Doc-Userguide,Component-MturkBase
 
 = Introduction =
@@ -13,11 +13,10 @@ We implement exclusion as a bi-directional relation between 2 session with a hum
 To create exclusion, go to the administration interface:
 {{{/admin/mturk/sessionexclusion/add/}}}
 
-and provide the 
 
 
 = Automatic exclusion rules =
 
 *NOT IMPLEMENTED YET*
  1. Automatic exclusion rules are created for the grading session, when it is created through session dashboard.
- 2. Automatic exclusion rules are created between the grading sessions, when they are created through the session dashboard.
+ 1. Automatic exclusion rules are created between the grading sessions, when they are created through the session dashboard.
