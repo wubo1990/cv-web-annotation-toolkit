@@ -36,6 +36,12 @@ def xget_v2(o,tagnames):
 
 def xget_a(o,tagname):
 	return o.attributes[tagname].value;
+def xget_a_d(o,tagname,default):
+	try:
+		return o.attributes[tagname].value;
+	except:
+		return default
+
 def xget_a2(o,tagnames):
 	return map(lambda t:xget_a(o,t),tagnames);
 

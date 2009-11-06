@@ -24,9 +24,9 @@ from xmlmisc import *
 
 try:
 	try:
-		import Image
+		import Image, ImageDraw
 	except:
-		from PIL import Image
+		from PIL import Image, ImageDraw
 except:	
 	Image=None
 
@@ -121,6 +121,35 @@ def get_wnd2(request,item_name,l,t,w,h):
 	im = Image.open(image_filename);	
 
 	c = im.crop(map(lambda v:int(round(v)),[float(l),float(t),float(l)+float(w),float(t)+float(h)]));
+	response = HttpResponse(mimetype="image/jpeg")
+	c.save(response, "JPEG")
+
+	return response
+
+def get_padded_box(request,item_name,l,t,w,h,pad):
+
+	image_filename=os.path.join(settings.DATASETS_ROOT,item_name);
+	if not os.path.exists(image_filename):
+		raise Http404();
+	im = Image.open(image_filename);	
+	pad=float(pad);
+	c = im.crop(map(lambda v:int(round(v)),[float(l)-pad,float(t)-pad,float(l)+float(w)+2*pad,float(t)+float(h)+2*pad]));
+	#c=c.convert("rgb");
+	draw = ImageDraw.Draw(c)
+	draw.line((pad-1, pad-1, #UL
+		   pad-1, c.size[1]-pad+1, #LL
+		   c.size[0]-pad+1,c.size[1]-pad+2, #LR
+		   c.size[0]-pad+1,pad-1, #UR
+		   pad-1,pad-1), #UL
+		  fill="blue")
+	draw.line((pad-2, pad-2, #UL
+		   pad-2, c.size[1]-pad+2, #LL
+		   c.size[0]-pad+2,c.size[1]-pad+2, #LR
+		   c.size[0]-pad+2,pad-2, #UR
+		   pad-2,pad-2), #UL
+		  fill="white")
+	del draw 
+
 	response = HttpResponse(mimetype="image/jpeg")
 	c.save(response, "JPEG")
 
