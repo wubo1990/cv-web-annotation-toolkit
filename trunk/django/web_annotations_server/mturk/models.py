@@ -1,22 +1,27 @@
+#License BSD
+#Author Alexander Sorokin, sorokin@willowgarage.com, syrnick@gmail.com
+
+
+#Python imports
 import random,math,urllib,os,sys
-import cPickle as pickler
 from xml.dom import minidom
-from django.contrib.auth.models import User
+
+import cPickle as pickler
+
+
+#Django imports
+
 from django.conf import settings
-
-from django.db import models
-
-from django.shortcuts import render_to_response,get_object_or_404 
+from django.db import models,connection
 
 from django.contrib import admin
+from django.contrib.auth.models import User
 
-#from django.contrib.admin.options import ModelAdmin
 
-# Create your models here.
-#import annotation_store.models
+#DEPRECATED: Should remove
+from django.shortcuts import get_object_or_404 
 
-# We assign tasks to workers. If they come with the same assignment_id, we should give them the same task
-# If they come with a different assignment_id, we'll give them different task.
+
 
 
 class FundingAccount(models.Model):
@@ -37,10 +42,14 @@ task_engines["video_events"]=mturk.protocols.video_events.task.VideoEventsTaskEn
 import mturk.protocols.grouping.task;
 task_engines["grouping"]=mturk.protocols.grouping.task.GroupingTaskEngine();
 
+import mturk.protocols.attributes.task;
+task_engines["attributes"]=mturk.protocols.attributes.task.AttributesTaskEngine();
+
 class TaskType(models.Model):
 	name=models.SlugField();
 	
 	def get_engine(self):
+		print task_engines
 		return task_engines.get(self.name,None)
 
 	def __unicode__(self):
@@ -197,6 +206,7 @@ class MTHit(models.Model):
 
 
 
+
 MT_HIT_STATE = (
 	(1, 'Active'),
 	(2, 'Review'),
@@ -219,6 +229,17 @@ class MechTurkHit(models.Model):
 					       default="0.0",
 					       help_text="The final grade assigned to submission.");
 
+
+class SessionExclusion(models.Model):
+	session_A = models.ForeignKey(Session,related_name='exclusionA');
+	session_B = models.ForeignKey(Session,related_name='exclusionB');
+	decline_reason = models.TextField(null=True,default="",blank=True);
+	qualification_prefix = models.TextField(help_text="NOT IMPLEMENTED. If not empty, create unique qualification for the exclusion relation and assign qualification to workers who submit to session A. Session B will require that the qualification is not set.",blank=True,default="");
+
+	def __str__(self):
+		return "%s X %s" %(self.session_A.code,self.session_B.code);
+	
+	
 
 
 class AssignedTask(models.Model):
@@ -1050,7 +1071,7 @@ ORDER BY session_id DESC
 
 
 def worker_grading_report_complete(worker_id):
-    from django.db import connection
+
     cursor = connection.cursor()
     cursor.execute("""
 SELECT mgr.quality, st.worker, st.id, h.ext_hitid
@@ -1135,3 +1156,33 @@ AND r2.quality = %s
 def get_grading_tasks_for_grading_submission(session,grading_session,worker_code,task_id):
 	results=[];
 	return results
+
+
+
+
+def check_session_exclusions(worker,session):
+    exclusions=[];
+
+    cursor = connection.cursor()
+    cursor.execute("""
+select se.id,se.decline_reason from mturk_sessionexclusion se left join mturk_submittedtask st ON se.session_A_id=st.session_id  and se.session_B_id=%s and st.worker=%s where st.id is not NULL;    
+""",[session.id,worker.worker]);
+    try:
+	for r in cursor.fetchall():
+		exclusions.append((r[0],r[1]));
+	cursor.close();
+    except:
+	pass
+
+    cursor = connection.cursor()
+    cursor.execute("""
+select se.id,se.decline_reason from mturk_sessionexclusion se left join mturk_submittedtask st ON se.session_A_id=%s  and se.session_B_id=st.session_id and st.worker=%s where st.id is not NULL;    
+""",[session.id,worker.worker]);
+    try:
+	for r in cursor.fetchall():
+		exclusions.append((r[0],r[1]));
+	cursor.close();
+    except:
+	pass
+    return exclusions;
+

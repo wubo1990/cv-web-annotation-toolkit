@@ -78,26 +78,38 @@ def show_session_hits(request,session_code,hit_state,page=1):
         hits=session.mthit_set.all();
     print session
     print hits
+    
+    num_per_page=session.task_def.type.get_engine().get_internal_params().get('list_num_per_page',settings.NUM_HITS_PER_PAGE)
 
-    page_range=map(lambda x:int(math.floor(x/settings.NUM_HITS_PER_PAGE)+1),range(1,hits.count(),settings.NUM_HITS_PER_PAGE));
+    page_range=map(lambda x:int(math.floor(x/num_per_page)+1),range(1,session.submittedtask_set.all().count(),num_per_page));
 
-    return object_list(request,queryset=hits, paginate_by=settings.NUM_HITS_PER_PAGE, page=page,
+    return object_list(request,queryset=hits, paginate_by=num_per_page, page=page,
                        template_name='mturk/session_hits_list.html',extra_context={'session':session,'page_range':page_range});
+
+
 
 
 def showtask(request,session_code):
     session = get_object_or_404(Session,code=session_code)
 
-    task = get_object_or_404(MTHit,ext_hitid=request.GET['ExtID'])
+    task = get_object_or_404(MTHit,ext_hitid=request.REQUEST['ExtID'])
 
-    if "workerId" in request.GET:
-        worker_id=request.GET["workerId"]
+    if "workerId" in request.REQUEST:
+        worker_id=request.REQUEST["workerId"]
         print worker_id
         (worker,created)=Worker.objects.get_or_create(session=None,worker=worker_id)
         if created:
             worker.save();
         if worker.utility<settings.MTURK_BLOCK_WORKER_MIN_UTILITY:
             return render_to_response('mturk/not_available.html');
+
+        exclusions=check_session_exclusions(worker,session);
+        if len(exclusions)>0:
+            reasons="";
+            for e in exclusions:
+                reasons += e[1];
+                break;
+            return render_to_response('mturk/not_available_excluded.html',{'reason':reasons} );
 
     if task is None:
     	return render_to_response('mturk/not_available.html');
@@ -120,7 +132,11 @@ def submit_result(request):
 
 
 
-    task_id=request.REQUEST['extid']
+    if 'ExtID' in request.REQUEST:
+        task_id=request.REQUEST['ExtID']
+    else:
+        task_id=request.REQUEST['extid']
+
     task = get_object_or_404(MTHit,ext_hitid=task_id)
 
     #The HIT can belong to some other session
@@ -234,9 +250,11 @@ def show_paged_results(request,session_code,page=1,order_by=None):
         else:
             results=session.submittedtask_set.all();
 
-	page_range=map(lambda x:int(math.floor(x/settings.NUM_HITS_PER_PAGE)+1),range(1,session.submittedtask_set.all().count(),settings.NUM_HITS_PER_PAGE));
+        num_per_page=session.task_def.type.get_engine().get_internal_params().get('list_num_per_page',settings.NUM_HITS_PER_PAGE)
 
-	return object_list(request,queryset=results, paginate_by=settings.NUM_HITS_PER_PAGE, page=page,
+	page_range=map(lambda x:int(math.floor(x/num_per_page)+1),range(1,session.submittedtask_set.all().count(),num_per_page));
+
+	return object_list(request,queryset=results, paginate_by=num_per_page, page=page,
 			template_name='protocols/' +protocol+'/show_list.html',extra_context={'page_range':page_range});
 
 
@@ -258,7 +276,8 @@ def show_good_results_paged(request,session_code,page=1,order_by=None,num_per_pa
         print results.count();
 
         if not num_per_page:
-            num_per_page=settings.NUM_HITS_PER_PAGE;
+            num_per_page=session.task_def.type.get_engine().get_internal_params().get('list_num_per_page',settings.NUM_HITS_PER_PAGE)
+
 
 	page_range=map(lambda x:int(math.floor(x/num_per_page)+1),range(1,results.count(),num_per_page));
 
@@ -288,7 +307,7 @@ def show_good_results_paged(request,session_code,page=1,filter=None,order_by=Non
         print results.count();
 
         if not num_per_page:
-            num_per_page=settings.NUM_HITS_PER_PAGE;
+            num_per_page=session.task_def.type.get_engine().get_internal_params().get('list_num_per_page',settings.NUM_HITS_PER_PAGE)
 
 	page_range=map(lambda x:int(math.floor(x/num_per_page)+1),range(1,results.count(),num_per_page));
 
@@ -316,7 +335,7 @@ def show_good_results_w_filter_paged(request,session_code,page=1,filter=None,ord
         print results.count();
 
         if not num_per_page:
-            num_per_page=settings.NUM_HITS_PER_PAGE;
+            num_per_page=session.task_def.type.get_engine().get_internal_params().get('list_num_per_page',settings.NUM_HITS_PER_PAGE)
 
         page_range=map(lambda x:int(math.floor(x/num_per_page)+1),range(1,results.count(),num_per_page));
 
@@ -340,9 +359,12 @@ def show_most_recent_result(request,session_code,page=1):
         if results==None:
             raise Http404;
 	
-	page_range=map(lambda x:int(math.floor(x/settings.NUM_HITS_PER_PAGE)+1),range(1,session.submittedtask_set.all().count(),settings.NUM_HITS_PER_PAGE));
+        num_per_page=session.task_def.type.get_engine().get_internal_params().get('list_num_per_page',settings.NUM_HITS_PER_PAGE)
 
-	return object_list(request,queryset=results, paginate_by=settings.NUM_HITS_PER_PAGE, page=page,
+	page_range=map(lambda x:int(math.floor(x/num_per_page)+1),range(1,session.submittedtask_set.all().count(),num_per_page)); 
+        
+
+	return object_list(request,queryset=results, paginate_by=num_per_page, page=page,
 			template_name='protocols/' +protocol+'/show_list.html',extra_context={'refresh_rate':10000});
 
 def show_sessions(request):
@@ -952,7 +974,7 @@ def grading_submit_session(request,session_code,grading_session_code):
     try:
         grading_session = get_object_or_404(Session,code=grading_session_code);
     except Http404:
-        if session_code+"-grading"==grading_session_code:
+        if session_code+"-grading"==grading_session_code or session_code+"-grading-2"==grading_session_code:
             print session.task_def.name+"-grading"
             task_def=get_object_or_404(Task,name=session.task_def.name+"-grading");
             grading_session = Session(code=grading_session_code,
@@ -962,6 +984,14 @@ def grading_submit_session(request,session_code,grading_session_code):
                                       sandbox=session.sandbox,
                                       owner=session.owner)
             grading_session.save();
+            exclude=SessionExclusion(session_A=session,session_B=grading_session,decline_reason="Initial input and review can't be done at once.");
+            exclude.save();
+            other_grading_sessions=Session.objects.filter(code__startswith=session_code+"-grading");
+            for other_session in other_grading_sessions:
+                if other_session.code == grading_session.code:
+                    continue
+                exclude=SessionExclusion(session_A=other_session,session_B=grading_session,decline_reason="Participation in two review sessions isn't allowed.");
+                exclude.save();
 
     if  request.user != session.owner and not request.user.is_superuser:
         raise Http404;
@@ -978,6 +1008,12 @@ def grading_submit_session(request,session_code,grading_session_code):
         print submission_url
         all_grading_items.append([submission_id,submission_url,worker_id]);
 
+    """initial_te=session.task_def.type.get_engine();
+    if "frame_w" in initial_te.get_internal_params() and "frame_h" in initial_te.get_internal_params():
+        w=initial_te.get_internal_params()["frame_w"]
+        h=initial_te.get_internal_params()["frame_h"]
+        """
+
 
     te=grading_session.task_def.type.get_engine();
     grading_params=te.reinterpret_task_parameters(grading_session.task_def)
@@ -987,6 +1023,9 @@ def grading_submit_session(request,session_code,grading_session_code):
 
     num_per_task1=int(grading_params["num_per_task"]*(1-grading_params["overlap"]));
     num_per_task2=int(grading_params["num_per_task"]-num_per_task1);
+
+    frame_str = ' frame_w="%d" frame_h="%d"' % (grading_params["frame_w"],grading_params["frame_h"]);
+
 
     num_tasks=int(math.ceil(float(len(all_grading_items))/num_per_task1));
     num_ok=0;
@@ -1003,7 +1042,7 @@ def grading_submit_session(request,session_code,grading_session_code):
         random.shuffle(to_grade);
         grade_xml="<?xml version='1.0'?><grading>"
         for t in to_grade:
-            grade_xml+="<submission id='%s' url='%s' worker='%s'/>" % (t[0],urllib.quote(t[1]),t[2])
+            grade_xml+="<submission id='%s' url='%s' worker='%s' %s/>" % (t[0],urllib.quote(t[1]),t[2],frame_str)
         grade_xml+="</grading>"
 
         (sts,msg)=add_hit_to_session(grading_session,grade_xml);
@@ -1433,7 +1472,7 @@ def deactivate_grade_record(request,grade_id):
 def expire_hit(conn,hit_id):
     params = {'HITId' : hit_id,}
     
-    return conn._process_request('ExtendHIT', params)
+    return conn._process_request('ForceExpireHIT', params)
 
 
 @login_required
@@ -1453,8 +1492,9 @@ def expire_session_hits(request,session_code):
     num_affected=0;
     for h in hits:
         if h.state==1:
-            expire_hit(conn,h.mechturk_hit_id)
-            h.state=5.
+            print conn,h.mechturk_hit_id
+            print expire_hit(conn,h.mechturk_hit_id)
+            h.state=5
             h.save()
             num_affected+=1;
         else:

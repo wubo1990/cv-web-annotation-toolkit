@@ -198,7 +198,7 @@ Feedback:<textarea rows="5" cols="50" name="message_#{s_id}"></textarea>\
 </div>\
 </td></tr></table>';
 
-var task_template = new Template('<tr id=\"task_#{task_id}\"><td><iframe height=500 width=550 src=\"#{url}\" ></iframe></td><td>'+grading_template+'</td></tr>');
+var task_template = new Template('<tr id=\"task_#{task_id}\"><td><iframe height=\"#{frame_h}\" width=\"#{frame_w}\" src=\"#{url}\" ></iframe></td><td>'+grading_template+'</td></tr>');
 var annotation_show_template = new Template('<td>#{id}:#{grade}</td>');
 
 // task_template = new Template('<tr><td>a</td><td>b</td></tr>');
@@ -246,11 +246,17 @@ var onTaskXMLLoaded=function(transport)
       var url = decode(i.getAttribute("url"));
       var worker = i.getAttribute("worker");
       var task_id=id.split('/')[1];
+
+      var frame_h=i.getAttribute("frame_h");
+      if(frame_h == null) frame_h = 500;			 
+      var frame_w=i.getAttribute("frame_w");
+      if(frame_w == null) frame_w = 550;			 
+
       if(mode_value=="display")
 	{
-	  s +=task_template.evaluate({id:id, s_id:s_id,url:url,task_id:task_id});
+	  s +=task_template.evaluate({id:id, s_id:s_id,url:url,task_id:task_id,frame_w:frame_w,frame_h:frame_h});
 	}else{
-	  s +=task_template.evaluate({id:id, s_id:s_id,url:url});
+	  s +=task_template.evaluate({id:id, s_id:s_id,url:url, frame_w:frame_w,frame_h:frame_h });
 	}
       if( worker==workerId )
 	{

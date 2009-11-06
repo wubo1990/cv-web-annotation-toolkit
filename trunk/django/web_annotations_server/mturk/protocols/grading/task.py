@@ -47,7 +47,9 @@ class GradingTaskEngine(TaskEngine):
 
         layout_node=xmlmisc.xget(xmlObj,"layout")[0];
         num_per_task=int(xmlmisc.xget_a(layout_node,"num_per_task"));
-        return {'overlap':overlap,'num_per_task':num_per_task};
+        frame_w=int(xmlmisc.xget_a_d(layout_node,"frame_w","550"));
+        frame_h=int(xmlmisc.xget_a_d(layout_node,"frame_h","500"));
+        return {'overlap':overlap,'num_per_task':num_per_task,"frame_w":frame_w,"frame_h":frame_h};
 
     def get_models(self):
         print sys.modules.keys()

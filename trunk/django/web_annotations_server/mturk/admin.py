@@ -1,5 +1,5 @@
 from django.contrib import admin
-from models import Session,FundingAccount,MTHit,SubmittedTask,Worker,Task,TaskType,MTurkQualificationDefinition,MTurkQualification
+from models import Session,SessionExclusion,FundingAccount,MTHit,SubmittedTask,Worker,Task,TaskType,MTurkQualificationDefinition,MTurkQualification
 
 
 class FundingAccountAdmin(admin.ModelAdmin):
@@ -35,9 +35,11 @@ class MTQualDefAdmin(admin.ModelAdmin):
     list_display = ('id','name');
     
 
-
+class SessionExclusionAdmin(admin.ModelAdmin):
+    pass	
           
 admin.site.register(Session, SessionAdmin);
+admin.site.register(SessionExclusion, SessionExclusionAdmin);
 admin.site.register(SubmittedTask, SubmittedTaskAdmin);
 admin.site.register(MTHit, MTHitAdmin);
 admin.site.register(FundingAccount, FundingAccountAdmin);

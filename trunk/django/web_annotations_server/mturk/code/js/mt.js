@@ -204,3 +204,10 @@ var mt_load_task_componentes =function(mode,completion_handler)
 
 
 }
+
+
+var mt_submit_handler=function (){
+  var now=new Date();
+  $('submit_time').value=now.toUTCString();
+  return true;
+}
