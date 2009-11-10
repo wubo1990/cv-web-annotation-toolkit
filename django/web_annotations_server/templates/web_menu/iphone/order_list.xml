@@ -6,13 +6,15 @@
 
 			<ul class="iArrow iShop">
 				<li>
+<a href="/web_menu/order/xml/?order_id={{o.id}}#_Order" rev="async">
 					<img src="/web_menu/images/{{o.item.menu.code}}/{{o.item.image_name}}" class="iFull" />
 					<em>{{o.item.metadata}}</em>
 					<big>{{o.user_name}}
-						<small><img src="Img/stars.png" style="margin:4px"/> 
-{% ifequal o.ETA_minutes -1 %} scheduling, station {{o.delivery_location}} {% else %} {{o.ETA_minutes|floatformat }} min, station {{o.delivery_location}}{% endifequal %}
+						<small><img src="/web_menu/s/img/clock.png" style="margin:4px"/> 
+{% ifequal o.ETA_minutes -1 %} scheduling, station {{o.delivery_location.code }} {% else %} {{o.ETA_minutes|floatformat }} min, station {{o.delivery_location.code}}{% endifequal %}
 </small>
 					</big>
+</a>
 				</li>
 
 {% comment %}
@@ -39,13 +41,3 @@
 </root>
 
 
-{% comment %}
-
-<table>
-<tr><td>Position</td><td>Order</td><td>Status</td><td>Arrival time</td><td>Tip</td></tr>
-
-
-</table>
-
-
-{% endcomment %}

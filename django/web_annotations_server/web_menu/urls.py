@@ -84,6 +84,10 @@ urlpatterns = patterns('',
 
     (r'^stats.xml$','web_menu.views.service_stats'),
 
+    (r'^myorder.xml$','web_menu.views.my_order_xml'),
+    (r'^order/xml/$','web_menu.views.get_order_xml'),
+    (r'^order/xml/(?P<order_id>[\w-]+)/$','web_menu.views.get_order_xml'),
+
     #(r'^queue/$',list_detail.object_list, active_orders_list_info),
     #(r'^queue.xml$',list_detail.object_list, active_orders_list_info_xml),                       
                        
@@ -104,5 +108,8 @@ urlpatterns = patterns('',
 
     (r'^order/update/$',views.update_order),
     (r'^order/resend/$',views.resend_orders),
+
+    (r'^reset/$',views.reset_orders),                       
+    (r'^hide/served$',views.hide_served_orders),                       
 
 )

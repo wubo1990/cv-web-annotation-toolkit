@@ -20,13 +20,3 @@
 </root>
 
 
-{% comment %}
-
-<table>
-<tr><td>Position</td><td>Order</td><td>Status</td><td>Arrival time</td><td>Tip</td></tr>
-
-
-</table>
-
-
-{% endcomment %}

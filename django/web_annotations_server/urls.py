@@ -7,7 +7,7 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = patterns('',
 
-    (r'^$', 'mturk.views.main'),
+    (r'^$', 'web_menu.views.start'),
     (r'^code/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.DJ_CODE_RT+'mturk/code/'}),
                        
     (r'^code/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.DJ_CODE_RT+'mturk/code/'}),
