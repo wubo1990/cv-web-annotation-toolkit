@@ -73,6 +73,9 @@ class MenuItem(models.Model):
 	object_pose = models.TextField(blank=True)
 	available   = models.BooleanField(default=True)
 
+	def __str__(self):
+        	return self.metadata+"["+self.image_name+"]";
+
 ORDER_STATE = (
             (1, 'Incomplete'),
             (2, 'Submitted'),
@@ -80,6 +83,8 @@ ORDER_STATE = (
             (4, 'Rejected'),
             (5, 'Served'),
             (6, 'Aborted'),
+            (10, 'Hidden'),
+            (15, 'ServedHidden'),
         )        
 
 class Order(models.Model):
@@ -112,6 +117,11 @@ class Order(models.Model):
 			return -1
 		else:
 			return float(self.ETA_seconds)/60.0;
+
+	def get_delivery_location_name(self):
+		delivery_location_name=WorldStation.objects.get(location=self.delivery_location).code.replace('_',' '); 
+		return delivery_location_name
+
 
 class Server(models.Model):
 	code      = models.SlugField()

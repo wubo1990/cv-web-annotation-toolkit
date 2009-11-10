@@ -65,6 +65,24 @@ def get_ros_publishers(request):
         return HttpResponse(s)
 
 
+DEFAULT_MENU_CODE='drinks'
+MENU_DESIGN='iphone';
+
+design_templates={
+	'plain':{'new_order':'web_menu/new_order.html',
+		 'stats':'web_menu/stats.html',
+		 'order_review':'web_menu/my_order.html',
+		 'my_order':'web_menu/my_order.html',
+		 
+		 },
+	'iphone':{'new_order':'web_menu/iphone/new_order.html',
+		  'stats':'web_menu/iphone/stats.xml',
+		  'order_review':'web_menu/iphone/my_order.xml',
+		  'my_order':'web_menu/iphone/my_order.html',
+		  }
+	};
+
+design=design_templates[MENU_DESIGN];
 
 
 
@@ -80,20 +98,48 @@ def wait(request,menu_code="default"):
 
 
 def start(request):
+	print "START"
 	if 'order_id' in request.session:
+		print "Has session"
 		try:
+			print "Session order ID is",request.session['order_id']
 			order=Order.objects.get(id=request.session['order_id']);
-			return render_to_response('web_menu/my_order.html', {'order':order})
+			if order.state != 1:
+				return HttpResponseRedirect("/web_menu/order/show/%d/#_Order/%d" % (order.id,order.id))
 		except:
 			return HttpResponseRedirect("/web_menu/order/new/")
-	else:
-		return HttpResponseRedirect("/web_menu/order/new/")
+	
+	return HttpResponseRedirect("/web_menu/order/new/")
 
 
 
 def show_order(request,order_id):
 	order=Order.objects.get(id=order_id)
-	return render_to_response('web_menu/my_order.html', {'order':order})
+	if MENU_DESIGN=="iphone":
+		return render_to_response(design['new_order'], {'order':order,'menu':[],'map':[],'server':[],'info':[]})
+	else:
+		return render_to_response('web_menu/my_order.html', {'order':order})
+
+
+def get_order_xml(request,order_id=None):
+	if not order_id:
+		order_id=request.REQUEST['order_id'];
+
+	order=Order.objects.get(id=order_id)
+	if "order_id" in request.session and order.id==int(request.session['order_id']):
+		order.my_order = 1;
+	else:
+		order.my_order = 0; 
+	print order.my_order,order.id
+
+	return render_to_response('web_menu/iphone/order.xml', {'order':order,'target':'order-content'},mimetype='text/xml');
+
+
+def my_order_xml(request):
+	order_id=request.session['order_id'];
+	order=Order.objects.get(id=order_id)
+	order.my_order=1;
+	return render_to_response('web_menu/iphone/order.xml', {'order':order,'target':'order-content'},mimetype='text/xml');
 
 
 
@@ -198,23 +244,26 @@ def clearImages(request,menu_code="default"):
 
 
 
-DEFAULT_MENU_CODE='drinks'
-MENU_DESIGN='iphone';
-
-design_templates={
-	'plain':{'new_order':'web_menu/new_order.html',
-		 'stats':'web_menu/stats.html',
-		 
-		 },
-	'iphone':{'new_order':'web_menu/iphone/new_order.html',
-		  'stats':'web_menu/iphone/stats.xml',
-		  }
-	};
-
-design=design_templates[MENU_DESIGN];
 
 
 
+def get_info_stats(server):
+	num_orders=0;
+	ETA_time=-1;
+	num_unknown_times=0;
+	for o in server.order_set.filter(state__in=[2,3]):
+		num_orders+=1;
+		if ETA_time<o.ETA_minutes():
+			ETA_time=o.ETA_minutes();
+		else:
+			num_unknown_times+=1
+	if ETA_time<0:
+		ETA_time = 0;
+
+	ETA_time += num_unknown_times * 2;
+
+	info_stats={'queue_length':num_orders,'ETA_time':ETA_time};
+	return info_stats
 
 def new_order(request):
 	print request
@@ -230,14 +279,7 @@ def new_order(request):
 	new_order.save();
 	request.session['order_id']=new_order.id;
 
-	num_orders=0;
-	ETA_time=-1;
-	for o in server.order_set.filter(state__in=[2,3]):
-		num_orders+=1;
-		if ETA_time<o.ETA_minutes():
-			ETA_time=o.ETA_minutes();
-
-	info_stats={'queue_length':num_orders,'ETA_time':ETA_time};
+	info_stats=get_info_stats(server);
 
 	return render_to_response(design['new_order'], {'order':new_order,'menu':menu,'map':domain.map,'server':server,'info':info_stats})
 
@@ -264,19 +306,19 @@ def new_order_submit_full(request):
 		order.save();
 		request.session['order_id']=order.id;
 
-	order.delivery_location=request.REQUEST['station'];
+	order.delivery_location=request.REQUEST['stationSelector'];
 	order.user_name=request.REQUEST['personname'];
-	order.item=get_object_or_404(MenuItem,id=request.REQUEST['drinkchoice']);
+	order.item=get_object_or_404(MenuItem,id=request.REQUEST['drinkSelector']);
 	order.state=2 #ready
 	order.save();
 
 	sent = send_order(order)
 	print "Sent:",sent
-	
-	if sent:
-		return HttpResponse("True")
-	else:
-		return HttpResponse("False")
+	order.my_order = 1;
+
+	return render_to_response('web_menu/iphone/order.xml', {'order':order,'target':'waOrdered','goto':'waOrdered' },mimetype='text/xml');	
+
+
 	
 def choose_order_item(request,order_id,item_id):
 	menu_code='drinks';
@@ -357,8 +399,9 @@ def order_cancel(request,order_id):
 		order.save();
 		#return HttpResponse("+")
 	#return HttpResponse("-")
-	del request.session['order_id']
-	return HttpResponseRedirect("/web_menu/")
+	if 'order_id' in request.session:
+		del request.session['order_id']
+	return render_to_response("web_menu/iphone/cancel.xml",{'order':order,'target':'order-content'},mimetype='text/xml');
 
 	
 def order_confirm(request,order_id):
@@ -447,7 +490,7 @@ def service_stats(request):
 
 	server=domain.servers.all()[0];
 
-	all_orders=server.order_set.filter(state=2) #served only orders
+	all_orders=server.order_set.filter(state=5) #served only orders
 	all_counts={};
 	total = 0;
 	for o in all_orders:
@@ -460,7 +503,39 @@ def service_stats(request):
 	by_drink=[];
 	for (k,v) in all_counts.items():
 		by_drink.append({'name':k,'count':v});
-	stats={'total_drinks':total,'by_drink':by_drink};
+
+	info_stats=get_info_stats(server);
+
+	stats={'total_drinks':total,'by_drink':by_drink,'server':info_stats};
+	print stats
 
 
 	return render_to_response(design['stats'], {'stats': stats}, mimetype='text/xml');
+
+
+
+def reset_orders(request):
+	domain_code='intel'
+	domain=get_object_or_404(ServiceDomain,code=domain_code);
+
+	server=domain.servers.all()[0];
+
+	all_orders=server.order_set.filter(state__in=[2,3]) #served only orders
+	for o in all_orders:
+		o.state=6; #aborted
+		o.save();
+
+	return HttpResponse("+");
+
+
+def hide_served_orders(request,domain_code='intel'):
+	domain=get_object_or_404(ServiceDomain,code=domain_code);
+
+	server=domain.servers.all()[0];
+
+	all_orders=server.order_set.filter(state__in=[5]) #served only orders
+	for o in all_orders:
+		o.state=15; #Served&hidden
+		o.save();
+
+	return HttpResponse("+");

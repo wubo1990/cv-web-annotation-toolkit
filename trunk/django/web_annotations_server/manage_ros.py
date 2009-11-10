@@ -12,4 +12,5 @@ except ImportError:
     sys.exit(1)
 
 if __name__ == "__main__":
+    print "QUIT with CONTROL+\ !!!!!! \n"*5
     execute_manager(settings)

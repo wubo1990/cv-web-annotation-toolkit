@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<root>
+<destination mode="replace" zone="{{target}}" />
+	<data>
+<![CDATA[
+        <div class="iMenu">
+        </div>
+]]></data>
+
+	<script>
+<![CDATA[
+document.location='/web_menu/';
+]]></script>
+</root>
+
+

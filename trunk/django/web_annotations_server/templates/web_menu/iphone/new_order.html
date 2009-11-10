@@ -2,17 +2,25 @@
 
 {% block drinkchoice %}
 {% for item in menu.available_items %}
-<!--img src="/web_menu/images/{{item.menu.code}}/{{item.image_name}}" class="iFull" -->
-<label> 
-<input type="radio" name="drinkchoice" value="{{item.id}}" /> {{item.metadata}}</label>
+
+<option value="{{item.id}}" /> {{item.metadata}}</option>
+<script>
+item_images[{{item.id}}]="/web_menu/images/{{item.menu.code}}/{{item.image_name}}"; 
+</script>
+
 
 {% endfor %}
 
 {% endblock %}
 
+
+
+
 {% block locationchoice %}
 {% for s in map.worldstation_set.all %}
-<label><input type="radio" name="station" value="{{s.location}}" /> {{s}}</label>
+
+<option value="{{s.location}}" /> {{s.code}}</option>
+
 {% endfor %}
 {% endblock %}
 

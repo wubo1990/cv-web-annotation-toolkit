@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<root>
+{% if goto %}<go to="{{goto}}"/> {% endif %}
+
+<destination mode="replace" zone="{{target}}" />
+	<data>
+<![CDATA[
+        <div class="iMenu">
+          <form action="/web_menu/order/cancel/{{order.id}}/" id="cancelOrderForm">
+{% if order.my_order %}
+	     <h3 style="margin-top:20px">You Ordered...</h3>
+{% else %}
+	     <h3 style="margin-top:20px">Order...</h3>
+{% endif %}
+	     <ul >
+	       <li style="height:40px"><img height="40" src="/web_menu/images/{{order.item.menu.code}}/{{order.item.image_name}}"  /> {{order.item.metadata}}</li>
+                <li style="height:40px"><img src="/web_menu/s/img/question.png" class="iFull" /> Bring to {{order.get_delivery_location_name}}</li>
+
+                </ul>
+
+            
+            <div class="iBlock">
+            <p><img src="/web_menu/s/img/clock.png" /> 
+{% if order.my_order %}
+{% ifequal order.ETA_minutes -1 %} scheduling {% else %} Your treat should arrive in {{order.ETA_minutes|floatformat }} min{% endifequal %}
+{% else %}
+{% ifequal order.ETA_minutes -1 %} scheduling {% else %} This treat should arrive in {{order.ETA_minutes|floatformat }} min{% endifequal %}
+{% endif %}
+<br  />
+              <a style="padding-left:22px" href="/web_menu/queue.xml#_Queue" rev="async" >View Queue</a>
+
+            </p><br />
+{% if order.my_order %}
+              <a href="#"  class="iPush iBWarn" style="display:block;" onclick="return WA.Submit('cancelOrderForm')" id="cancelOrderBtn">Cancel Order</a>
+{% endif %}
+
+            </div>
+            
+            </form>
+        </div>
+
+        <!-- begin order placed layer -->
+<!--
+        <div class="iLayer" id="waOrdered" title ="HERB Order">
+
+        <div class="iMenu">
+          <form action="return WA.Submit(this)" id="cancelOrderForm">
+	     <h3 style="margin-top:20px">You Ordered...</h3>
+	     <ul >
+	       <li style="height:40px"><img src="/web_menu/s/img/question.png"  /> Place treat name here</li>
+                <li style="height:40px"><img src="/web_menu/s/img/question.png" class="iFull" /> Bring to {room}</li>
+
+                </ul>
+
+            
+            <div class="iBlock">
+            <p><img src="/web_menu/s/Img/clock.png" /> Your treat should arrive in x minutes<br  />
+              <a style="padding-left:22px" href="#_Queue">View Queue</a>
+            </p><br />
+              <a href="#"  class="iPush iBWarn" style="display:block;" onclick="return WA.Submit('cancelOrderForm')" id="cancelOrderBtn">Cancel Order</a>
+
+            </div>
+            
+            </form>
+        </div>
+</div>
+-->
+
+]]></data>
+</root>
+
+
