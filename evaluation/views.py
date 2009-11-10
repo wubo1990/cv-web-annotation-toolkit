@@ -2,7 +2,7 @@
 
 import shutil,os,sys
 
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response,get_object_or_404
 from django.template.loader import render_to_string
@@ -10,9 +10,13 @@ from django.core.files.storage import FileSystemStorage
 from forms import UploadSubmissionForm
 from models import *
 from django.views.generic.simple import redirect_to
-
+from django.forms.util import ErrorList
+import datetime
 
 from django.conf import settings
+
+import csv, codecs, cStringIO
+
 
 def main(request):
 	if not request.user:
@@ -22,7 +26,27 @@ def main(request):
 
 
 
+def check_challenge_timeout(user,challenge):
+	n_days=challenge.limit_in_N_days;
+	default_allowance=challenge.limit_to_N_submissions;
+	extra_allowance = 0
+	today = datetime.date.today();
+	today_minus_N=today - datetime.timedelta(days=n_days);
 
+	for ex in SubmissionExceptions.objects.filter(for_user=user,
+						      start_on__lte=today,
+						      end_at__gte=today,
+						      to_challenge=challenge):
+	  extra_allowance += ex.allow_N_extra_submissions;
+
+	used_allowance = Submission.objects.filter(owner=user,
+					    when__gte=today_minus_N,
+					    to_challenge=challenge,
+					    state__in=[2,3,5,100]).count()
+
+	can_submit=used_allowance<default_allowance + extra_allowance
+
+	return (can_submit, used_allowance);
 
 @login_required
 def upload_submission(request):
@@ -33,12 +57,24 @@ def upload_submission(request):
 	if request.method == 'POST':
 		form = UploadSubmissionForm(request.POST, request.FILES)
 		if form.is_valid():
-			uploaded_file=request.FILES['submission_file'];
-			return do_upload_submission(request,form,uploaded_file);
+			challenge=form.cleaned_data['challenge']
+			(can_submit,past_count)=check_challenge_timeout(request.user,challenge)
+			if can_submit:
+				uploaded_file=request.FILES['submission_file'];
+				return do_upload_submission(request,form,uploaded_file);
+			else:
+				form._errors['challenge']=ErrorList(["You have %d submissions to %s in past %d days. You are not allowed to submit right now. Contact the organizers if you feel this is a mistake" %(past_count,challenge.name,challenge.limit_in_N_days)]);
 			#return HttpResponseRedirect('/datastore/')
 	else:
 		form = UploadSubmissionForm()
-	return render_to_response('evaluation/upload_submission.html', {'form': form,'user':request.user})
+
+	challenges_info=Challenge.objects.all()
+	for c in challenges_info:
+		can_submit,used_allowance = check_challenge_timeout(request.user,c);
+		c.can_submit=can_submit
+		c.used_allowance=used_allowance
+
+	return render_to_response('evaluation/upload_submission.html', {'form': form,'user':request.user,'challenges_info':challenges_info})
 
 
 
@@ -185,6 +221,7 @@ def show_all_submissions(request,challenge_name=None):
 		raise Http404;	
 
 	if challenge_name:
+
 		challenge = get_object_or_404(Challenge,name=challenge_name);
 		objects = Submission.objects.filter(to_challenge=challenge);
 	else:
@@ -276,3 +313,88 @@ def competition_results(request,challenge_name,competition_name):
 	return render_to_response('evaluation/competition_results.html',
 				  {'relevant_submissions':relevant_submissions,'categories':all_categories,'scores':relevant_submission_scores,'competition':competition_name});
 
+
+def registration_callback(user):
+	print "REG CALLBACK"
+	notify_on_registration(user);
+
+
+
+@login_required
+def grant_extra_submissions(request,user_id,challenge_name):
+	if not request.user.is_superuser:
+		raise Http404();
+	
+	user = get_object_or_404(User,username=user_id);
+	challenge = get_object_or_404(Challenge,name=challenge_name);
+
+	today = datetime.date.today();
+
+	today_plus_N=today + datetime.timedelta(days=6);
+
+	ex=SubmissionExceptions(for_user=user,
+				start_on=today,
+				end_at=today_plus_N,
+				to_challenge=challenge,
+				allow_N_extra_submissions=2)
+	ex.save()
+	return HttpResponse("Done");
+
+
+
+
+class UnicodeWriter:
+    """
+    A CSV writer which will write rows to CSV file "f",
+    which is encoded in the given encoding.
+    """
+
+    def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwds):
+        # Redirect output to a queue
+        self.queue = cStringIO.StringIO()
+        self.writer = csv.writer(self.queue, dialect=dialect, **kwds)
+        self.stream = f
+        self.encoder = codecs.getincrementalencoder(encoding)()
+
+    def writerow(self, row):
+        self.writer.writerow([s.encode("utf-8") for s in row])
+        # Fetch UTF-8 output from the queue ...
+        data = self.queue.getvalue()
+        data = data.decode("utf-8")
+        # ... and reencode it into the target encoding
+        data = self.encoder.encode(data)
+        # write to the target stream
+        self.stream.write(data)
+        # empty queue
+        self.queue.truncate(0)
+
+    def writerows(self, rows):
+        for row in rows:
+            self.writerow(row)
+
+
+@login_required
+def get_submissions_report(request):
+    if not request.user.is_superuser:
+	    raise Http404();
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(mimetype='text/csv')
+
+    response['Content-Disposition'] = 'attachment; filename=somefilename.csv'
+
+    writer = UnicodeWriter(response)
+
+    column_headers=["SubmissionID","Name","Method","Contact Information",
+    "Affiliation","Contributors","Description","Owner id",
+    "Os public","Challenge id","Challenge state","Submission state","Score","Submission time","Challenge","Owner email"];
+
+    writer.writerow(column_headers);
+
+
+    #try:
+    cursor=get_results_table();
+    for r in cursor.fetchall():
+	    writer.writerow([unicode(s) for s in r])
+    #except:
+    return response

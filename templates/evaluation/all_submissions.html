@@ -40,8 +40,11 @@
 </td>
 <td>
   {{s.when|date:"d M Y, H:i" }} 
-
-</td></tr>
+</td>
+{% if user.is_superuser %}
+<td><a href="/eval/grant_extra_submissions/{{s.owner.username}}/{{s.to_challenge.name}}/" target="_grant_extra">Grant 2 submissions for 1 week </a></td>
+{% endif %}
+</tr>
 {% endfor %}
 </table>
 <hr/>

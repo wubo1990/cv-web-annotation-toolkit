@@ -46,7 +46,9 @@ urlpatterns = patterns('',
     #(r'^accounts/login/$', 'django.contrib.auth.views.login'),
 
     #This is a local modification of the registration app 
-    (r'^accounts/', include('registration.urls')),
+
+
+    (r'^accounts/', include('evaluation.registration_urls')),
     (r'^accounts/profile/$', 'django.views.generic.simple.redirect_to',{'url':'/'}),
                        
     url(r'^accounts/password/logout/$',
