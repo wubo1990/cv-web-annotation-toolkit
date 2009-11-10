@@ -11,3 +11,5 @@ class UploadSubmissionForm(forms.Form):
 
     challenge = forms.ModelChoiceField(queryset=Challenge.objects.filter(is_open=True))
     submission_file  = forms.FileField()
+
+

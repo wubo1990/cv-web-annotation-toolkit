@@ -4,7 +4,7 @@
 {% block content %}
 
 Submission {{submission.id}} ({{submission.title}}) by {{user.username}} to {{submission.to_challenge.name}}.
-{% if submission.challenge.is_score_visible %} Score: {{submission.score}}. {% endif %} Submitted {{submission.when}}.
+Submitted {{submission.when}}.
 <hr/>
 <table>
     <tr><td>
@@ -19,13 +19,31 @@ Submission {{submission.id}} ({{submission.title}}) by {{user.username}} to {{su
 <hr/>
 <h2>Status</h2>
 
-{{s.get_state_display}}
+{{submission.get_state_display}}
 {% switch submission.state %}
     {% case 4 %} <b>Evaluation failed.</b><br/>
 Please check the error messages below and correct your submission if possible. <br/> 
 If the error message seems too cryptic or you don't know what you need to correct, please e-mail the contact for more information (see below). Please use [VOC2009] in the title and copy the URL of this page in your e-mail. Thank you.
  {% endcase %}
 {% endswitch %}
+<hr/>
+<h2>Score</h2>
+{% if submission.to_challenge.is_score_visible %} 
+{% comment %} Average score: {{submission.score}}. {% endcomment %}
+
+<table>
+<tr><th>Competition</th><th>Category</th><th>Score</th></tr>
+{%comment%} for score in submission.detailed_scores_from_files {% endcomment %}
+
+{% for score in submission.submissionscore_set.all %}
+<tr><td>{{score.competition}}</td><td>{{score.category}}</td><td>{{score.score}}</td></tr>
+{% endfor %}
+</table>
+
+{% else %}
+{{submission.to_challenge}}
+The score is not visible for this challenge.
+{% endif %} 
 
 <hr/>
 <h2>Messages</h2>

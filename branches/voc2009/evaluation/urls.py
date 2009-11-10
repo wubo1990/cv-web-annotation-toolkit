@@ -22,5 +22,9 @@ urlpatterns = patterns('',
 
     (r'^competition_results/(?P<challenge_name>[\w\-]+)/(?P<competition_name>[\w\-]+)/$', 'evaluation.views.competition_results'),
 
+    (r'^grant_extra_submissions/(?P<user_id>[\w\-]+)/(?P<challenge_name>[\w\-]+)/$', 'evaluation.views.grant_extra_submissions'),
+
+    (r'^get_submissions_report/$', 'evaluation.views.get_submissions_report'),
+
 
 )
