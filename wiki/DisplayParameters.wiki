@@ -33,6 +33,7 @@ Parameter location {{{/taskdef/polygonal_display/}}}
 
  *  *number_control_points* (true, *false*) - Controls, whether the control points of the polygons get numbered. 
  *  *tag_font_size* ( Number, *55*) - Sets the font size for the labels. 
+ *  *show_object_tag* (*true*, false) - Controls, whether the objects are named. If set to false, the object tags will not appear on display. (starting version 0.1.16)
 
 Example:
 {{{
@@ -40,6 +41,7 @@ Example:
 <group ns="polygonal_display">
   <param name="number_control_points" value="true"/>
   <param name="tag_font_size" value="25" />
+  <param name="show_object_tag" value="false"/>
 </group>
 </parameters>
 }}}
