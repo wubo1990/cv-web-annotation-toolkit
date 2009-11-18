@@ -1,4 +1,5 @@
 #summary An overview of the annotation tool
+#labels Doc-Userguide
 
 = Introduction =
 
@@ -156,6 +157,22 @@ An example setup for annotating people is here:
 }}}
 
 min required version: 0.1.13
+
+== Inline instructions ==
+
+Sometimes it's handy to stick some short text between the buttons or checkboxes. We implemented a special "instructions" annotation type that will create a simple textbox with the text. You need to specify *heigh* for it. It doesn't work terribly well (due to limitations of the Flash rendering of this HTML), but allows you to stick in a small piece of text. E.g.:
+
+{{{
+<target name="person-fully-visible-instructions" > 
+   <annotation type="instructions" height="60">
+      <html>(check if there is *no* part of the person
+      that is blocked by a table/chair/wall/etc)</html>  
+   </annotation>
+</target>
+}}}
+
+*Note* that your HTML must be formatted as true XML, because it's a part of an XML document.
+
 
 == Ordering of the targets ==
 
