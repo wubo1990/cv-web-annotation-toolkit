@@ -1,0 +1,15 @@
+#summary Testcase for image uploads on Turk.
+#labels Test-manual,Component-MturkBase
+
+= Procedure =
+
+Procedure:
+ 1. Create sandbox session. Make 4 HITs to be the max limit.
+ 1. Upload images.tgz - it should create 4 tasks in the sandbox. It should report that it exceeded the HIT limit on 2 tasks.
+ 1. Relax the HIT limit to 10.
+ 1. Upload images.tgz again - it should report that all images have been ignored, because they are already there.
+ 1. Go to session dashboard and follow the link to tasks on MTurk. Check that you see the images submitted.
+
+Outcomes:
+ 1. Pass all
+ 1. Fail on step N
