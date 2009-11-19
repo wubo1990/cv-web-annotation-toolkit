@@ -1,5 +1,6 @@
-#summary One-sentence summary of this page.
+#summary List of available tests for the system
+#labels Test-manual,Test-automatic,Doc-Userguide
 
-= Introduction =
+== Work management system ==
 
 TestImageUpload upload images to the server.
