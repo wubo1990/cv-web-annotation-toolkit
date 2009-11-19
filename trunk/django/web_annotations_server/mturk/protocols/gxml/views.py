@@ -89,8 +89,7 @@ def upload_image_tgz(request,session_code):
 def do_upload_image_tgz(request,session,form,uploaded_file):
 	
 	user = request.user;
-        print form.cleaned_data
-	print uploaded_file
+
         upload_rt=os.path.join(settings.DATASETS_ROOT,'uploads',session.code);
         session_image_dir=os.path.join(settings.DATASETS_ROOT,session.code);
 	if not os.path.exists(upload_rt):
@@ -102,7 +101,7 @@ def do_upload_image_tgz(request,session,form,uploaded_file):
 	upload_dir=tempfile.mktemp(dir=upload_rt);
 
         submission_rt=os.path.join(settings.DATASETS_ROOT,session.code);
-	#print dir(uploaded_file)
+
 	original_name =uploaded_file.name
         storage = FileSystemStorage(upload_dir);
         fname=storage.save(None,uploaded_file);
@@ -120,7 +119,7 @@ def do_upload_image_tgz(request,session,form,uploaded_file):
         status=os.system("tar xvzCf %s %s" % (upload_dir,os.path.join(upload_dir,fname)));
 
 	dirs=filter(lambda s: s <> fname, os.listdir(upload_dir))
-	print fname,dirs
+
 	if len(dirs) <> 1:
 		return HttpResponse("Error: more than 1 folder in the tgz file");
 
@@ -129,18 +128,33 @@ def do_upload_image_tgz(request,session,form,uploaded_file):
 
 	nAdded=0;
 	nActivated=0;
+	nSkippedExisting=0;
+	nSkippedOverLimit=0;
+
 
 	id = session.mthit_set.count();
+	limit = session.HITlimit;
 	for img_name in  image_names:
+		original_name = img_name
+
+		original_name_query="&original_name="+original_name ;
+		hasHIT = mturk.models.MTHit.objects.filter(session=session,parameters__contains=original_name_query).count();
+		if hasHIT>0:
+			nSkippedExisting += 1;
+			continue
+
 		id += 1;
+		if id>limit:
+			nSkippedOverLimit += 1;
+			continue
+
 		rand_id=str(uuid.uuid4())+"-"+str(id)
 
 		shutil.copyfile(os.path.join(upload_dir,image_folder,img_name),
 				os.path.join(session_image_dir,rand_id+".jpg"));
 
-		original_name = img_name
 		params="image_url=/frames/"+session.code+"/"+rand_id+".jpg&frame="+rand_id+"&original_name="+original_name 
-		print params
+
 		hit=mturk.models.MTHit(session=session,ext_hitid=rand_id,int_hitid=id,parameters=params);
 		hit.save();
 		nAdded+=1;
@@ -151,7 +165,7 @@ def do_upload_image_tgz(request,session,form,uploaded_file):
 		else:
 			pass
 
-	return HttpResponse("done. Added %d, Activated %d" % (nAdded,nActivated))
+	return HttpResponse("done. Added %d, Activated %d, Skipped because HIT exists %d, Skipped because they exceed the HIT limit %d" % (nAdded,nActivated,nSkippedExisting,nSkippedOverLimit))
 
 
 def create_full_pack_download(request,session_code):

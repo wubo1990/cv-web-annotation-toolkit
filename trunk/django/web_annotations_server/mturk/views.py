@@ -90,6 +90,20 @@ def show_session_hits(request,session_code,hit_state,page=1):
 
 
 def showtask(request,session_code):
+    if  0 and session_code=='willow-10-23-2009-s1-box':
+        """This code immediately submits the result to MTurk without doing any work. This is a weird way to remove incorrectly submitted tasks form MTurk. Those will get auto-approved and paid by timeout."""
+        """
+        if 'workerId' in request.REQUEST:
+            workerId=request.REQUEST["workerId"]
+            ext_hitid=request.REQUEST['ExtID']
+            assignmentId=request.REQUEST['assignmentId'];
+            submit_target="http://www.mturk.com/mturk/externalSubmit"
+            return render_to_response('mturk/after_submit.html',
+                                      {'submit_target':submit_target,
+                                       'extid': ext_hitid, 'workerId':workerId,
+                                       'assignmentId':assignmentId});
+        """
+        pass
     session = get_object_or_404(Session,code=session_code)
 
     task = get_object_or_404(MTHit,ext_hitid=request.REQUEST['ExtID'])
@@ -439,6 +453,8 @@ def grading_by_worker_no_session_paged(request,worker_code,page=1):
 			template_name='protocols/' +protocol+'/grading_list.html');
 
 
+
+
 @login_required
 def adjudicate_by_submission_id(request,session_code,submission_id):
 	session = get_object_or_404(Session,code=session_code)
@@ -448,6 +464,21 @@ def adjudicate_by_submission_id(request,session_code,submission_id):
 
 	return object_list(request,queryset=results, paginate_by=1, page=1,
                            template_name='protocols/' +protocol+'/grading_list2.html');
+
+
+@login_required
+def adjudicate_by_conflict_type(request,session_code,grade_A,grade_B,page=1):
+	session = get_object_or_404(Session,code=session_code)
+
+        submission_ids=get_grade_conflict_submission_list(session,grade_A,grade_B);
+	results = session.submittedtask_set.filter(id__in=submission_ids)
+
+	protocol=session.task_def.type.name;
+
+	return object_list(request,queryset=results, paginate_by=10, page=page,
+                           template_name='protocols/' +protocol+'/grading_list2.html');
+
+
 
 @login_required
 def adjudicate_submit(request,submissionID):
@@ -753,7 +784,11 @@ def newHIT(request):
             session.save();
         else:
             create_hit_rs = conn.create_hit(question=q, hit_type=session.hit_type);
-            print pickler.dumps(create_hit_rs)
+            #print pickler.dumps(create_hit_rs)
+
+        mt_hit_id=create_hit_rs.HITId
+        mthit=MechTurkHit(session=session,mthit=hit,state=1,mechturk_hit_id=mt_hit_id); #state=Active
+        mthit.save();
         
 	return HttpResponse("%s" % hit.ext_hitid)
 
@@ -820,6 +855,10 @@ def new_HIT_generic(request):
         else:
             create_hit_rs = conn.create_hit(question=q, hit_type=session.hit_type);
             print create_hit_rs
+
+        mt_hit_id=create_hit_rs.HITId
+        mthit=MechTurkHit(session=session,mthit=hit,state=1,mechturk_hit_id=mt_hit_id); #state=Active
+        mthit.save();
 
 	return HttpResponse("%s" % hit.ext_hitid)
 
@@ -998,9 +1037,10 @@ def grading_submit_session(request,session_code,grading_session_code):
 
 
     stats={};
-    stats['num_to_grade']=session.submittedtask_set.all().count();
+    stats['num_to_grade']=session.submittedtask_set.filter(state__in=[1,2]).count();
     all_grading_items=[];
-    for t in session.submittedtask_set.all():
+    #for t in session.submittedtask_set.all():
+    for t in session.submittedtask_set.filter(state__in=[1,2]):
         submission_id=session.code+"/"+ str(t.id)
         submission_url=t.get_grading_view_url();
         worker_id=t.worker
@@ -1502,6 +1542,80 @@ def expire_session_hits(request,session_code):
 
     return HttpResponse("+ affected %d, skipped %d"%( num_affected, num_skipped))
 
+
+#@login_required
+def expire_session_hits_by_type(request,session_code):
+    session = get_object_or_404(Session,code=session_code);
+
+    if session.sandbox:
+        awshost='mechanicalturk.sandbox.amazonaws.com'
+    else:
+        awshost='mechanicalturk.amazonaws.com'
+        
+    conn = MTurkConnection(host=awshost,aws_secret_access_key=session.funding.secret_key,aws_access_key_id=session.funding.access_key)
+
+    resp=HttpResponse();
+    total_num_results = None
+    last_page = None
+    page=1;
+    page_size = 20;
+    counts={};
+    num_affected=0;
+    num_skipped_by_type=0;
+    affected=[];
+    while last_page is None or page_size*page<=7000:
+        search_result=conn.search_hits(sort_direction='Descending',
+                                       page_size=page_size, page_number=page);
+
+        if last_page is None:
+            total_num_results = int(search_result.TotalNumResults)
+            last_page = total_num_results/page_size;
+
+        print "Processing page %d of %d" % (page,last_page)
+
+        
+        for r in search_result:
+            resp.write(str(r.HITId));
+            resp.write(" ");
+            resp.write(str(r.HITTypeId));
+            resp.write(" ");
+            resp.write(str(r.HITStatus));
+            resp.write("\n");
+            if r.HITStatus=='Assignable':
+                if r.HITTypeId==session.hit_type:
+                    affected.append(r.HITId)
+                    num_affected += 1;
+
+                    if 0==1:
+                        resp.write("id:");
+                        resp.write(str(r.HITId));
+                        resp.write("<br/>\ntype:");
+                        resp.write(str(r.HITTypeId));
+                        resp.write("<br/>\n");
+                        resp.write(str(r.HITStatus));
+                        resp.write("<br/>\n");
+                else:
+                    num_skipped_by_type += 1;
+            else:
+                pass
+
+            if r.HITStatus not in counts:
+                counts[r.HITStatus]=0
+
+            counts[r.HITStatus] += 1;
+        page+=1
+
+    for hID in affected:
+        expire_hit(conn,hID)
+
+    resp.write('<hr/><h2>Assignable:</h2>')
+    resp.write('Affected: %d<br/>' % num_affected);
+    resp.write('Skipped: %d<br/>' % num_skipped_by_type);
+    resp.write('<hr/><h2>Hits by type</h2>')
+    for k,v in counts.items():
+        resp.write('%s  : %d<br/>' % (k,v));
+        
+    return resp
 
 
 def get_ros_publishers(request):

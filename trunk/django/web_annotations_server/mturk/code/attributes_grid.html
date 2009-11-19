@@ -324,28 +324,27 @@ var check_after_load=function()
 	    attribute_names[aID]= attr_id ;
           }
 
-	alert(attribute_names);
 	  var objects=annotation_data.getElementsByTagName('object');
 			       
           for( var oID=0;oID<objects.length;oID++)
           {
 	     var object=objects[oID];
 	     var obj_id = object.getAttribute('id');
-			       alert(obj_id);
              for( var aID=0;aID<attribute_names.length;aID++)
              {
-				  continue;
+
 		var attr=object.getAttribute(attribute_names[aID]);
-				  alert(attr);
-		if(attr)
+		if(attr==null)
 		{
+		}else{
                   f=$('MT_form')['A_obj'+obj_id+'_'+attribute_names[aID]];
 		  if(f.type=="checkbox")
 		  {			
 		    if(attr=="on")f.checked=1;
 		  }else if(f.type=="select-one"){
 		    f.value=attr;
-
+		  }else if(f.type=="textarea"){
+		    f.value=attr;
 		  }else{
   		    for( var fID=0;fID<f.length;fID++)
 		    {
