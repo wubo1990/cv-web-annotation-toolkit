@@ -8,6 +8,7 @@
  1. 'Finalized' - The work unit has been declared absolutely completed. No further work is expected unless discrepancies are detected.
  1. 'Open' - It isn't active, but have been through processing stages.
  1. 'Active' - It's available for processing and has been submitted to the crowdsourcing engine.
+ 1. 'Rejected' - The work unit shall not be completed. The system will not perform any work on it. This could be due to 
 
 
 == State transitions ==
