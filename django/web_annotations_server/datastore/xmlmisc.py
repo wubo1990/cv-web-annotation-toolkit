@@ -51,3 +51,11 @@ def xadd(doc,x_parent,child_name,child_content):
 	x_child.appendChild(x_child_c)
 	x_parent.appendChild(x_child);
 
+def xfetch_attributes(document,top_level_tag,inner_tag,attribute_id):
+	"This should be used only when exactly one top level tag is available."
+
+        x_items = xget(document,top_level_tag);
+	assert(len(x_items)==1);
+        x_items_list = xget(x_items[0],inner_tag);
+        items = map(lambda n: xget_a(n,attribute_id),x_items_list);
+	return items

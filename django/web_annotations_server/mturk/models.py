@@ -1153,6 +1153,34 @@ AND r2.quality = %s
 
     return None
 
+def get_grade_conflict_submission_list(session,g1,g2):
+    from django.db import connection
+    cursor = connection.cursor()
+    cursor.execute("""
+ SELECT		DISTINCT t.id id
+FROM `mturk_submittedtask` t, mturk_manualgraderecord r1, mturk_manualgraderecord r2
+WHERE t.session_id =%s
+AND ( t.valid )
+AND t.id = r1.submission_id
+AND t.id = r2.submission_id
+AND r1.valid AND r2.valid
+AND r1.id <> r2.id
+AND r1.quality = %s
+AND r2.quality = %s
+""",[session.id,g1,g2]);
+
+    results=[];
+    try:
+	for r in cursor.fetchall():
+		submission_id=r[0];
+		results.append(submission_id);
+	cursor.close();
+	return results
+    except:
+	return None
+
+    return None
+
 def get_grading_tasks_for_grading_submission(session,grading_session,worker_code,task_id):
 	results=[];
 	return results

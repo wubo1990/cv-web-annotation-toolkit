@@ -98,6 +98,15 @@ class AttributesTaskEngine(TaskEngine):
         return self.get_submission_xml_doc(submission).toxml();
 
     def get_submission_xml_doc(self,submission):
+        print self
+
+        task_prototype_parameters = minidom.parseString(submission.session.task_def.interface_xml);
+        work_unit_parameters = minidom.parseString(submission.hit.parameters);
+        
+
+        attributes = xmlmisc.xfetch_attributes(task_prototype_parameters,'attributes','attribute','id');
+        items = xmlmisc.xfetch_attributes(work_unit_parameters,'items','item','id');
+
         x_doc=minidom.Document();
 
         object_attributes={};
@@ -106,12 +115,17 @@ class AttributesTaskEngine(TaskEngine):
 	GET,POST=submission.get_response();
         print GET,POST
 
+        valid_attributes={};
+        for i in items:
+            for a in attributes:
+               valid_attributes ['A_obj%s_%s' % (i,a)]=(i,a)
+
         for k,v in POST.items():
             if k.startswith("A_"):
-                parts=k.split("_");
-                objID=parts[1][3:];
-                attr_name=reduce(lambda a,b:a+'_'+b,parts[2:]);
-                print objID, attr_name, v
+                assert( k in valid_attributes );
+
+                objID,attr_name = valid_attributes[k];
+
                 if objID not in object_attributes:
                     object_attributes[objID]={};
 

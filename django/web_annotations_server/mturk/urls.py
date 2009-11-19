@@ -73,6 +73,8 @@ urlpatterns = patterns('',
     (r'^grading_submit/(?P<submissionID>[0-9]+)/$', 'mturk.views.grading_submit'),
 
     (r'^adjudicate/(?P<session_code>[\w\-]+)/(?P<submission_id>[\w\-]+)/$', 'mturk.views.adjudicate_by_submission_id'),
+    (r'^adjudicate_all/(?P<session_code>[\w\-]+)/(?P<grade_A>[\w\-]+)/(?P<grade_B>[\w\-]+)/p(?P<page>[0-9]+)/$', 'mturk.views.adjudicate_by_conflict_type'),
+
     (r'^adjudicate_submit/(?P<submissionID>[0-9]+)/$', 'mturk.views.adjudicate_submit'),
 
     (r'^grading_report/(?P<session_code>[\w\-]+)/reject/$', 'mturk.views.grading_report_reject'),
@@ -121,6 +123,7 @@ urlpatterns = patterns('',
     (r'^ban_worker/(?P<worker_id>[\w\-]+)/$', 'mturk.views.ban_worker'),
 
     (r'^expire_session_hits/(?P<session_code>[\w\-]+)/$', 'mturk.views.expire_session_hits'),
+    (r'^expire_session_hits_by_type/(?P<session_code>[\w\-]+)/$', 'mturk.views.expire_session_hits_by_type'),
 
     (r'^stats/session_details/(?P<session_code>[\w\-]+)/$', 'mturk.views.stats_session_detail'),
 
