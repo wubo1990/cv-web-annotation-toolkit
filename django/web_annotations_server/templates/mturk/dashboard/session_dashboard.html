@@ -41,9 +41,9 @@ Submissions: Total {{session.submittedtask_set.count}}. Approved {{stats.submiss
 <hr/>
 <h2>Tasks</h2>
 {% if session.sandbox %}
-<a href="https://workersandbox.mturk.com/mturk/preview?groupId=R16ZSVZ8ZX3ZQ6YVCWXZ">On MechTurk (sandbox)</a>
+<a href="https://workersandbox.mturk.com/mturk/preview?groupId={{session.hit_type}}">On MechTurk (sandbox)</a>
 {% else %}
-<a href="https://www.mturk.com/mturk/preview?groupId=R16ZSVZ8ZX3ZQ6YVCWXZ">On MechTurk (production)</a>
+<a href="https://www.mturk.com/mturk/preview?groupId={{session.hit_type}}">On MechTurk (production)</a>
 {% endif %}<br/>
 Internally: <a href="/mt/session_hits/{{session.code}}/0/">All</a> || 
 <a href="/mt/session_hits/{{session.code}}/1/">New</a> | <a href="/mt/session_hits/{{session.code}}/2/">Submitted</a>
