@@ -14,3 +14,6 @@ Procedure:
 Outcomes:
  1. Pass all
  1. Fail on step N
+
+Test results:
+http://spreadsheets.google.com/pub?key=t8s3_kG5mNl8GH_duroMogA&output=html
