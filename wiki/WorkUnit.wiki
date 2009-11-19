@@ -3,11 +3,11 @@
 == States ==
 
  1. 'New' - It's in the system, but hasn't been submitted for processing (activated).
- 2. 'Submitted' - The work unit has been completed, but not graded.
- 3. 'Graded' - The work unit has a tentative grade.
- 4. 'Finalized' - The work unit has been declared absolutely completed. No further work is expected unless discrepancies are detected.
- 5. 'Open' - It isn't active, but have been through processing stages.
- 6. 'Active' - It's available for processing and has been submitted to the crowdsourcing engine.
+ 1. 'Submitted' - The work unit has been completed, but not graded.
+ 1. 'Graded' - The work unit has a tentative grade.
+ 1. 'Finalized' - The work unit has been declared absolutely completed. No further work is expected unless discrepancies are detected.
+ 1. 'Open' - It isn't active, but have been through processing stages.
+ 1. 'Active' - It's available for processing and has been submitted to the crowdsourcing engine.
 
 
 == State transitions ==
