@@ -70,7 +70,7 @@ def build_model(data_root,ag_bin=None,train_file='data.train',val_file='data.val
     while not done_training:
         action = get_next_action(data_root)
         print "Next action is ",action
-        action_cmd=TE_BIN_LOCATION+action;
+        action_cmd=os.path.join(ag_bin,action);
         action_status = os.system(action_cmd)        
 
         if action.startswith('ag_save'):
