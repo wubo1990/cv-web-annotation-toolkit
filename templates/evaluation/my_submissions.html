@@ -33,7 +33,13 @@ NO SUBMISSIONS FOUND
   <td>{{s.get_state_display}}</td>
 
 
-<td> {% if s.to_challenge.is_score_visible %} {{s.score}} {% endif %}</td>
+<td> 
+
+{% if s.to_challenge.is_score_visible %} 
+{{s.score}} 
+{% endif %}
+
+</td>
   {% comment %}
   {% for o in s.submissionscore_set.all %}
   {{o.category}}({{o.score}})  
