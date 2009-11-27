@@ -2,6 +2,11 @@
 {% load switchcase %}
 
 {% block content %}
+{% ifequal objects.count 0 %}
+NO SUBMISSIONS FOUND
+{% else %}
+
+
 <table><tr>
   <td>Active</td>
   <td>Id</td>
@@ -12,11 +17,12 @@
   <td>Score</td>
   <td>When</td>  
 </tr>
+
 {% for s in objects %}
 <tr>
 <td>
   {% ifequal s.when s.most_recent %}
-<b>active{% ifequal s.state 3 %}+{% endifequal %}</a>
+    <b>active{% ifequal s.state 3 %}+{% endifequal %}{% ifequal s.state 5 %}+{% endifequal %}</a>
 {% endifequal %}</td>
 <td><a href="/eval/view_submission/{{s.id}}/">{{s.id}}</a></td>
 
@@ -24,15 +30,16 @@
 <td>{{s.title}}</td>
 
   <td>{{s.to_challenge.name}}</td>
-  <td>
-{% switch s.state %}
-    {% case 1 %} New {% endcase %}
-    {% case 2 %} Evaluation in progress{% endcase %}
-    {% case 3 %} Evaluation completed successfully{% endcase %}
-    {% case 4 %} Evaluation failed {% endcase %}
-{% endswitch %}
-    </td>
-<td> {% if s.to_challenge.is_score_visible %} {{s.score}} {% endif %}</td>
+  <td>{{s.get_state_display}}</td>
+
+
+<td> 
+
+{% if s.to_challenge.is_score_visible %} 
+{{s.score}} 
+{% endif %}
+
+</td>
   {% comment %}
   {% for o in s.submissionscore_set.all %}
   {{o.category}}({{o.score}})  
@@ -47,5 +54,7 @@
 <hr/>
 <b>active</b> marks the submission, that will enter the competition. Only the most recent submission for each method will count.<br/>
 <b>active+</b> marks active submissions, where evaluation was successful.
+
+{% endifequal %} 
 
 {% endblock %}
