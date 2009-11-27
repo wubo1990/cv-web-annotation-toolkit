@@ -11,11 +11,12 @@ $('uploading_message').style.display='block';
 {% endblock %}
 
 {% block content %}
-Overfitting to the test set is expressly prohibited. Generally, you should submit the results and get evaluation scores only <b>once</b>. To accomodate for bugs, misunderstanding and errors we will allow several submissions in any K-day period as shown below.
+Overfitting to the test set is expressly prohibited. Generally, you should submit the results and get evaluation scores only <b>once</b>. To accomodate for bugs, misunderstanding and errors we will allow several submissions in any K-day period as shown below.<br/><br/>
+<b>DO NOT</b> attempt to go around the limits. If you believe it is appropriate for you to make more submissions, contact the organizers of the challenge (me@comp.leeds.ac.uk).<br/><br/>
 <table>
-<tr><td>Challenge</td><td>Can I submit now?</td><td>Used allowance</td><td>Allowance</td><td>Period (days)</td></tr>
+<tr><td>Challenge</td><td>Can I submit now?</td><td>Used allowance</td><td>Current allowance</td><td>Standard allowance</td><td>Period (days)</td></tr>
 {% for c in challenges_info %}
-<tr><td>{{c}}</td><td>{% if c.can_submit %}<b>Yes</b>{% else %}<b>No</b>{% endif %}</td><td>{{c.used_allowance}}</td><td>{{c.limit_to_N_submissions}}</td><td>{{c.limit_in_N_days}}</td></tr>
+<tr><td>{{c}}</td><td>{% if c.can_submit %}<b>Yes</b>{% else %}<b>No</b>{% endif %}</td><td>{{c.used_allowance}}</td><td>{{c.total_allowance}}</td><td>{{c.limit_to_N_submissions}}</td><td>{{c.limit_in_N_days}}</td></tr>
 {% endfor %}
 </table>
 <br/>
