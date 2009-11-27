@@ -1,6 +1,26 @@
 {% extends 'evaluation/base_app.html' %}
 
+{% block extrahead %}
+<script src="/code/js/prototype.js"></script>
+<script>
+var do_upload=function()
+{
+$('uploading_message').style.display='block';
+}
+</script>
+{% endblock %}
+
 {% block content %}
+Overfitting to the test set is expressly prohibited. Generally, you should submit the results and get evaluation scores only <b>once</b>. To accomodate for bugs, misunderstanding and errors we will allow several submissions in any K-day period as shown below.<br/><br/>
+<b>DO NOT</b> attempt to go around the limits. If you believe it is appropriate for you to make more submissions, contact the organizers of the challenge (me@comp.leeds.ac.uk).<br/><br/>
+<table>
+<tr><td>Challenge</td><td>Can I submit now?</td><td>Used allowance</td><td>Current allowance</td><td>Standard allowance</td><td>Period (days)</td></tr>
+{% for c in challenges_info %}
+<tr><td>{{c}}</td><td>{% if c.can_submit %}<b>Yes</b>{% else %}<b>No</b>{% endif %}</td><td>{{c.used_allowance}}</td><td>{{c.total_allowance}}</td><td>{{c.limit_to_N_submissions}}</td><td>{{c.limit_in_N_days}}</td></tr>
+{% endfor %}
+</table>
+<br/>
+<hr/>
 Please upload submissions as defined in the development kit.<br/>
 
 {% if form.is_multipart %}
@@ -8,17 +28,136 @@ Please upload submissions as defined in the development kit.<br/>
 {% else %}
     <form method="post" action="">
 {% endif %}
+<table><tr><td>
 <table>
- {% for field in form %}
- <tr><td>
-            {{ field.label_tag }}</td><td>
-	    {{ field }}</td><td>
-            {{ field.errors }}</td>
+  <tr><td>
+Field
+    </td><td>
+Value
+  </td><td>
+Example
+    </td><td>
+Description
+    </td><td>
 </tr>
-    {% endfor %}
+
+
+
+<tr>
+  <td>
+    <label for="id_method">Method:</label>
+  </td><td>
+    {{ form.method }}
+  </td><td>
+    SVM-HOG
+  </td><td>
+    Method identifier
+  </td><td>
+    {{ form.method.errors }}
+</td></tr>
+
+<tr>
+  <td>
+    <label for="id_title">Title:</label>
+  </td><td>
+    {{ form.title }}
+  </td><td>
+    Svm classifier with dense HOG features.
+  </td><td>
+    The short description of the classifier.
+  </td><td>
+    {{ form.title.errors }}
+</td></tr>
+
+
+
+<tr>
+  <td>
+    <label for="id_title">Description:</label>
+  </td><td>
+    {{ form.description }}
+  </td><td>
+    Svm-light classifier with dense HOG features. Trained using 5-fold cross-validation. Re-trained on full train+val set with fixed parameters. 
+  </td><td>
+    Any description of the method that you would like to give. Can be a pointer to the web page.
+  </td><td>
+    {{ form.description.errors }}
+</td></tr>
+
+<tr>
+  <td>
+    <label for="id_title">Primary contact:</label>
+  </td><td>
+    {{ form.contact_person }}
+  </td><td>
+    Polar Bear &lt;bear@northpole.edu&gt 
+  </td><td>
+    The contact person for the submission with contact e-mail.
+  </td><td>
+    {{ form.title.errors }}
+</td></tr>
+
+
+<tr>
+  <td>
+    <label for="id_title">Affiliation:</label>
+  </td><td>
+    {{ form.affiliation }}
+  </td><td>
+    The University of North Pole.
+  </td><td>
+    Affiliation of the team.
+  </td><td>
+    {{ form.title.errors }}
+</td></tr>
+
+<tr>
+  <td>
+    <label for="id_title">Contributors:</label>
+  </td><td>
+    {{ form.contributors }}
+  </td><td>
+    Polar Bear, Globar Warming, Melting Ice
+  </td><td>
+    The list of team members. 
+  </td><td>
+    {{ form.title.errors }}
+</td></tr>
+
+
+<tr>
+  <td>
+    <label for="id_challenge">Challenge:</label>
+  </td><td>
+    {{ form.challenge }}
+  </td><td>
+    VOC2009_validation
+  </td><td>
+    The name of the challenge to which you are submitting predictions.
+  </td><td>
+    {{ form.challenge.errors }}
+</td></tr>
+
+
+
+<tr>
+  <td>
+    <label for="id_challenge">Submission file:</label>
+  </td><td>
+    {{ form.submission_file }}
+  </td><td>
+    <a href="/code/example_results.tar.gz">results.tgz</a>
+  </td><td>
+    Your submision file.
+  </td><td>
+    {{ form.submission_file.errors }}
+</td></tr>
+
 <tr><td colspan=3 align="center">
-    <input type="submit" value="Upload submission" /></td></tr>
-</table>	  
+<div id="uploading_message" style="display:none"> Uploading. Please wait  ... </div>    <input type="submit" value="Upload submission" onclick="do_upload();return true;"/></td></tr>
+</table>	
+</td><td valign="center">
+</td></tr></table>  
 </form>
   <div>
     {% include 'evaluation/instructions_note.html' %}

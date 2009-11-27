@@ -1,0 +1,73 @@
+{% extends "evaluation/base_app.html" %}
+{% load switchcase %}
+{% load eval_results %}
+
+{% block content %}
+
+{% if relevant_submissions %}
+
+<table><tr>
+<thead>
+<tr><th>Method</th><th>Title</th>
+<th>Contributors</th>
+<th>Affiliation</th>
+<th>Contact Person</th>
+</tr>
+{% for s in relevant_submissions %}
+<tr><td><a href="/eval/submission/{{s.id}}/">{{s.method}}</a></td><td><a href="/eval/submission/{{s.id}}/">{{s.title}}</a></td>
+<td>{{s.contributors}}</td>
+<td>{{s.affiliation}}</td>
+<td>{{s.contact_person}}</td>
+</tr>
+{% endfor %}
+</table></tr>
+<hr/>
+
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Number of wins</th>
+{% for c in categories %}
+<th>{{c}}</th>
+{% endfor %}
+</tr>
+</thead>
+{% for s in scores %}
+<tr class="row{% cycle 1,2 %}">
+<th>{{s.submission.method}}</th>
+
+<td>{{s.n_wins|NWINS}}</td>
+  {% for score in s.scores %}
+
+<td>
+{% if score.1 %}<b><u>
+{% endif %}
+{% switch competition %}
+    {% case "comp1" %}   {{score.0|AP}}   {% endcase %}
+    {% case "comp2" %}   {{score.0|AP}}   {% endcase %}
+    {% case "comp3" %}   {{score.0|AP}}   {% endcase %}
+    {% case "comp4" %}   {{score.0|AP}}   {% endcase %}
+    {% case "comp5" %}   {{score.0|ACCURACY}}   {% endcase %}
+    {% case "comp6" %}   {{score.0|ACCURACY}}   {% endcase %}
+    {% case "comp7" %}   {{score.0|ACCURACY}}   {% endcase %}
+    {% case "comp8" %}   {{score.0|ACCURACY}}   {% endcase %}
+{% endswitch %}
+{% if score.1 %}</u></b>
+{% endif %}
+</td>
+
+  {% endfor %}
+</tr>
+{% endfor %}
+</table>
+{% else %}
+
+No submissions in the competition.
+
+{% endif %}
+
+
+<hr/>
+
+{% endblock %}
