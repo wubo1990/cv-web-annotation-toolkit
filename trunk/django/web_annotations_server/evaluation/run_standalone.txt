@@ -1,0 +1,9 @@
+sudo su www-data
+
+export PYTHONPATH=$PYTHONPATH:/var/django/:/var/django/web_annotations_server
+
+export DJANGO_SETTINGS_MODULE=web_annotations_server.settings
+
+export MCR_CACHE_ROOT=/var/django/MCR/cache/
+
+./standalone_evaluation.py
