@@ -100,13 +100,14 @@ def run_evaluation():
 				break
 
 			try:				
-				if iComp==1 or iComp==3:
+				if iComp==1 or iComp==3 or iComp==5:
 					f_results=open(report_filename + '.score','r');
 					for score_str in f_results.readlines():
 						(score,category)=score_str.strip().split(' ');
                                                 print >>scores_file,"%s\tcomp%d.%s" % (score,jComp,category)
                                                 ss=SubmissionScore(score=score,
-                                                                   category="comp%d.%s" % (jComp,category),
+                                                                   competition="comp%d" % jComp,
+                                                                   category=category,
                                                                    submission=s);
                                                 ss.save();
 					f_results.close()

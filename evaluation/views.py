@@ -30,8 +30,9 @@ def check_challenge_timeout(user,challenge):
 	n_days=challenge.limit_in_N_days;
 	default_allowance=challenge.limit_to_N_submissions;
 	extra_allowance = 0
-	today = datetime.date.today();
+	today = datetime.datetime.today();
 	today_minus_N=today - datetime.timedelta(days=n_days);
+	print today
 
 	for ex in SubmissionExceptions.objects.filter(for_user=user,
 						      start_on__lte=today,
@@ -46,7 +47,7 @@ def check_challenge_timeout(user,challenge):
 
 	can_submit=used_allowance<default_allowance + extra_allowance
 
-	return (can_submit, used_allowance);
+	return (can_submit, used_allowance, default_allowance + extra_allowance);
 
 @login_required
 def upload_submission(request):
@@ -58,7 +59,7 @@ def upload_submission(request):
 		form = UploadSubmissionForm(request.POST, request.FILES)
 		if form.is_valid():
 			challenge=form.cleaned_data['challenge']
-			(can_submit,past_count)=check_challenge_timeout(request.user,challenge)
+			can_submit,past_count,total_allowance=check_challenge_timeout(request.user,challenge)
 			if can_submit:
 				uploaded_file=request.FILES['submission_file'];
 				return do_upload_submission(request,form,uploaded_file);
@@ -70,9 +71,10 @@ def upload_submission(request):
 
 	challenges_info=Challenge.objects.all()
 	for c in challenges_info:
-		can_submit,used_allowance = check_challenge_timeout(request.user,c);
+		can_submit,used_allowance,total_allowance = check_challenge_timeout(request.user,c);
 		c.can_submit=can_submit
 		c.used_allowance=used_allowance
+		c.total_allowance=total_allowance
 
 	return render_to_response('evaluation/upload_submission.html', {'form': form,'user':request.user,'challenges_info':challenges_info})
 

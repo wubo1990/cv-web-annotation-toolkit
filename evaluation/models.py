@@ -34,6 +34,11 @@ class Challenge(models.Model):
     def __unicode__(self):
         return self.name
 
+    class Meta:
+        permissions = (
+            ("is_blind", "Can NOT see evaluation results"),
+        )
+
 
 class SubmissionExceptions(models.Model):
     for_user=models.ForeignKey(User);
