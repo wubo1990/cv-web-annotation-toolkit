@@ -169,6 +169,7 @@ HIT_STATE = (
             (4, 'Finalized'),
             (5, 'Open'),
             (6, 'Active'),
+            (7, 'Rejected'),
         )        
 
 class MTHit(models.Model):
@@ -421,6 +422,12 @@ class ManualGradeRecord(models.Model):
 	worker 	= models.ForeignKey(Worker,null=True, blank=True);
 	valid   = models.BooleanField(default=True);
 	reference = models.TextField(blank=True);
+
+	def to_dict(self):
+		return {'worker':str(self.worker),
+			'valid':str(self.valid),
+			'quality':str(self.quality),
+			'feedback':str(self.feedback)};
 
 def select_sample_task(session):
 	try:

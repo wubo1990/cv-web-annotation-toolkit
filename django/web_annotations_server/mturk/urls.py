@@ -25,6 +25,9 @@ urlpatterns = patterns('',
 
 
     (r'^submission_data_xml/(?P<id>\d+)/(?P<ext_hitid>[\w\-]+)/$', 'mturk.views.get_submission_data_xml'),
+    (r'^submission_rendered/(?P<id>\d+)/(?P<ext_hitid>[\w\-]+)/$', 'mturk.views.get_rendered_submission'),
+
+    (r'^submission/(?P<id>\d+)/grades/valid/$', 'mturk.views.get_submission_valid_grades'),
 
     (r'^random_results/(?P<session_code>[\w\-]+)/', 'mturk.views.show_random_results'),
 

@@ -14,6 +14,9 @@ from django.views.generic.list_detail import object_list
 from django.contrib.auth.decorators import login_required
 from subprocess import *
 
+import yaml
+
+
 try:
     from boto.mturk.connection import MTurkConnection
     from boto.mturk.question import ExternalQuestion
@@ -228,6 +231,23 @@ def get_submission_data_xml(request,id=None,ext_hitid=None):
 	str_response=submission.get_xml_str();
 
     	return HttpResponse(str_response,mimetype="text/xml");
+
+
+
+def get_rendered_submission(request,id=None,ext_hitid=None):
+	submission = get_object_or_404(SubmittedTask,id=int(id))
+
+	img_file = submission.hit.parse_parameters()["frame"];
+	dataset_path=os.path.join(settings.DATASETS_ROOT,submission.session.code);
+	image_filename=os.path.join(dataset_path,img_file+".jpg");
+	im = Image.open(image_filename);	
+
+	str_response=submission.get_xml_str();
+
+	response = HttpResponse(mimetype="image/jpeg")
+	im.save(response, "JPEG")
+
+    	return response
 
 
 
@@ -1173,7 +1193,7 @@ def activate_hit(session,hit):
         awshost='mechanicalturk.sandbox.amazonaws.com'
     else:
         awshost='mechanicalturk.amazonaws.com'
-        
+
     conn = MTurkConnection(host=awshost,aws_secret_access_key=session.funding.secret_key,aws_access_key_id=session.funding.access_key)
 
     keywords=session.task_def.get_keywords()
@@ -1195,22 +1215,24 @@ def activate_hit(session,hit):
                                         annotation="IGNORE",
                                         qualifications=qualifications)
         assert(create_hit_rs.status == True)
-        print create_hit_rs.HITTypeId
+
         session.hit_type=create_hit_rs.HITTypeId;
         session.save();
     else:
         create_hit_rs = conn.create_hit(question=q, hit_type=session.hit_type);
-        print create_hit_rs
-        print create_hit_rs.HITId
 
-    #hit.mt_hitid=create_hit_rs.HITId
-    hit.save()
+    try:
+        mt_hit_id=create_hit_rs.HITId
+    except:
+        return (False,None);
+    else:
+        mthit=MechTurkHit(session=session,mthit=hit,state=1,mechturk_hit_id=mt_hit_id);
+        mthit.save();
 
-    mt_hit_id=create_hit_rs.HITId
-    mthit=MechTurkHit(session=session,mthit=hit,state=1,mechturk_hit_id=mt_hit_id);
-    mthit.save();
+        hit.state=6 #Active.
+        hit.save();
 
-    return (True,"%s" % hit.ext_hitid)
+        return (True,"%s" % hit.ext_hitid)
 
 
 
@@ -1505,6 +1527,21 @@ def deactivate_grade_record(request,grade_id):
     grade_record.valid=False;
     grade_record.save()
     return HttpResponse("done")
+
+
+
+def get_submission_valid_grades(request,id):
+	submission = get_object_or_404(SubmittedTask,id=id);
+        results=[];
+        for g in submission.manualgraderecord_set.all():
+            if not g.valid:
+                continue
+            results.append(g.to_dict())
+        
+        resp=HttpResponse()
+        resp.write(yaml.dump(results));
+        return resp;
+
 
 
 

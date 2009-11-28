@@ -19,12 +19,27 @@ from django.db import connection
 def worker_contributions_to_session(session):
     print  "Stat worker_contributions_to_session", session, type(session.id)
 
+    exceptional={};
+    try:
+	    cursor = connection.cursor()
+
+	    cursor.execute("""
+SELECT s.worker, count(*) c  FROM `mturk_submittedtask` s  left join mturk_manualgraderecord g on g.submission_id = s.id and g.valid  WHERE %s=`session_id` and g.quality>=15 group by worker
+""",[session.id])
+
+	    for r in cursor.fetchall():
+		    exceptional[r[0]]=r[1];
+	    cursor.close();
+    except:
+	    pass
+
+
     good={};
     try:
 	    cursor = connection.cursor()
 
 	    cursor.execute("""
-SELECT s.worker, count(*) c  FROM `mturk_submittedtask` s  left join mturk_manualgraderecord g on g.submission_id = s.id and g.valid  WHERE %s=`session_id` and g.quality>=10 group by worker
+SELECT s.worker, count(*) c  FROM `mturk_submittedtask` s  left join mturk_manualgraderecord g on g.submission_id = s.id and g.valid  WHERE %s=`session_id` and g.quality>=10 and g.quality<15 group by worker
 """,[session.id])
 
 	    for r in cursor.fetchall():
@@ -32,7 +47,7 @@ SELECT s.worker, count(*) c  FROM `mturk_submittedtask` s  left join mturk_manua
 	    cursor.close();
     except:
 	    pass
-    print good
+
     ok={};
     try:
 	    cursor = connection.cursor()
@@ -58,6 +73,24 @@ SELECT s.worker, count(*) c  FROM `mturk_submittedtask` s  left join mturk_manua
 """,[session.id])
 	    for r in cursor.fetchall():
 		    bad[r[0]]=r[1];
+	    cursor.close()
+
+
+
+    except:
+	    pass
+
+    
+    ungraded={};
+    try:
+	    cursor = connection.cursor()
+
+	    cursor.execute("""
+SELECT s.worker w, count(*) FROM `mturk_submittedtask` s  left join mturk_manualgraderecord g on g.submission_id = s.id and g.valid WHERE 
+%s=`session_id` and g.id is NULL group by w
+""",[session.id])
+	    for r in cursor.fetchall():
+		    ungraded[r[0]]=r[1];
 	    cursor.close()
 
 
@@ -97,10 +130,12 @@ ORDER BY c DESC
 
 	    for r in cursor.fetchall():
 		w=r[0];
-                num_to_grade=r[1] - (good.get(w,0)+ ok.get(w,0) + bad.get(w,0));
+                #num_to_grade=r[1] - (good.get(w,0)+ ok.get(w,0) + bad.get(w,0));
+                num_to_grade=ungraded.get(w,0);
 
 		res={'worker'  :w,
 		     'count'   :r[1],
+		     'num_exceptional': exceptional.get(w,0),
 		     'num_good': good.get(w,0),
 		     'num_ok'  : ok.get(w,0),
 		     'num_bad' : bad.get(w,0),
@@ -148,7 +183,6 @@ SELECT state, count(*) c  FROM `mturk_mthit` s WHERE %s=`session_id` GROUP BY st
         counts.append({'state':r[0],'state_name':d[r[0]],'count':r[1]})
     cursor.close();
 
-    print counts
     return counts
 
 
