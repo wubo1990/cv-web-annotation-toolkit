@@ -16,6 +16,7 @@
 = Mech Turk app =
   * AnnotationTaskDesign defines the XML-based language to configure the flash user interface.
   * GroupingTask is for placing object thumbnails into group bins.
+  * GradingTask defines how to send tasks for grading.
 
 
 = Competition app =
