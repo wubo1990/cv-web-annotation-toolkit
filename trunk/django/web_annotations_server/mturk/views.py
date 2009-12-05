@@ -32,7 +32,7 @@ import django
 
 
 from models import *
-
+from models_stats import *
 
 try:
     from mturk.temp_rosnode import TmpNode
@@ -292,6 +292,11 @@ def show_paged_results(request,session_code,page=1,order_by=None):
 			template_name='protocols/' +protocol+'/show_list.html',extra_context={'page_range':page_range});
 
 
+def show_all_results(request,session_code):
+        session = get_object_or_404(Session,code=session_code)
+        protocol=session.task_def.type.name
+        results=session.submittedtask_set.all()
+        return object_list(request,queryset=results,template_name='protocols/'+protocol+'/grading_list.html');
 
 def show_good_results_paged_base(request,session_code):
     return HttpResponseRedirect("p1/");
@@ -1542,8 +1547,13 @@ def get_submission_valid_grades(request,id):
         resp.write(yaml.dump(results));
         return resp;
 
+def session_stats(request,session_code):
+    session = get_object_or_404(Session,code=session_code);
+    stats = hit_counts_by_state(session)
 
-
+    resp=HttpResponse()
+    resp.write(yaml.dump(stats));
+    return resp;
 
 
 def expire_hit(conn,hit_id):

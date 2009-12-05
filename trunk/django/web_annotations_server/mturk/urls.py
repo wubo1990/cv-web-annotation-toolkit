@@ -35,6 +35,7 @@ urlpatterns = patterns('',
     (r'^results/$', 'mturk.views.show_sessions'),
     (r'^results/(?P<session_code>[\w\-]+)/$', 'mturk.views.show_paged_results_base'),
     (r'^results/(?P<session_code>[\w\-]+)/p(?P<page>[0-9]+)/$', 'mturk.views.show_paged_results'),
+    (r'^all_results/(?P<session_code>[\w\-]+)/$', 'mturk.views.show_all_results'),
     (r'^good_results/(?P<session_code>[\w\-]+)/$', 'mturk.views.show_good_results_paged_base'),
     (r'^good_results/(?P<session_code>[\w\-]+)/p(?P<page>[0-9]+)/$', 'mturk.views.show_good_results_paged'),
 
@@ -56,7 +57,7 @@ urlpatterns = patterns('',
 
 
     (r'^result_stats/(?P<session_code>[\w\-]+)/by_worker/$', 'mturk.stats.session_stats_by_worker'),
-
+    (r'^session/(?P<session_code>[\w\-]+)/stats/$', 'mturk.views.session_stats'),
 
     (r'^grading/(?P<session_code>[\w\-]+)/$', 'mturk.views.grading_paged_base'),
     (r'^grading/(?P<session_code>[\w\-]+)/p(?P<page>[0-9]+)/$', 'mturk.views.grading_paged'),

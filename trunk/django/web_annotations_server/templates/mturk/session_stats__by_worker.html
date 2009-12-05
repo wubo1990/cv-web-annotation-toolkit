@@ -12,11 +12,11 @@ var run_block=function(worker )
 
 </script>
 <hr/>
-<table><tr><td>Session code</td><td>Worker</td><td>Num submissions</td><td>Grades</td><td>Grading link</td><td>Total by worker</td></tr>
+<table><tr><td>Session code</td><td>Worker</td><td>Num submissions</td><td>Grades<br/>15/10/7/3</td><td>Grading link</td><td>Total by worker</td></tr>
 {% for s in session_stats %}
 <tr><td>{{session.code}}</td><td><a href="/mt/dashboard/worker_internal/{{s.worker}}/">{{s.worker}}</a></td><td>{{s.count}}</td>
 
-  <td>{{s.num_good}}/{{s.num_ok}}/{{s.num_bad}}</td>
+  <td>{{s.num_exceptional}}/{{s.num_good}}/{{s.num_ok}}/{{s.num_bad}}</td>
 
 <td><a href="/mt/grading/by_worker/{{session.code}}/{{s.worker}}/">grade ({{s.num_to_grade}} )</a></td>
 <td>{{s.total}}</td>
