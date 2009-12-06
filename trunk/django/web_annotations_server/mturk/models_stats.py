@@ -188,7 +188,7 @@ SELECT state, count(*) c  FROM `mturk_mthit` s WHERE %s=`session_id` GROUP BY st
 
 
 def session_stats(session):
-    from django.db import connection
+
     print  "Stat worker_contributions_to_session", session, type(session.id)
 
     grade_counts={};
@@ -241,7 +241,7 @@ SELECT MIN(s.submitted - h.submitted), MAX(s.submitted - h.submitted), AVG(s.sub
 	    cursor.close();
     except:
 	    pass
-
+            
     hit_stats={};
     hit_stats['count']=session.mthit_set.count();
     hit_stats['num_idle']=session.mthit_set.filter(state=5).count();
@@ -250,8 +250,9 @@ SELECT MIN(s.submitted - h.submitted), MAX(s.submitted - h.submitted), AVG(s.sub
     hit_stats['counts_by_state']=hit_counts_by_state(session);
 
     print hit_stats
-    conflicts=compute_session_conflicts(session);
+    conflicts=compute_session_conflicts2(session);
     session_grades_distribution=compute_session_grade_distribution(session);
+
 
     all_stats= {'total_grades':total_grades,
                 'submissions':submissions,
@@ -260,10 +261,10 @@ SELECT MIN(s.submitted - h.submitted), MAX(s.submitted - h.submitted), AVG(s.sub
                 'session_grades':session_grades_distribution,
                 'hits':hit_stats};
 
+
     return all_stats;
 
 def worker_stats(worker):
-    from django.db import connection
 
     grade_counts={};
     try:
@@ -401,6 +402,28 @@ GROUP BY t.id, q1, q2
             'conflicts':conflicts}
 
 
+def compute_session_conflicts2(session):
+
+    num_conflicts=0;
+    try:
+    	    cursor = connection.cursor()
+
+	    cursor.execute("""
+SELECT s.id, count(distinct quality) c FROM `mturk_submittedtask` s, mturk_manualgraderecord g WHERE s.id = g.submission_id and s.session_id= %s and g.valid and s.valid group by s.id
+""",[session.id])
+	    for r in cursor.fetchall():
+                (submission,num_grades)=r
+                if num_grades>1:
+                    num_conflicts += 1
+	    cursor.close();    
+    except:
+        raise
+
+            
+    conflicts={'stats':{'num_conflicts':num_conflicts}};
+    return conflicts
+        
+
 def compute_session_conflicts(session):
     num_conflicts=0;
     for task in session.mthit_set.all():
@@ -428,7 +451,7 @@ def compute_session_conflicts(session):
 
 
 def workers_overview():
-    from django.db import connection
+
 
     worker_grades={};
     try:
@@ -457,7 +480,7 @@ ORDER BY worker, final_grade
                 utility=float(good)/float(max(1,(bad+good)));
                 worker_utility.append((tot_g,utility,w,bad,good,unknown))
                 worker_utility.sort(reverse=True)
-	    cursor.close();
+
     except:
         raise
         #pass
@@ -471,7 +494,6 @@ ORDER BY worker, final_grade
 
 
 def worker_to_session_contributions(worker):
-    from django.db import connection
 
     contributions=[]
     try:
