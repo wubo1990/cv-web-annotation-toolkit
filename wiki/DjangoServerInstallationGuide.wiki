@@ -13,7 +13,8 @@ This is a very rough installation guide. I hopefully lists all dependencies.
  * PIL (python imaging library) for some image stuff 
 
 = Libraries and packages =
- * django 1.0.2 
+ * django 1.1.1 (see http://www.djangoproject.com/download/)
+ 
  * boto (for Mechanical Turk integration)
  * django-tagging  (v.0.3.0 for django 1.0.2)
 {{{
