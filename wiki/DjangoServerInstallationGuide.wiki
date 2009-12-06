@@ -9,11 +9,20 @@ This is a very rough installation guide. I hopefully lists all dependencies.
 
  * mysql
  * python 2.5
+ * python-mysqldb 
  * PIL (python imaging library) for some image stuff 
- * django 1.0.2
+
+= Libraries and packages =
+ * django 1.0.2 
  * boto (for Mechanical Turk integration)
- * Install django-tagging  (for django 1.0.2)
- * Install python-mysqldb 
+ * django-tagging  (v.0.3.0 for django 1.0.2)
+{{{
+wget http://django-tagging.googlecode.com/files/django-tagging-0.3.tar.gz
+tar xvzf django-tagging-0.3.tar.gz
+django-tagging-0.3
+sudo python setup.py install
+}}}
+
 
 = Data locations = 
 
