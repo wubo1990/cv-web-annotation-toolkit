@@ -16,11 +16,18 @@ This is a very rough installation guide. I hopefully lists all dependencies.
  * django 1.1.1 (see http://www.djangoproject.com/download/)
  
  * boto (for Mechanical Turk integration)
+{{{
+wget http://boto.googlecode.com/files/boto-1.8d.tar.gz
+tar xvzf boto-1.8d.tar.gz
+cd boto-1.8d
+sudo python setup.py install
+}}}
+
  * django-tagging  (v.0.3.0 for django 1.0.2)
 {{{
 wget http://django-tagging.googlecode.com/files/django-tagging-0.3.tar.gz
 tar xvzf django-tagging-0.3.tar.gz
-django-tagging-0.3
+cd django-tagging-0.3
 sudo python setup.py install
 }}}
 
