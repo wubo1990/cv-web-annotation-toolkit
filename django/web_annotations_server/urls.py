@@ -7,7 +7,8 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = patterns('',
 
-    (r'^$', 'web_menu.views.start'),
+    #(r'^$', 'web_menu.views.start'),
+    (r'^$', 'mturk.views.main'),
     (r'^code/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.DJ_CODE_RT+'mturk/code/'}),
                        
     (r'^code/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.DJ_CODE_RT+'mturk/code/'}),
@@ -64,7 +65,7 @@ urlpatterns = patterns('',
                            name='auth_logout'),
 
     # Uncomment this for admin:
-    (r'^admin/(.*)', admin.site.root)
+    (r'^admin/', include(admin.site.urls))
 
 
 )

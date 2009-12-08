@@ -277,6 +277,9 @@ class SubmittedTask(models.Model):
                                  help_text="The final grade assigned to submission.");
 	state   = models.IntegerField(choices=SUBMISSION_STATE,default=1);
 
+	def __str__(self):
+		return str(self.id)
+
         def get_delay(self):
           if self.submitted and self.hit.submitted:
             return self.submitted - self.hit.submitted
@@ -360,6 +363,8 @@ class SubmittedTask(models.Model):
 		num_active_grades=self.manualgraderecord_set.filter(valid=True).count();
 		print num_active_grades
 		return num_active_grades>0;
+WorkProduct=SubmittedTask
+
 
 class Worker(models.Model):
 	session = models.ForeignKey(Session,null=True, blank=True);
@@ -368,6 +373,11 @@ class Worker(models.Model):
 	utility = models.IntegerField(default=50);
 	valid   = models.BooleanField(default=True);
 
+	def __str__(self):
+		if self.session:
+			return self.worker+"@"+self.session.code
+		else:
+			return self.worker
 
 
 
@@ -428,6 +438,36 @@ class ManualGradeRecord(models.Model):
 			'valid':str(self.valid),
 			'quality':str(self.quality),
 			'feedback':str(self.feedback)};
+
+
+PAYMENT_STATE = (
+            (1, 'New'),
+            (2, 'Proposed'),
+            (3, 'Confirmed'),
+            (4, 'Cleared'),
+            (5, 'AttentionNeeded'),
+        )        
+
+class Payment(models.Model):
+	worker = models.ForeignKey(Worker)
+	amount = models.DecimalField(max_digits=7,decimal_places=3,
+                                 default="0.0",
+                                 help_text="Amount to pay");
+	created = models.DateTimeField(auto_now_add=True);
+	state = models.IntegerField(default=1,choices=PAYMENT_STATE);
+	created_by = models.ForeignKey(User,help_text="Who created the payment request",null=True);
+	note = models.TextField(blank=True)
+	ref  = models.TextField(blank=True)
+
+	work_product  = models.ForeignKey(SubmittedTask)
+
+	def __str__(self):
+		return str(self.amount)+" to "+ self.worker.worker + " [" +self.get_state_display() +"]";
+
+
+
+
+
 
 def select_sample_task(session):
 	try:
@@ -1209,6 +1249,7 @@ select se.id,se.decline_reason from mturk_sessionexclusion se left join mturk_su
     except:
 	pass
 
+    ''' #Removing the check on the inverted exclusion. This makes the exclusions directed!
     cursor = connection.cursor()
     cursor.execute("""
 select se.id,se.decline_reason from mturk_sessionexclusion se left join mturk_submittedtask st ON se.session_A_id=%s  and se.session_B_id=st.session_id and st.worker=%s where st.id is not NULL;    
@@ -1219,5 +1260,6 @@ select se.id,se.decline_reason from mturk_sessionexclusion se left join mturk_su
 	cursor.close();
     except:
 	pass
+	'''
     return exclusions;
 

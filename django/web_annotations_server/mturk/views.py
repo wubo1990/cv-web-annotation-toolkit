@@ -15,6 +15,7 @@ from django.contrib.auth.decorators import login_required
 from subprocess import *
 
 import yaml
+import xml.sax.saxutils
 
 
 try:
@@ -680,6 +681,14 @@ def ban_worker(request,worker_id):
 
     return HttpResponse("banned");
 
+@login_required
+def unban_worker(request,worker_id):
+    worker=get_object_or_404(Worker,session=None,worker=worker_id);
+    worker.utility=50;
+    worker.save();
+
+    return HttpResponse("unbanned");
+
 
 def grading_report_for_worker(request,worker_id):
 	
@@ -690,15 +699,19 @@ def grading_report_for_worker(request,worker_id):
 
 
 
-def add_session_qualifications(qualifications,session):
-    return
+def add_session_qualifications(qualifications,session,force_create=False):
     for q in session.mturk_qualification.all():
-        qualifications.add(Requirement(
+        print "QUAL",q.id
+        if q.mt_qual_id is None or q.mt_qual_id =="" or force_create:
+            create_qualification_internal(session,q)
+
+        req=Requirement(
                 qualification_type_id=q.mt_qual_id,
                 comparator=q.comparator,
                 integer_value=q.value, 
-                required_to_preview=False));
-        pass
+                required_to_preview=False);
+        qualifications.add(req);
+    return qualifications
 
 def newHIT(request):
 	print request.POST
@@ -887,6 +900,113 @@ def new_HIT_generic(request):
 
 	return HttpResponse("%s" % hit.ext_hitid)
 
+
+@login_required
+def force_update_session_HITType(request,session_code):
+    session = get_object_or_404(Session,code=session_code)
+
+    if session.standalone_mode:
+        return HttpResponse("- The session is standalone. Can not update")
+
+
+    old_hit_type = session.hit_type
+    try:
+        new_hit_type = create_session_hit_type(session)
+    except MTurkException:
+        return HttpResponse("- Failed to create hit type");
+        
+
+    (num_affected,num_failures)=update_session_hittype(session,new_hit_type);
+    return HttpResponse("+ affected %d num_failures %d"%( num_affected,num_failures))
+
+@login_required
+def force_update_task_HITType(request,task_code):
+    task = get_object_or_404(Task,name=task_code)
+
+    tot_num_affected = 0;
+    tot_num_failures = 0;
+    for session in task.session_set.all():
+        if session.standalone_mode:
+            print ("- The session is standalone. Can not update")
+            continue
+        old_hit_type = session.hit_type
+        try:
+            new_hit_type = create_session_hit_type(session)
+        except MTurkException:
+            print "- Failed to create hit type";
+            continue
+
+        (num_affected,num_failures)=update_session_hittype(session,new_hit_type);
+        tot_num_affected += num_affected
+        tot_num_failures += num_failures
+
+    return HttpResponse("+ affected %d num_failures %d"%( tot_num_affected,tot_num_failures))
+
+
+def update_session_hittype(session,new_hit_type):
+    session.hit_type = new_hit_type;
+    session.save()
+    hits=session.mechturkhit_set.all()
+
+    conn = get_mt_connection(session)    
+    num_failures =0;
+    num_affected=0;
+    for h in hits:
+        print h.mechturk_hit_id
+        try:
+            rs = change_hit_type(conn,h.mechturk_hit_id,new_hit_type)
+            print rs
+            num_affected+=1;
+        except MTurkException :
+            num_failures+=1;
+    return (num_affected,num_failures)
+
+
+
+
+class MTurkException(Exception):
+     def __init__(self, rs):
+         self.rs = rs
+     def __str__(self):
+         return str(self.rs)
+
+
+def get_mt_connection(session):
+    if session.sandbox:
+        awshost='mechanicalturk.sandbox.amazonaws.com'
+    else:
+        awshost='mechanicalturk.amazonaws.com'
+
+    conn = MTurkConnection(host=awshost,aws_secret_access_key=session.funding.secret_key,aws_access_key_id=session.funding.access_key)
+    return conn
+
+def create_session_hit_type(session,force_create_qualifications=False):
+
+    conn = get_mt_connection(session)
+
+    keywords=session.task_def.get_keywords()
+
+    t=session.task_def;
+    qualifications = Qualifications()
+    qualifications.add(PercentAssignmentsApprovedRequirement(comparator="GreaterThan", integer_value="90"))
+
+    add_session_qualifications(qualifications,session,force_create_qualifications);
+    print qualifications.get_as_params()
+    create_hit_rs = conn.register_hit_type(  title=t.title,
+                                             description=t.description,
+                                            keywords=str(t.keywords),
+                                            reward = t.reward,
+                                            duration=t.duration,
+                                            approval_delay=t.approval_delay, 
+                                            qual_req=qualifications)
+    if (create_hit_rs.status != True):
+        raise MTurkException(create_hit_rs);
+
+
+    print "Created HIT Type",create_hit_rs.HITTypeId
+    hit_type_id=create_hit_rs.HITTypeId;
+    return hit_type_id
+
 def copy_session(request,prototype_session_code,new_session_code):
     session = get_object_or_404(Session,code=prototype_session_code);
     try:
@@ -1048,13 +1168,15 @@ def grading_submit_session(request,session_code,grading_session_code):
                                       sandbox=session.sandbox,
                                       owner=session.owner)
             grading_session.save();
-            exclude=SessionExclusion(session_A=session,session_B=grading_session,decline_reason="Initial input and review can't be done at once.");
+            exclude=SessionExclusion(session_A=session,session_B=grading_session,decline_reason="You can't do grading, because you submitted work in this session.");
             exclude.save();
             other_grading_sessions=Session.objects.filter(code__startswith=session_code+"-grading");
             for other_session in other_grading_sessions:
                 if other_session.code == grading_session.code:
                     continue
                 exclude=SessionExclusion(session_A=other_session,session_B=grading_session,decline_reason="Participation in two review sessions isn't allowed.");
+                exclude.save();
+                exclude=SessionExclusion(session_A=grading_session,session_B=other_session,decline_reason="Participation in two review sessions isn't allowed.");
                 exclude.save();
 
     if  request.user != session.owner and not request.user.is_superuser:
@@ -1561,6 +1683,14 @@ def expire_hit(conn,hit_id):
     
     return conn._process_request('ForceExpireHIT', params)
 
+def change_hit_type(conn,hit_id,hit_type_id):
+    params = {'HITId' : str(hit_id),'HITTypeId':str(hit_type_id),'Operation':'ChangeHITTypeOfHIT'}
+    print params
+    rs =  conn._process_request('ChangeHITTypeOfHIT', params)
+    #rs =  conn.temp_make_request('ChangeHITTypeOfHIT', params)
+    #print rs.read()
+    return rs
+
 
 @login_required
 def expire_session_hits(request,session_code):
@@ -1590,7 +1720,7 @@ def expire_session_hits(request,session_code):
     return HttpResponse("+ affected %d, skipped %d"%( num_affected, num_skipped))
 
 
-#@login_required
+@login_required
 def expire_session_hits_by_type(request,session_code):
     session = get_object_or_404(Session,code=session_code);
 
@@ -1691,6 +1821,43 @@ def stats_session_detail(request,session_code):
 
 
 
+@login_required
+def create_qualification(request,session_code,qualification_name):
+    session = get_object_or_404(Session,code=session_code)
+    qual = get_object_or_404(MTurkQualification,name=qualification_name)
+    create_qualification_internal(session,qual)
+
+    return HttpResponse("+")
+
+def create_qualification_internal(session,qual):
+    qual_definition = qual.qualification_def; 
+    params={'Name':qual_definition.name,
+            'Description':'',
+            'Keywords':''};
+    for prop in qual_definition.properties.split('\n'):
+        print prop
+        if prop.strip()=="":
+            continue
+        (k,v)=prop.split('=');
+        params[k]=v
+        
+    #params['Test']=xml.sax.saxutils.escape(qual_definition.question)
+    #params['Answer']=xml.sax.saxutils.escape(qual_definition.answer)
+    params['Test']=urllib.quote(qual_definition.question)
+    params['Answer']=urllib.quote(qual_definition.answer)
+    print params
+    conn = get_mt_connection(session);
+    resp=conn._process_request('CreateQualificationType',params);
+    if resp.status != True:
+        raise MTurkException(resp)
+    print resp
+    id = resp.QualificationType
+    qual.mt_qual_id=id
+    qual.save()
+    return id
+
+
+
 
 def create_qualifications(request):
 
@@ -1714,6 +1881,7 @@ def create_qualifications(request):
 
             fP=open(fn_p,'w')
             print >>fP,q.qualification_def.properties
+            print >>fP,"Name=",q.qualification_def.name
             fP.close();
             
             if q.is_sandbox:

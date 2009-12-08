@@ -1,0 +1,11 @@
+{% extends 'mturk/base_app.html' %}
+
+{% block extrahead %}
+{% endblock %}
+
+{% block content %}
+The payment has been submitted. Payment ID is {{payment.id}}.<br/>
+Payment status is {{payment.get_state_display}}
+
+
+{% endblock %}

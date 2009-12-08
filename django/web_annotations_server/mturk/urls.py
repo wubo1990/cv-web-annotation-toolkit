@@ -125,17 +125,24 @@ urlpatterns = patterns('',
     (r'^grading/submit/session/(?P<session_code>[\w\-]+)/(?P<grading_session_code>[\w-]+)/$', 'mturk.views.grading_submit_session'),
     #+                   
     (r'^ban_worker/(?P<worker_id>[\w\-]+)/$', 'mturk.views.ban_worker'),
+    (r'^unban_worker/(?P<worker_id>[\w\-]+)/$', 'mturk.views.unban_worker'),
 
     (r'^expire_session_hits/(?P<session_code>[\w\-]+)/$', 'mturk.views.expire_session_hits'),
     (r'^expire_session_hits_by_type/(?P<session_code>[\w\-]+)/$', 'mturk.views.expire_session_hits_by_type'),
 
+    (r'^force_update_session_hit_type/(?P<session_code>[\w\-]+)/$', 'mturk.views.force_update_session_HITType'),
+    (r'^force_update_task_hit_type/(?P<task_code>[\w\-]+)/$', 'mturk.views.force_update_task_HITType'),
+
     (r'^stats/session_details/(?P<session_code>[\w\-]+)/$', 'mturk.views.stats_session_detail'),
 
     (r'^internal/create_qualifications/$', 'mturk.views.create_qualifications'),
+    (r'^qualification/create/(?P<session_code>[\w\-]+)/(?P<qualification_name>[\w\.\-]+)/$', 'mturk.views.create_qualification'),
 
 
     (r'^p/video_events/', include('mturk.protocols.video_events.urls')),
     (r'^p/gxml/', include('mturk.protocols.gxml.urls')),
+
+    (r'^payments/', include('mturk.payments.urls')),
 
 
     (r'^download/(?P<path>.*)$', 'django.views.static.serve', {'document_root': os.path.join(settings.DATASETS_ROOT,'downloads')}),

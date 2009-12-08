@@ -1,0 +1,15 @@
+{% extends 'mturk/base_app.html' %}
+
+{% block extrahead %}
+{% endblock %}
+
+{% block content %}
+Done making payments:<br/>
+Paid: {{n_ok}} <br/>
+Failed: {{n_failed}}<br/>
+Skipped: {{n_skipped}}<hr/>
+
+Total amount paid:{{total}}<br/>
+
+
+{% endblock %}
