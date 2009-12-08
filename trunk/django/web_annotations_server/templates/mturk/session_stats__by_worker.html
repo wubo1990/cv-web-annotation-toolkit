@@ -10,6 +10,12 @@ var run_block=function(worker )
           });
 }
 
+var run_unblock=function(worker )
+{
+      new Ajax.Updater('block_tgt_'+worker, '/mt/unban_worker/'+worker+'/', {
+          });
+}
+
 </script>
 <hr/>
 <table><tr><td>Session code</td><td>Worker</td><td>Num submissions</td><td>Grades<br/>15/10/7/3</td><td>Grading link</td><td>Total by worker</td></tr>
@@ -20,7 +26,18 @@ var run_block=function(worker )
 
 <td><a href="/mt/grading/by_worker/{{session.code}}/{{s.worker}}/">grade ({{s.num_to_grade}} )</a></td>
 <td>{{s.total}}</td>
-<td><div id='block_tgt_{{s.worker}}'><a href='#' onclick="run_block('{{s.worker}}');return false">ban</a></td>
+<td>
+
+<div id='block_tgt_{{s.worker}}'>
+{% if s.banned %}
+<a href='#' onclick="run_unblock('{{s.worker}}');return false">unban</a>
+{% else %}
+<a href='#' onclick="run_block('{{s.worker}}');return false">ban</a>
+{% endif %}
+
+</div>
+</td>
+<td><a href="/mt/payments/create/simple2/{{s.worker}}/{{session.code}}/" target="bonus_wnd">Grant bonus</a></td>
 </tr>
 {% endfor %}
 </table>

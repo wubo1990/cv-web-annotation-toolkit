@@ -121,10 +121,11 @@ SELECT s.worker, count(*) c  FROM mturk_submittedtask s group by worker
 	    cursor = connection.cursor()
 
 	    cursor.execute("""
-SELECT worker, count( * ) c
-FROM `mturk_submittedtask`
-WHERE session_id = %s
-GROUP BY worker
+SELECT s.worker, count( * ) c, w.utility
+FROM `mturk_submittedtask` s, mturk_worker w
+WHERE s.session_id = %s
+and s.worker=w.worker and w.session_id is Null
+GROUP BY s.worker
 ORDER BY c DESC
 """,[session.id])
 
@@ -132,9 +133,15 @@ ORDER BY c DESC
 		w=r[0];
                 #num_to_grade=r[1] - (good.get(w,0)+ ok.get(w,0) + bad.get(w,0));
                 num_to_grade=ungraded.get(w,0);
-
+                utility=r[2];
+                if utility<settings.MTURK_BLOCK_WORKER_MIN_UTILITY:
+                    banned=True
+                else:
+                    banned=False
 		res={'worker'  :w,
 		     'count'   :r[1],
+		     'utility'   :r[2],
+                     'banned': banned,
 		     'num_exceptional': exceptional.get(w,0),
 		     'num_good': good.get(w,0),
 		     'num_ok'  : ok.get(w,0),

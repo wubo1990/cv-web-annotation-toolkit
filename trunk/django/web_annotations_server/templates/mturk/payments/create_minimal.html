@@ -1,0 +1,18 @@
+{% extends 'mturk/base_app.html' %}
+
+{% block extrahead %}
+{% endblock %}
+
+{% block content %}
+<form action="" method="POST">
+
+    {% for field in form %}
+        <div class="fieldWrapper">
+            {{ field.errors }}
+            {{ field.label_tag }}: {{ field }}<br/>
+        </div>
+    {% endfor %}
+    <p><input type="submit" value="Add payment" /></p>
+</form>
+
+{% endblock %}

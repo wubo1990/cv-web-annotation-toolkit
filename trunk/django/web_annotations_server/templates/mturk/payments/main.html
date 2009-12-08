@@ -1,0 +1,16 @@
+{% extends "mturk/base_app.html" %}
+
+{% block content %}
+
+{% if user.is_anonymous %}
+<p>
+Please <a href="/accounts/login/?next=/"> login</a> or <a href="/accounts/register/">register</a>.
+{% else %}
+
+{% endif %}
+Payments home.<br/>
+<a href="create/interactive/">Add a new payment</a>
+
+
+{% endblock %}
+
