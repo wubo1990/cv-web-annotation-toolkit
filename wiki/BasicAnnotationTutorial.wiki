@@ -15,18 +15,17 @@ In this tutorial we will annotate 5 images with bounding boxes of people. We wil
  * Manually grade the submissions
  * Approve and Reject work
  * Request the bad submissions to be re-done
- * ...
+ * ... Repeat ...
  * Download all results.
 
 
+= Step by step =
 
-== Step by step ==
-
-= Annotation task =
+== Annotation task ==
 
 To skip this step and use *person-box-predefined* as your task instead of "my-person-box".
 
-= Creating a sandbox session = 
+== Creating a sandbox session ==
 
 To create a session, go to the admin interface (/admin/mturk/session/). Hit add session.
 
@@ -47,7 +46,7 @@ We don't need to touch advanced options now, so just save the session.
 You can now go to the session list at /mt/ and see the session you just created.
 
 
-= Submitting a single image to the session = 
+== Submitting a single image to the session == 
 
 Most of the work with the session starts from session dashboard. The get there, go to /mt/ and click on the session you've just created. Different sections of the dashboard are marked with headers. There's lots of options, but we'll use only a couple right now.
 
@@ -63,17 +62,64 @@ Now that you are done with annotations, click "submit". At this moment, the web 
 
 We can now go back to the session dashboard and observe our submission. The sandbox and production session are essentially the same (except the production one involves real money and real workers). If you want to get the sandbox annotations out of our sandbox session, you can follow the same procedure that we will go through for the production session.
 
-= Creating a production session = 
+== Creating a production session ==
 
 To create a production session, we follow exactly the same steps as for the sandbox session, except we name the session with "-p" and uncheck the "sandbox" checkbox. Go to /admin/mturk/session/add/, choose a unique code e.g. my-person-box-session-p, choose the task type, uncheck "sandbox", hit save.
 
-= Uploading images to the session = 
+== Uploading images to the session == 
 
-We will now upload a folder with images to the production session. You can get an example  (ten_images_with_people.tgz) from the downloads section.
+We will now upload a folder with images to the production session. You can get an example  ([http://cv-web-annotation-toolkit.googlecode.com/files/five_images_with_people.tgz five_images_with_people.tgz]) from the downloads section.
 
 Go to the session dashboard and scroll down to upload section and choose "single folder with images". Choose the file and hit upload. Now the tasks are on real Mechanical Turk.
 
-From the dashboard you can go to the mechanical turk interface and see your tasks there.
+From the dashboard you can go to the Mechanical Turk interface and see your tasks there.
 
-----
-= To be continued =
+== Wait for the work to complete ==
+
+This is the unfortunate part of Mechanical Turk. We must sit and wait. We have little control over when people will actually do our tasks. Here's a few things that can help:
+ * Pay well. The more you pay, the more people will be interested.
+ * Make the tasks short and easy. You aren't hiring people hourly. 
+ * Post lots of HITs
+
+Now, as we've posted only 5 HITs, it may actually take quite a while to complete. You will see very different response times at 2000 HITs.
+
+== Manual grading ==
+
+Now that we got all the submissions, we need to grade them. Grading assigns one of 3 quality value to each submission: 
+ * bad - the submission is rejected. It doesn't follow instructions, clearly malicious, no effort put into the assignment, etc. 
+ * good with errors - the submission is approved, but the results aren't good enough for us to use. It needs to be re-done (or corrected). We may choose to pay to a worker who put significant effort, but missed something (e.g. someone marked 9 out of 10 objects in the image)
+ * good - the submission is approved and the results are ready to use.
+
+There are multiple ways to do manual grading. In this example we will simply grade all submissions. Go to the *Grading* section and click on "Grading paged".
+
+You will see all submissions 10 per page. Each submission will have the annotation interface with both task controls and the submitted annotation; worker ID and the comments they might have provided. There is a link to the XML representation of the submission, should you need to inspect something.
+
+The grades are set to "good" by default. If all work is good, grading is absolutely effortless. You can choose the different grade and type in the comment. The workers will receive the comment as message for approval or rejection of their work.
+
+Normally, you don't need to submit each individual grade and simply click "submit" on the bottom of the page. You will see "submitting.." messages turn into "+" signs after the submission is done. Wait for all of them to get submitted. 
+
+Manual grading may appear to be tedious, but it really is much easier than doing all the work yourself. Mechanical Turk isn't a magic wand. It's really a power tool.
+
+== Approving and Rejecting the submissions ==
+
+When the grading is complete, the system can make a decision which submissions must be approved and which rejected. To run the approval, scroll down to the "Approval" section in the session dashboard. There, click "Approve good results" and "Reject bad results" to respectively approve and reject the results.
+
+When you refresh the session dashboard, you will see the counters on top of the page change. "Open" submissions will turn into approved and rejected. In general, *open* submissions are something that require your action. That's why the count of open submission is shown in the main session list. 
+ 
+== Redo ==
+
+Now that we rejected some submissions, the HITs will go into inactive state, but we still don't have a good result for them. We need to request the redo pass explicitly. In the same *Approval* section, click "Resubmit the HITs that don't have a good result yet". This will cause all HITs that don't have a good result to be submitted.
+
+Could we reject and resubmit at the same time? Probably. The separation of these two gives some exta freedom. For example, we don't have to reject submissions before we obtain a second set of annotations. We might want to obtain the best annotation and if the others deviate from it too much, we shall reject those. 
+
+== ... Repeat ... ==
+
+We shall repeat the wait/grade/resubmit cycle until we get enough annotations. We mostly thing in terms of getting 100% of work done. This means that towards the end we will be invariably left with small sets of tasks (e.g. 10-50) and the throughput will go down quite significantly. If your application is fine with 90%-95% of all the work, you will be much better off.
+
+== Download the results ==
+
+The results are generally downloaded through {{{session_results*}}} programs in [http://www.ros.org/wiki/cv_mech_turk cv_mech_turk] package of [ros.org ROS]. The results can be in custom XML format, as object masks or in a format similar to a [http://pascallin.ecs.soton.ac.uk/challenges/VOC/voc2009/ VOC] dataset. 
+
+The server can generate and store the results for you. Simply go to the *Download* section and click one of the "create ...." link. The server will create a tar file and it should start the download right away. After you refresh the dashboard, you will also see the URL to the generated file.
+
+What happens if you generate the results before any grading? They will be empty. The results generated here include only *good* results. I.e. the results with only *good* grades. Before we do grading, none of the submissions will qualify. 
