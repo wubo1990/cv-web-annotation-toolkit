@@ -1,0 +1,79 @@
+#summary This is a short tutorial on how to 10 annotate images with a bounding box of people.
+#labels Doc-Userguide,Component-MturkBase
+
+= Introduction =
+
+We do annotation through [mturk.com Amazon Mechanical Turk]. To simplify the process of annotation we store images and task definitions on an *annotation server*. The annotation tasks are grouped in sessions. For each task in the session, we want exactly one annotation. 
+
+In this tutorial we will annotate 5 images with bounding boxes of people. We will go through the following steps:
+ * Define an annotation task
+ * Create a sandbox session (no real workers)
+ * Submit one image to sandbox and try it out.
+ * Create an annotation session
+ * Upload our images to the annotation server
+ * (wait for the work to complete)
+ * Manually grade the submissions
+ * Approve and Reject work
+ * Request the bad submissions to be re-done
+ * ...
+ * Download all results.
+
+
+
+== Step by step ==
+
+= Annotation task =
+
+To skip this step and use *person-box-predefined* as your task instead of "my-person-box".
+
+= Creating a sandbox session = 
+
+To create a session, go to the admin interface (/admin/mturk/session/). Hit add session.
+
+Choose a unique code for the session (something like my-person-box-session-s). We recommend to add "-s" for sandbox sessions and "-p" for production sessions.
+
+Choose your task definition from the drop-down list.
+
+Choose a [FundingAccount funding account]. See how to create a [FundingAccount funding account]. 
+
+Make sure the sandbox flag is ON. This flag determines whether this session works with real production system.
+
+Set the HIT limit appropriately. This is a safety check. The session will not accept new images after it gets to the HIT limit. In this case, 100 is fine. If you plan to have fewer and more expensive HITs, set it lower. If you need 1000s, you must make this number higher.
+
+Put yourself as an owner. When you go to the main page of mechanical turk module (/mt/), you will see this new session in the list of your sessions. 
+
+We don't need to touch advanced options now, so just save the session.
+
+You can now go to the session list at /mt/ and see the session you just created.
+
+
+= Submitting a single image to the session = 
+
+Most of the work with the session starts from session dashboard. The get there, go to /mt/ and click on the session you've just created. Different sections of the dashboard are marked with headers. There's lots of options, but we'll use only a couple right now.
+
+Scroll down to *Upload* section and click "Single image". This will bring you to the upload image page. Choose an image to upload and hit submit. You should get a message  "done. Activated 1" saying that the submission is successful.
+
+Now go back to the session dashboard(the back button in the browser is very helpful here). If you refresh it, you will see that there is now 1 task out of 100 and no submissions. In this case, we will do the work ourselves. 
+
+Go to "Tasks" section and click "On MechTurk" link. The link says "(sandbox)" to indicate where it'll take you. You will see your task there. Now click "Accept HIT" at the top of the page. This will reload the page and remove funny text over the picture.
+
+Now you can click on the "person" button, draw the box, click done and adjust the rectangle if necessary. Actually, you could've read the instructions as well.
+
+Now that you are done with annotations, click "submit". At this moment, the web page sends the results to the annotations server and the server returns confirmation for Mechanical Turk. The confirmation is automatically submitted to Amazon.
+
+We can now go back to the session dashboard and observe our submission. The sandbox and production session are essentially the same (except the production one involves real money and real workers). If you want to get the sandbox annotations out of our sandbox session, you can follow the same procedure that we will go through for the production session.
+
+= Creating a production session = 
+
+To create a production session, we follow exactly the same steps as for the sandbox session, except we name the session with "-p" and uncheck the "sandbox" checkbox. Go to /admin/mturk/session/add/, choose a unique code e.g. my-person-box-session-p, choose the task type, uncheck "sandbox", hit save.
+
+= Uploading images to the session = 
+
+We will now upload a folder with images to the production session. You can get an example  (ten_images_with_people.tgz) from the downloads section.
+
+Go to the session dashboard and scroll down to upload section and choose "single folder with images". Choose the file and hit upload. Now the tasks are on real Mechanical Turk.
+
+From the dashboard you can go to the mechanical turk interface and see your tasks there.
+
+----
+= To be continued =
