@@ -50,9 +50,11 @@ You can now go to the session list at /mt/ and see the session you just created.
 
 Most of the work with the session starts from session dashboard. The get there, go to /mt/ and click on the session you've just created. Different sections of the dashboard are marked with headers. There's lots of options, but we'll use only a couple right now.
 
-http://code.google.com/images/code_sm.png
+Scroll down to *Upload* section and click "Single image". 
 
-Scroll down to *Upload* section and click "Single image". This will bring you to the upload image page. Choose an image to upload and hit submit. You should get a message  "done. Activated 1" saying that the submission is successful.
+http://code.google.com/p/cv-web-annotation-toolkit/source/browse/wiki/tutorials/basic_annotation/ex_upload_section.png
+
+This will bring you to the upload image page. Choose an image to upload and hit submit. You should get a message  "done. Activated 1" saying that the submission is successful.
 
 Now go back to the session dashboard(the back button in the browser is very helpful here). If you refresh it, you will see that there is now 1 task out of 100 and no submissions. In this case, we will do the work ourselves. 
 
