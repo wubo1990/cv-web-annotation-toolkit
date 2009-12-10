@@ -122,12 +122,15 @@ Now, as we've posted only 5 HITs, it may actually take quite a while to complete
 
 == Manual grading ==
 
+http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/tutorials/basic_annotation/ex_grading.png
+
 Now that we got all the submissions, we need to grade them. Grading assigns one of 3 quality value to each submission: 
  * bad - the submission is rejected. It doesn't follow instructions, clearly malicious, no effort put into the assignment, etc. 
  * good with errors - the submission is approved, but the results aren't good enough for us to use. It needs to be re-done (or corrected). We may choose to pay to a worker who put significant effort, but missed something (e.g. someone marked 9 out of 10 objects in the image)
  * good - the submission is approved and the results are ready to use.
 
 There are multiple ways to do manual grading. In this example we will simply grade all submissions. Go to the *Grading* section and click on "Grading paged".
+
 
 You will see all submissions 10 per page. Each submission will have the annotation interface with both task controls and the submitted annotation; worker ID and the comments they might have provided. There is a link to the XML representation of the submission, should you need to inspect something.
 
