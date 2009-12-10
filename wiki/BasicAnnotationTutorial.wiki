@@ -47,7 +47,7 @@ Put instructions URL there. This URL will appear on every task page. I usually u
 
 Fill out title, description and keywords. These will appear on Amazon's web site. Make sure they are clearly represent the tasks and are appealing enough. Phrases like "very easy" are OK, if they are truthful.
 
-*Reward* is the amount in US dollars that we guarantee for each correctly completed task. Note that Amazon will take 10% of this, but at least 0.005. So if the task is super-easy, it will lead to 50% overhead.
+*Reward* is the amount in US dollars that we guarantee for each correctly completed task. Note that Amazon will take 10% of this, but at least 0.005. So if the task is super-easy and you pay $0.01, it will lead to 50% overhead.
 
 You can leave all others with default values. They correspond directly to Amazon Mechanical Turk HIT properties. 
 
