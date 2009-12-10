@@ -23,11 +23,44 @@ In this tutorial we will annotate 5 images with bounding boxes of people. We wil
 
 == Annotation task ==
 
-To skip this step and use *person-box-predefined* as your task instead of "my-person-box".
+To skip this step use *person-box-predefined* as your task instead of "my-person-box".
+
+To create annotation task, go to /admin/mturk/task and click add. 
+
+Choose a name for your task e.g. "my-person-box", set task type to be *gxml*. 
+
+http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/tutorials/basic_annotation/ex_add_task_1.png
+
+To declare that we want only bounding box of a person, use the following interface XML:
+{{{
+<?xml version="1.0"?>
+<task id="000001" type="image">
+  <targets>
+     <target name="person"> <annotation type="bbox2" /></target>
+  </targets>
+</task>
+}}}
+
+There's a large number of features available. Check out AnnotationTaskDesign for documentation on other annotation elements.
+
+Put instructions URL there. This URL will appear on every task page. I usually use a wiki page for instructions.
+
+Fill out title, description and keywords. These will appear on Amazon's web site. Make sure they are clearly represent the tasks and are appealing enough. Phrases like "very easy" are OK, if they are truthful.
+
+*Reward* is the amount in US dollars that we guarantee for each correctly completed task. Note that Amazon will take 10% of this, but at least 0.005. So if the task is super-easy, it will lead to 50% overhead.
+
+You can leave all others with default values. They correspond directly to Amazon Mechanical Turk HIT properties. 
+
+Your task now looks something like:
+http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/tutorials/basic_annotation/ex_add_task_2.png
+http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/tutorials/basic_annotation/ex_add_task_3.png
+
 
 == Creating a sandbox session ==
 
 To create a session, go to the admin interface (/admin/mturk/session/). Hit add session.
+
+http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/tutorials/basic_annotation/ex_add_session.png
 
 Choose a unique code for the session (something like my-person-box-session-s). We recommend to add "-s" for sandbox sessions and "-p" for production sessions.
 
@@ -52,7 +85,7 @@ Most of the work with the session starts from session dashboard. The get there, 
 
 Scroll down to *Upload* section and click "Single image". 
 
-http://code.google.com/p/cv-web-annotation-toolkit/source/browse/wiki/tutorials/basic_annotation/ex_upload_section.png
+http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/tutorials/basic_annotation/ex_upload_section.png
 
 This will bring you to the upload image page. Choose an image to upload and hit submit. You should get a message  "done. Activated 1" saying that the submission is successful.
 
