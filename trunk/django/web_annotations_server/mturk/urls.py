@@ -148,5 +148,9 @@ urlpatterns = patterns('',
     (r'^download/(?P<path>.*)$', 'django.views.static.serve', {'document_root': os.path.join(settings.DATASETS_ROOT,'downloads')}),
 
 #    (r'^rospublishers/$', 'mturk.views.get_ros_publishers'),
+
+
+    (r'^opt/(?P<session_code>[\w\-]+)/submissions/$', 'mturk.views.opt_get_session_submissions'),
+    (r'^opt/(?P<session_code>[\w\-]+)/grades/$', 'mturk.views.opt_get_session_grades'),
 );
                        

@@ -1979,3 +1979,42 @@ def reject_worker_all(request,worker_id):
     return HttpResponse(strAns)
 
 
+
+
+def opt_get_session_submissions(request,session_code):
+    session = get_object_or_404(Session,code=session_code)
+    resp=HttpResponse();
+
+    workers={};
+    for s in session.submittedtask_set.all():
+        if s.worker in workers:
+            w=workers[s.worker];
+        else:
+            w=Worker.objects.get(worker=s.worker,session=None);
+            workers[s.worker]=w;
+            
+        resp.write("%d %d %d\n" % (s.id,w.id,w.utility))
+    return resp
+
+
+def opt_get_session_grades(request,session_code):
+    session = get_object_or_404(Session,code=session_code)
+    resp=HttpResponse();
+
+    ref={};
+    ref_id=0;
+    for s in session.submittedtask_set.all():
+        for g in s.manualgraderecord_set.all():
+            w=g.worker
+            if g.reference in ref:
+                r=ref[g.reference];
+            else:
+                r=ref_id
+                ref_id+=1;
+                ref[g.reference]=r;
+            resp.write("%d %d %d %d %d %d\n" % (s.id,r,
+                                             g.quality,g.valid,
+                                             w.id,w.utility))
+    return resp
+
+
