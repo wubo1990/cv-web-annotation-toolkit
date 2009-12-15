@@ -1,4 +1,5 @@
 #summary Formal evaluation of effectiveness of qualifications to ensure high quality work
+#labels Doc-Experiments
 
 == Summary ==
 
@@ -8,10 +9,50 @@ We compared 400 HITs done without qualification v.s. 400 HITs done with qualific
 
 == Status ==
 
+Finished. Successfully demonstrated quality improvement with qualification requirement.
+
 == Setup ==
+
+We run annotation of 100 images with bounding boxes of 20 Pascal VOC object categories. All 20 categories were split into 4 groups of 5 objects and each group was annotated independently. As a result, there were 400 annotation tasks in each run.
+
+Run 1. The annotation were provided with $0.02 reward. No qualification requirement has been imposed. Minimum approval rating of 90% was required.
+
+Run 2. Simple qualification test requirement was added. Minimum approval rating requirement was kept at 90%.
+
+
+
+=== Qualification test used ===
+
+http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/experiments/eval_mturk_qualification/img1_i.png
+http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/experiments/eval_mturk_qualification/img1_q.png
+----
+http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/experiments/eval_mturk_qualification/img2_i.png
+http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/experiments/eval_mturk_qualification/img2_q.png
+----
+http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/experiments/eval_mturk_qualification/img3_i.png
+http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/experiments/eval_mturk_qualification/img3_q.png
+----
 
 == Results ==
 
+The improvements in quality are very significant. The number of bad submissions went significantly down at the expense of the time it took to obtain annotations.
+
+The overall improvement is *0.22* overlap score per bounding box. The number of quality submissions is significantly improved:
+
+<img src="http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/experiments/eval_mturk_qualification/comparison_percentage_bb.jpg" height="600"/>
+
+The same distribution can be seen in a histogram form:
+
+<img src="http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/experiments/eval_mturk_qualification/copmarison_overlap_hist.jpg" height="600"/>
+
+The improvement for seems to happen at all levels of the bounding box size. However, the overlap score for small boxes is smaller than for larger boxes.
+
+<img src="http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/experiments/eval_mturk_qualification/copmarison_overlap_vs_size.jpg" height="600"/>
+
+
 == Code ==
+The code for running the experiment is in SVN.
+The code for plotting and analysis is available upon request. (Hopefully it'll be checked in soon as well).
 
 == Data ==
+Available upon request.
