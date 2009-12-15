@@ -51,6 +51,25 @@ The improvement for seems to happen at all levels of the bounding box size. Howe
 
 By class:
 [http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/experiments/eval_mturk_qualification/comparison_percentage_bb_by_class_aeroplane.jpg aeroplane]
+[http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/experiments/eval_mturk_qualification/comparison_percentage_bb_by_class_bicycle.jpg bicycle]
+[http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/experiments/eval_mturk_qualification/comparison_percentage_bb_by_class_bird.jpg bird]
+[http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/experiments/eval_mturk_qualification/comparison_percentage_bb_by_class_boat.jpg boat]
+[http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/experiments/eval_mturk_qualification/comparison_percentage_bb_by_class_bottle.jpg bottle]
+[http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/experiments/eval_mturk_qualification/comparison_percentage_bb_by_class_bus.jpg bus]
+[http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/experiments/eval_mturk_qualification/comparison_percentage_bb_by_class_car.jpg car]
+[http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/experiments/eval_mturk_qualification/comparison_percentage_bb_by_class_cat.jpg cat]
+[http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/experiments/eval_mturk_qualification/comparison_percentage_bb_by_class_chair.jpg chair]
+[http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/experiments/eval_mturk_qualification/comparison_percentage_bb_by_class_cow.jpg cow]
+[http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/experiments/eval_mturk_qualification/comparison_percentage_bb_by_class_diningtable.jpg diningtable]
+[http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/experiments/eval_mturk_qualification/comparison_percentage_bb_by_class_dog.jpg dog]
+[http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/experiments/eval_mturk_qualification/comparison_percentage_bb_by_class_horse.jpg horse]
+[http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/experiments/eval_mturk_qualification/comparison_percentage_bb_by_class_motorbike.jpg motorbike]
+[http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/experiments/eval_mturk_qualification/comparison_percentage_bb_by_class_person.jpg person
+[http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/experiments/eval_mturk_qualification/comparison_percentage_bb_by_class_pottedplant.jpg potted plant]
+[http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/experiments/eval_mturk_qualification/comparison_percentage_bb_by_class_sheep.jpg sheep]
+[http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/experiments/eval_mturk_qualification/comparison_percentage_bb_by_class_sofa.jpg sofa]
+[http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/experiments/eval_mturk_qualification/comparison_percentage_bb_by_class_train.jpg train]
+[http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/experiments/eval_mturk_qualification/comparison_percentage_bb_by_class_tvmonitor.jpg tvmonitor]
 
 
 == Code ==
