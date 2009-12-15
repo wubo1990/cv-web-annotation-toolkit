@@ -1,0 +1,14 @@
+#summary Formal evaluation of effectiveness of qualifications to ensure high quality work
+
+== Summary ==
+
+== Status ==
+
+== Setup ==
+
+== Results ==
+
+== Code ==
+
+== Data ==
+
