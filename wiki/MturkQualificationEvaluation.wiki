@@ -2,6 +2,10 @@
 
 == Summary ==
 
+We compared 400 HITs done without qualification v.s. 400 HITs done with qualification requirement. The qualification requirement improved the overlap on average by *0.22* per bounding box of the gold standard. The plot shows overall improvement:
+
+<img src="http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/experiments/eval_mturk_qualification/comparison_percentage_bb.jpg" height="600"/>
+
 == Status ==
 
 == Setup ==
@@ -11,4 +15,3 @@
 == Code ==
 
 == Data ==
-
