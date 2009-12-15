@@ -49,6 +49,9 @@ The improvement for seems to happen at all levels of the bounding box size. Howe
 
 <img src="http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/experiments/eval_mturk_qualification/copmarison_overlap_vs_size.jpg" height="600"/>
 
+By class:
+[http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/experiments/eval_mturk_qualification/comparison_percentage_bb_by_class_aeroplane.jpg aeroplane]
+
 
 == Code ==
 The code for running the experiment is in SVN.
