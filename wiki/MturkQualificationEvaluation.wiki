@@ -23,6 +23,8 @@ Run 2. Simple qualification test requirement was added. Minimum approval rating 
 
 === Qualification test used ===
 
+The XML definitions for this qualification are [MturkQualificationEvaluationQualificationText given on a separate page].
+
 http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/experiments/eval_mturk_qualification/img1_i.png
 http://cv-web-annotation-toolkit.googlecode.com/svn/wiki/experiments/eval_mturk_qualification/img1_q.png
 ----
