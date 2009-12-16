@@ -480,6 +480,7 @@ What is the quality of the annotation?
 
 == Properties ==
 
+{{{
 Name=VOC bounding box labeling qualification(v 0.1.4)
 Description=Tests the understanding of instructions for bounding box annotation.
 RetryDelayInSeconds=30
@@ -487,3 +488,4 @@ TestDurationInSeconds=3600
 QualificationTypeStatus=Active
 AutoGranted=False
 Keywords=image,VOC,bounding,box
+}}}
