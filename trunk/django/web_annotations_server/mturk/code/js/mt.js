@@ -22,9 +22,49 @@ var decode= function (strToDecode)
   return unescape(encoded.replace(/\+/g,  " "));
 }
 
-
+var mt_mode;
 var MT_setup = function (){
-
+    mode_value=gup('mode');
+    mt_mode = mode_value;
+    
+    submitURL="";
+    if(mode_value=="AmazonMTsandbox"){
+	submitURL="http://workersandbox.mturk.com/mturk/externalSubmit";
+    }else if(mode_value=="AmazonMTproduction"){
+	submitURL="http://www.mturk.com/mturk/externalSubmit";
+    }else if(mode_value=="MT"){
+	if (gup('assignmentId') == "ASSIGNMENT_ID_NOT_AVAILABLE")
+	    {
+		// If we're previewing, disable the button and give it a helpful message
+		document.getElementById('submitButton').disabled = true;
+		document.getElementById('submitButton').value = "You must ACCEPT the HIT before you can submit the results.";
+		form.action = "http://www.mturk.com/mturk/externalSubmit";
+	    } 
+	else 
+	    {
+		var form = document.getElementById('MT_form');
+		if (document.referrer && ( document.referrer.indexOf('workersandbox') != -1) ) 
+		    {
+			form.action = "http://workersandbox.mturk.com/mturk/externalSubmit";
+		    }
+	    }
+	
+    }else if(mode_value=="MT2"){
+	submitURL="/mt/submit/";
+    }else if(mode_value=="sandbox2"){
+	submitURL="/mt/submit/";
+    }else if(mode_value=="input"){
+	submitURL="/mt/submit/";
+    }
+    param_submit_url=gup("submit_url");
+    if(param_submit_url!="")
+	{
+	    $('MT_form').action=param_submit_url;
+	}
+    else
+	{
+	    $('MT_form').action=submitURL;
+	}
     document.getElementById('assignmentId').value = gup('assignmentId');
     //
     // Check if the worker is PREVIEWING the HIT or if they've ACCEPTED the HIT
@@ -35,11 +75,14 @@ var MT_setup = function (){
 	document.getElementById('submitButton').disabled = true;
 	document.getElementById('submitButton').value = "You must ACCEPT the HIT before you can submit the results.";
     } else {
-        var form = document.getElementById('MT_form');
-        if (document.referrer && ( document.referrer.indexOf('workersandbox') != -1) ) {
-            form.action = "http://workersandbox.mturk.com/mturk/externalSubmit";
-        }
     }
+
+    extid=gup('extid');
+    if(extid!="")
+	{
+	    $('MT_form')['extid'].value=extid;
+	}
+
 }
 
 
@@ -82,8 +125,10 @@ function create_flash_interface(swf,swf_w,swf_h,query_args){
 }
 
 
-var mt_mode;
 
+var active_task_resp;
+var annotation_resp;
+var parameters_resp;
 var active_task_data;
 var annotation_data;
 var parameters_data;
@@ -116,36 +161,39 @@ var mt_after_load = function()
 
 var mt_onTaskXMLLoaded=function(transport)
 {
-
-  if (transport.responseXML)
-  {
-    active_task_data = transport.responseXML;
-    data_done=1;
-    mt_after_load();
-   }
+    
+    if (transport.responseXML)
+	{
+	    active_task_resp = transport;
+	    active_task_data = transport.responseXML;
+	    data_done=1;
+	    mt_after_load();
+	}
 }
-
+    
 
 var mt_onAnnotationXMLLoaded=function(transport)
 {
-  if (transport.responseXML)
-  {
-    annotation_data = transport.responseXML;
-    annotation_done=1;
-    mt_after_load();
-
-  }
+    if (transport.responseXML)
+	{
+	    annotation_resp = transport;
+	    annotation_data = transport.responseXML;
+	    annotation_done=1;
+	    mt_after_load();
+	    
+	}
 }
 
 var mt_onParametersXMLLoaded=function(transport)
 {
-  if (transport.responseXML)
-  {
-    parameters_data = transport.responseXML;
-    parameters_done=1;
-    mt_after_load();
-
-  }
+    if (transport.responseXML)
+	{
+	    parameters_resp = transport;
+	    parameters_data = transport.responseXML;
+	    parameters_done=1;
+	    mt_after_load();
+	    
+	}
 }
 
 
@@ -186,7 +234,7 @@ var mt_load_task_componentes =function(mode,completion_handler)
 			       });
 
   }
-  else if(mode=="display")
+  else if(mode=="display" || mode=="edit" )
   {
     data_url=unescape(gup("data_url"));
     var upd=new Ajax.Request(data_url, {

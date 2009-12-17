@@ -1,0 +1,125 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <title>Object properties for a robot</title>
+
+  <script language="javascript" src="js/prototype.js" > </script>
+  <script language="javascript" src="js/mt.js" > </script>
+
+  <script language="javascript" src="js/AC_RunActiveContent.js" ></script>
+  <script language="javascript" src="js/flash.js" ></script>
+  
+  <link href="css/mt.css" rel="stylesheet" type="text/css"/>
+
+  <script language="javascript" src="any.js" ></script>
+</head>
+
+<body >
+
+
+<form id="MT_form" name="MT_form" action="http://www.mturk.com/mturk/externalSubmit" onsubmit="return mt_submit_handler();" method="POST">
+
+<div id="instructions">
+IMPORTANT: Read the <a id="a_instructions" href="instructions.html" target="wnd_instructions">instructions</a>!
+</div>
+
+<div id="inline_instructions"/>
+
+
+<div id="task_results_raw"></div>
+
+<div id="task_loading">Loading task...</div>
+
+<div id="task_content" style="display:none">
+<hr/>
+  <img id="A_img_0001" src=""/>  <br/> 
+  Object keywords <input name="A_obj01_keywords" type="input" width="100"/> (list anything relevant to this object).<br/>
+  Object category <input name="A_obj01_object_category" type="input"/> (what is the best category name for this object?).<br/>
+  Object reference <textarea name="A_obj01_text_reference" rows="4" cols="80"></textarea> (How would you refer to this object when speaking to another person?) .<br/>
+  Object name <input name="A_img_0001_name" type="input" width="40"/> ("the ....!")<br/>
+<hr/><br/>
+Danger/Fragile:<br/>
+  <input name="A_obj01_fragile" type="checkbox"/> Is it fragile? I.e. if we grab it hard or hit it, will it break?<br/>
+  <input name="A_obj01_can_contain_water" type="checkbox"/> Can it contain water/other liquids? I.e. in its normal life cycle, is it usual for it to sometimes contain water?<br/>
+  <input name="A_obj01_contains_water_now" type="checkbox"/> Does it contain water now?<br/>
+  <input name="A_obj01_dirty" type="checkbox"/> Is it visibly dirty? <br/>
+  <input name="A_obj01_can_tip" type="checkbox"/> Can we tip it? (yes, only if really nothing happens - no things fall out of it, etc. E.g. closed box or book.)<br/>
+<hr/><br/>
+What to do with it:<br/>
+  How do you throw it away: <input name="A_obj01_throw_garbage" type="checkbox"/> garbage? <input name="A_obj01_throw_recycle_cans" type="checkbox"/> recycle cans/bottles?
+<input name="A_obj01_throw_recycle_paper" type="checkbox"/> paper recycling? <input name="A_obj01_throw_toxic" type="checkbox"/> toxic? (e.g. don't put batteries in garbage)<br/>
+  Is it food? <input name="A_obj01_food" type="checkbox"/> (E.g. drinks, foodstuffs, etc)<br/>
+  Can I put it into a dishwasher? <input name="A_obj01_put_dishwasher" type="checkbox"/> (E.g. plates, cups, etc)<br/>
+  Does it belong to office supplies? <input name="A_obj01_put_office_supplies" type="checkbox"/> (E.g. pens, notepads)<br/>
+  Is it clothing or shoes? <input name="A_obj01_put_clothing" type="checkbox"/> (E.g. shoes, coats, hats)<br/>
+  Where would you place it (keywords)? <input name="A_obj01_where_to_place" type="input" width="40"/> (E.g. yogurts go to kitchen, fridge, trash)<br/>
+
+  <input name="A_obj01_can_tip" type="checkbox"/> Can we tip it? (yes, only if really nothing happens - no things fall out of it, etc)<br/>
+  Other thoughs about this object<textarea name="A_obj01_object" rows="4" cols="80"></textarea> (How would you refer to this object when speaking to another person?).<br/>
+
+<hr/>
+
+</div>
+
+
+
+
+
+<noscript>
+Error. Javascript is required.
+</noscript>
+<hr/>
+Any comments/suggestions/etc: <input type=text name="Comments" id="Comments" value="">
+<hr/>
+
+
+
+<div id="submit_div">
+<input type=hidden name="assignmentId" id="assignmentId" value="">
+
+<input type=hidden name="extid" id="extid" value="">
+<input type=hidden name="workerId" id="workerId" value="">
+
+<input type=hidden name="mode" id="mode" value="">
+<input type=hidden name="start_time" id="load_time" value="">
+<input type=hidden name="load_time" id="load_time" value="">
+<input type=hidden name="submit_time" id="submit_time" value="">
+
+
+<input type=submit>
+</div>
+
+<div id="verbose_parameters" style="display:none">
+<hr/>
+<table>
+  <tr><th>Parameters:</th><td><div id="parameters"></div></td></tr>
+  <tr><th>Work unit:</th><td><div id="work_unit"></div></td></tr>
+  <tr><th>Submission:</th><td><div id="submission"></div></td></tr>
+</table>
+</div>
+
+</form>
+
+
+<script language="javascript">
+alert(1);
+MT_setup();
+MT_setup_instructions();
+
+var verbosity=7;
+
+mt_load_task_componentes(mt_mode,any__all_loaded_handler);
+
+
+
+///// END of task-specific data
+
+
+</script>
+
+
+
+
+</body>
+</html>

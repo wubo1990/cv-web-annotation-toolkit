@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<task>
+  <param name="task_arg_1" value="val_task_arg_1"/>
+</task>

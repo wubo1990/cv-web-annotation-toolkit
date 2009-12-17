@@ -45,6 +45,9 @@ task_engines["grouping"]=mturk.protocols.grouping.task.GroupingTaskEngine();
 import mturk.protocols.attributes.task;
 task_engines["attributes"]=mturk.protocols.attributes.task.AttributesTaskEngine();
 
+import mturk.protocols.anyhtml.task;
+task_engines["anyhtml"]=mturk.protocols.anyhtml.task.AnyHTMLTaskEngine();
+
 class TaskType(models.Model):
 	name=models.SlugField();
 	
@@ -344,6 +347,7 @@ class SubmittedTask(models.Model):
 		"""
 	def get_view_url(self):
 		te=self.hit.session.task_def.type.get_engine();
+		print te
 		return te.get_submission_view_url(self)
 	def get_thumbnail_url(self):
 		te=self.hit.session.task_def.type.get_engine();
@@ -359,9 +363,7 @@ class SubmittedTask(models.Model):
 		return "/mt/submission_data_xml/"+str(self.id)+"/"+self.hit.ext_hitid+"/";
 
 	def is_graded(self):
-		print "IS_GRADED?"
 		num_active_grades=self.manualgraderecord_set.filter(valid=True).count();
-		print num_active_grades
 		return num_active_grades>0;
 WorkProduct=SubmittedTask
 

@@ -158,8 +158,10 @@ def submit_result(request):
     task = get_object_or_404(MTHit,ext_hitid=task_id)
 
     #The HIT can belong to some other session
-    session_code=request.REQUEST['session']
-    session = get_object_or_404(Session,code=session_code)
+    session = task.session;
+    session_code=session.code;
+    #session_code=request.REQUEST['session']
+    #session = get_object_or_404(Session,code=session_code)
 
     workerId=request.REQUEST['workerId'];
     assignmentId=request.REQUEST['assignmentId'];
