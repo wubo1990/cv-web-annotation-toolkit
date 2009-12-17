@@ -27,37 +27,39 @@ IMPORTANT: Read the <a id="a_instructions" href="instructions.html" target="wnd_
 <div id="inline_instructions"/>
 
 
-<div id="task_results_raw"></div>
-
 <div id="task_loading">Loading task...</div>
 
 <div id="task_content" style="display:none">
 <hr/>
   <img id="A_img_0001" src=""/>  <br/> 
-  Object keywords <input name="A_obj01_keywords" type="input" width="100"/> (list anything relevant to this object).<br/>
-  Object category <input name="A_obj01_object_category" type="input"/> (what is the best category name for this object?).<br/>
-  Object reference <textarea name="A_obj01_text_reference" rows="4" cols="80"></textarea> (How would you refer to this object when speaking to another person?) .<br/>
-  Object name <input name="A_img_0001_name" type="input" width="40"/> ("the ....!")<br/>
+  <table>
+<tr>  <td>Object keywords</td><td> <input name="A_obj01_keywords" type="input" size="80"/> </td><td>(list anything relevant to this object).</td></tr>
+<tr>  <td>Object category</td><td> <input name="A_obj01_object_category" type="input"/> </td><td>(what is the best category name for this object? "the ....").</td></tr>
+<tr>  <td>Object reference</td><td> <textarea name="A_obj01_text_reference" rows="4" cols="80"></textarea> </td><td>(How would you refer to this object when speaking to another person?) .</td></tr>
+<!--tr>  <td>Object name</td><td> <input name="A_img_0001_name" type="input" size="40"/> </td><td>("the ....!")</td></tr-->
+</table>
 <hr/><br/>
-Danger/Fragile:<br/>
+<b>Danger/Fragile:</b><br/>
   <input name="A_obj01_fragile" type="checkbox"/> Is it fragile? I.e. if we grab it hard or hit it, will it break?<br/>
   <input name="A_obj01_can_contain_water" type="checkbox"/> Can it contain water/other liquids? I.e. in its normal life cycle, is it usual for it to sometimes contain water?<br/>
   <input name="A_obj01_contains_water_now" type="checkbox"/> Does it contain water now?<br/>
   <input name="A_obj01_dirty" type="checkbox"/> Is it visibly dirty? <br/>
-  <input name="A_obj01_can_tip" type="checkbox"/> Can we tip it? (yes, only if really nothing happens - no things fall out of it, etc. E.g. closed box or book.)<br/>
+  <input name="A_obj01_can_tip" type="checkbox"/> Can we tip/rotate it? (yes, only if really nothing happens - nothing falls out of it or spills, etc. E.g. closed box or book.)<br/>
 <hr/><br/>
+
 What to do with it:<br/>
-  How do you throw it away: <input name="A_obj01_throw_garbage" type="checkbox"/> garbage? <input name="A_obj01_throw_recycle_cans" type="checkbox"/> recycle cans/bottles?
-<input name="A_obj01_throw_recycle_paper" type="checkbox"/> paper recycling? <input name="A_obj01_throw_toxic" type="checkbox"/> toxic? (e.g. don't put batteries in garbage)<br/>
-  Is it food? <input name="A_obj01_food" type="checkbox"/> (E.g. drinks, foodstuffs, etc)<br/>
-  Can I put it into a dishwasher? <input name="A_obj01_put_dishwasher" type="checkbox"/> (E.g. plates, cups, etc)<br/>
-  Does it belong to office supplies? <input name="A_obj01_put_office_supplies" type="checkbox"/> (E.g. pens, notepads)<br/>
-  Is it clothing or shoes? <input name="A_obj01_put_clothing" type="checkbox"/> (E.g. shoes, coats, hats)<br/>
-  Where would you place it (keywords)? <input name="A_obj01_where_to_place" type="input" width="40"/> (E.g. yogurts go to kitchen, fridge, trash)<br/>
+<table>
+<tr><td>  How do you throw it away:</td><td colspan=2> <input name="A_obj01_throw_garbage" type="checkbox"/> garbage? <input name="A_obj01_throw_recycle_cans" type="checkbox"/> recycle cans/bottles?
+<input name="A_obj01_throw_recycle_paper" type="checkbox"/> paper recycling? <input name="A_obj01_throw_toxic" type="checkbox"/> toxic? (e.g. don't put batteries in garbage)</td></tr>
 
-  <input name="A_obj01_can_tip" type="checkbox"/> Can we tip it? (yes, only if really nothing happens - no things fall out of it, etc)<br/>
-  Other thoughs about this object<textarea name="A_obj01_object" rows="4" cols="80"></textarea> (How would you refer to this object when speaking to another person?).<br/>
-
+<tr><td>  Is it food?</td> <td><input name="A_obj01_food" type="checkbox"/> </td><td>(E.g. drinks, foodstuffs, etc)</td></tr>
+<tr><td>  Can I put it into a dishwasher?</td><td><input name="A_obj01_put_dishwasher" type="checkbox"/> </td><td>(E.g. plates, cups, etc)</td></tr>
+<tr><td>  Does it belong to office supplies?</td><td> <input name="A_obj01_put_office_supplies" type="checkbox"/> </td><td>(E.g. pens, notepads)</td></tr>
+<tr><td>  Is it clothing or shoes?</td><td> <input name="A_obj01_put_clothing" type="checkbox"/> (E.g. shoes, coats, hats)</td></tr>
+<tr><td>  Where would you place it (keywords)? </td><td><input name="A_obj01_where_to_place" type="input" size="80"/> </td><td>(E.g. yogurts go to kitchen, fridge, trash)</td></tr>
+<tr><td>  Can we tip it? </td><td>  <input name="A_obj01_can_tip" type="checkbox"/> </td><td> (yes, only if really nothing happens - no things fall out of it, etc)</td></tr>
+<tr><td>  What else can we do with this object?</td><td> <textarea name="A_obj01_other_actions" rows="4" cols="80"></textarea> </td><td>(How would you refer to this object when speaking to another person?).</td></tr>
+</table>
 <hr/>
 
 </div>
@@ -69,7 +71,6 @@ What to do with it:<br/>
 <noscript>
 Error. Javascript is required.
 </noscript>
-<hr/>
 Any comments/suggestions/etc: <input type=text name="Comments" id="Comments" value="">
 <hr/>
 
@@ -87,7 +88,7 @@ Any comments/suggestions/etc: <input type=text name="Comments" id="Comments" val
 <input type=hidden name="submit_time" id="submit_time" value="">
 
 
-<input type=submit>
+<input type=submit id="submitButton">
 </div>
 
 <div id="verbose_parameters" style="display:none">
@@ -103,18 +104,12 @@ Any comments/suggestions/etc: <input type=text name="Comments" id="Comments" val
 
 
 <script language="javascript">
-alert(1);
 MT_setup();
 MT_setup_instructions();
 
-var verbosity=7;
+var verbosity=3;
 
 mt_load_task_componentes(mt_mode,any__all_loaded_handler);
-
-
-
-///// END of task-specific data
-
 
 </script>
 
