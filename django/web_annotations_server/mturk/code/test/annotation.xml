@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<submission>
+  <attribute id="1" tgt="img_0001_person" value=""/>
+  <attribute id="2" tgt="img_0001_description" value="There's a person speaking on the phone"/>
+  <attribute id="3" tgt="img_0001_object" value="person"/>
+  <attribute id="4" tgt="img_0002_person" value="on"/>
+  <comment text="This is a custom task comment"/>
+</submission>
