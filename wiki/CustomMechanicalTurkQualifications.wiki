@@ -11,10 +11,5 @@ Once qualification is defined, we need to create qualification requirement, whic
  1. Create qualification definition
  1. Create qualification requirement
  1. Add qualification to the session
- 1. *Manually* force creation of the qualification. {{{/mt/qualification/create/<session_code>/<qualification_requirement_name>/}}}
-
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+ 1. *Manually* force creation of the qualification. {{{/mt/qualification/create/<session_code>/<qualification_requirement_name>/}}}. Qualification ID is different for sandbox and production. Therefore, the qualification requirements must be different for sandbox and for production.
+ 1. Submit HITs to the session.
