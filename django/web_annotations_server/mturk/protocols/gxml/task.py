@@ -66,7 +66,7 @@ class GXmlTaskEngine(TaskEngine):
 
         return url
 
-    def get_grading_view_url(self,submission):
+    def get_grading_view_url(self,submission,grading_parameters={}):
         viewurl=""
 
         url="/code/task.html?swf=label_generic"
@@ -86,8 +86,8 @@ class GXmlTaskEngine(TaskEngine):
 
 
         url=url+"&mode=display";
-        url=url+"&display_mode=thumbnail";
-        url=url+"&swf_w=500&swf_h=500";
+        url=url+"&display_mode="+grading_parameters.get("display_mode","thumbnail");
+        url=url+"&swf_w=700&swf_h=700";
         url=url+"&instructions="+urllib.quote(session.task_def.instructions_url);
         
         annotation_url=submission.get_persistent_url()

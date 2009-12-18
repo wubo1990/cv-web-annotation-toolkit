@@ -49,11 +49,13 @@ class GradingTaskEngine(TaskEngine):
         num_per_task=int(xmlmisc.xget_a(layout_node,"num_per_task"));
         frame_w=int(xmlmisc.xget_a_d(layout_node,"frame_w","550"));
         frame_h=int(xmlmisc.xget_a_d(layout_node,"frame_h","500"));
-        return {'overlap':overlap,'num_per_task':num_per_task,"frame_w":frame_w,"frame_h":frame_h};
+        display_mode=xmlmisc.xget_a_d(layout_node,"mode","full");
+        return {'overlap':overlap,'display_mode':display_mode,'num_per_task':num_per_task,"frame_w":frame_w,"frame_h":frame_h};
 
     def get_models(self):
-        print sys.modules.keys()
-        return sys.modules["web_annotations_server.mturk.models"]
+        if "web_annotations_server.mturk.models" in sys.modules:
+            return sys.modules["web_annotations_server.mturk.models"]
+        return sys.modules["mturk.models"]
 
 
     def get_task_page_url(self,task,request):

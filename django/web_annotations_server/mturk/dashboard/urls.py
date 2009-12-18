@@ -8,4 +8,5 @@ urlpatterns = patterns('',
 
     (r'^worker_internal/(?P<worker_id>[\w\-]+)/$', 'mturk.dashboard.views.worker_internal_dashboard'),
     (r'^workers_overview/$', 'mturk.dashboard.views.workers_overview_dashboard'),
+    (r'^worker/(?P<worker_id>[\w\-]+)/$', 'mturk.dashboard.views.worker_dashboard'),
 );

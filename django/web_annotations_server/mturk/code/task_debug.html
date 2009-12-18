@@ -49,7 +49,7 @@ Any comments/suggestions/etc: <input type=text name="Comments" id="Comments" val
 
 </form>
 
-
+<div id='sites_value'/>
 
 
 
@@ -61,7 +61,8 @@ var run_submit=function (){
 {
  alert("You must accept the task first");
 }else{
-   $('MT_form').submit();
+$('sites_value').innerHTML=$('MT_form')['sites'].value ;
+ alert("Submit disabled in debug mode");
 }
 }
 
