@@ -20,7 +20,7 @@ Work management server provides data storage, user interfaces, grading interface
 = Naming conventions = 
 
 The work management server uses naming conventions to determine which fields are relevant to the submission and which should be ignored:
- * {{{A_.*}}} - All form fields starting with "A_*" designate attributes of interes.
+ * {{{A_.*}}} - All form fields starting with "{{{A_*}}}" designate attributes of interes.
  * (future) {{{Annn_.*}}} - designated attributes for multiple objects. *nnn* is a sequence of numbers.
  * *extid* - reference to the work unit 
  * *assignmentId* - the ID of the assignment for Amazon Mechanical Turk
