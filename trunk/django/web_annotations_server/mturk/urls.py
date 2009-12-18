@@ -101,6 +101,7 @@ urlpatterns = patterns('',
 
 
     (r'^hit_results_xml/(?P<ext_id>[\w\-]+)/', 'mturk.views.get_hit_results_xml'),
+    (r'^work_unit/(?P<ext_id>[\w\-]+)/submission/all/xml/', 'mturk.views.get_hit_results_xml'),
     (r'^hit_parameters/(?P<ext_id>[\w\-]+)/', 'mturk.views.send_hit_parameters'),
     (r'^task_parameters/(?P<task_name>[\w\-]+)/', 'mturk.views.get_task_parameters'),
 
@@ -110,6 +111,7 @@ urlpatterns = patterns('',
     (r'^session_images/(?P<session_code>[\w\-]+)/wget/$', 'mturk.views.get_session_images_wget'),
     (r'^session_images2/(?P<session_code>[\w\-]+)/$', 'mturk.views.get_session_images2'),
     (r'^session_images3/(?P<session_code>[\w\-]+)/$', 'mturk.views.get_session_images3'),
+    (r'^session/(?P<session_code>[\w\-]+)/work_units/$', 'mturk.views.get_session_work_units'),
 
     (r'^session_good_results_list/(?P<session_code>[\w\-]+)/$', 'mturk.views.get_session_good_results'),
 

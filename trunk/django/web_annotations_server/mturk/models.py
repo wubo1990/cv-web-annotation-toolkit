@@ -259,6 +259,8 @@ SUBMISSION_STATE = (
             (2, 'Graded'),
             (3, 'Approved'),
             (4, 'Rejected'),
+            (5, 'Pending approval'),
+            (6, 'Pending rejection'),
         )        
 class SubmittedTask(models.Model):
 	hit = models.ForeignKey(MTHit);
@@ -352,10 +354,10 @@ class SubmittedTask(models.Model):
 	def get_thumbnail_url(self):
 		te=self.hit.session.task_def.type.get_engine();
 		return te.get_thumbnail_url(self)
-	def get_grading_view_url(self):
+
+	def get_grading_view_url(self,grading_params={}):
 		te=self.hit.session.task_def.type.get_engine();
-		print "GV"
-		return te.get_grading_view_url(self)
+		return te.get_grading_view_url(self,grading_params)
 
 	def get_persistent_url(self):
 		return settings.HOST_NAME_FOR_MTURK+"mt/submission_data_xml/"+str(self.id)+"/"+self.hit.ext_hitid+"/";

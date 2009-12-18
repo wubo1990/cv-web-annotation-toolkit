@@ -22,6 +22,7 @@ try:
     from boto.mturk.connection import MTurkConnection
     from boto.mturk.question import ExternalQuestion
     from boto.mturk.qualification import Qualifications, PercentAssignmentsApprovedRequirement,Requirement
+    from boto.mturk.qualification_type import *
     hasBoto=True
 except Exception,e:
     print e
@@ -992,7 +993,7 @@ def create_session_hit_type(session,force_create_qualifications=False):
     qualifications = Qualifications()
     qualifications.add(PercentAssignmentsApprovedRequirement(comparator="GreaterThan", integer_value="90"))
 
-    add_session_qualifications(qualifications,session,force_create_qualifications);
+    qualifications=add_session_qualifications(qualifications,session,force_create_qualifications);
     print qualifications.get_as_params()
     create_hit_rs = conn.register_hit_type(  title=t.title,
                                              description=t.description,
@@ -1106,7 +1107,7 @@ def submit_redo_HITs(request,session_code):
 def get_good_hit_results_xml(request,ext_id):
     return get_hit_results_xml(request,ext_id,True)
 
-def get_hit_results_xml(request,ext_id,filterGood=False):
+def get_hit_results_xml(request,ext_id,filter_good_results=False):
     task_id=ext_id;
     print task_id;
 
@@ -1119,26 +1120,27 @@ def get_hit_results_xml(request,ext_id,filterGood=False):
 
         print st.id,st.final_grade 
 
-        grade_xml="<grades>"
-        grade=None
-        feedback="";
-        for g in st.manualgraderecord_set.filter(valid=True):
-            if grade:
-                if grade>g.quality:
+        if filter_good_results:
+            grade_xml="<grades>"
+            grade=None
+            feedback="";
+            for g in st.manualgraderecord_set.filter(valid=True):
+                if grade:
+                    if grade>g.quality:
+                        grade=g.quality;
+                        feedback=g.feedback;
+                else:
                     grade=g.quality;
                     feedback=g.feedback;
-            else:
-                grade=g.quality;
-                feedback=g.feedback;
-            grade_xml+="<grade value='%d'/>" % g.quality
-        grade_xml+="</grades>"
+                grade_xml+="<grade value='%d'/>" % g.quality
+            grade_xml+="</grades>"
 
-        if grade is None:
-            continue
-        #Return only good. Skip "visible errors"
-        print "Grade:",grade
-        if grade <= 7:
-            continue
+            if grade is None:
+                continue
+            #Return only good. Skip "visible errors"
+            print "Grade:",grade
+            if grade <= 7:
+                continue
 
 
         s=s+st.get_parsed().shapes;
@@ -1185,13 +1187,16 @@ def grading_submit_session(request,session_code,grading_session_code):
         raise Http404;
 
 
+    te=grading_session.task_def.type.get_engine();
+    grading_params=te.reinterpret_task_parameters(grading_session.task_def)
+
     stats={};
     stats['num_to_grade']=session.submittedtask_set.filter(state__in=[1,2]).count();
     all_grading_items=[];
     #for t in session.submittedtask_set.all():
     for t in session.submittedtask_set.filter(state__in=[1,2]):
         submission_id=session.code+"/"+ str(t.id)
-        submission_url=t.get_grading_view_url();
+        submission_url=t.get_grading_view_url(grading_params);
         worker_id=t.worker
         print submission_id
         print submission_url
@@ -1204,8 +1209,6 @@ def grading_submit_session(request,session_code,grading_session_code):
         """
 
 
-    te=grading_session.task_def.type.get_engine();
-    grading_params=te.reinterpret_task_parameters(grading_session.task_def)
     random.shuffle(all_grading_items);
     all_grading_items2=copy.copy(all_grading_items);
     random.shuffle(all_grading_items2);
@@ -1411,6 +1414,48 @@ def get_session_images3(request,session_code):
             response.write("%s\t/mt/good_hit_results_xml/%s/\t%s\t%s\t%s\t%s\t%s\t%s\n" % (settings.HOST_NAME_FOR_MTURK,hit.ext_hitid,session_code,img_id,frame_id,ref_time,topic_in,original_name))
 
         return response
+
+
+#def get_session_images4(request,session_code):
+def get_session_work_units(request,session_code):
+	session = get_object_or_404(Session,code=session_code)
+
+        results={};
+	for hit in session.mthit_set.all():            
+            parms=hit.parse_parameters();
+
+            hit_d={};
+            frame=parms.get('frame',None);
+            if frame:
+                hit_d['frame']=frame
+            frame_id=parms.get('frame_id',None)
+            if frame_id:
+                hit_d['frame_id']=frame_id
+            ref_time=parms.get('ref_time',None)
+            if ref_time:
+                hit_d['ref_time']=ref_time
+            topic_in=parms.get('topic_in',None)
+            if topic_in:
+                hit_d['topic_in']=topic_in
+            original_name=parms.get('original_name',None)
+            if original_name:
+                hit_d['original_name']=original_name
+
+            image_dir=os.path.join(settings.DATASETS_ROOT,session.code);
+            original_fn =os.path.join(image_dir,frame+"-original.jpg");
+            if os.path.exists(original_fn):
+                img_id=frame+"-original"
+            else:
+                img_id=frame
+            
+            hit_d['int_id']=hit.id;
+            hit_d['ext_work_unit_id']=hit.ext_hitid;
+            hit_d['image_id']=img_id;
+            results[hit.ext_hitid]=hit_d
+
+        resp=HttpResponse()
+        resp.write(yaml.dump(results));
+        return resp;
 
 
 def get_session_good_results(request,session_code):
@@ -1841,21 +1886,38 @@ def create_qualification_internal(session,qual):
         if prop.strip()=="":
             continue
         (k,v)=prop.split('=');
-        params[k]=v
+        params[k]=v.strip()
         
     #params['Test']=xml.sax.saxutils.escape(qual_definition.question)
     #params['Answer']=xml.sax.saxutils.escape(qual_definition.answer)
-    params['Test']=urllib.quote(qual_definition.question)
-    params['Answer']=urllib.quote(qual_definition.answer)
+    #params['Test']=urllib.quote(qual_definition.question)
+    #params['Answer']=urllib.quote(qual_definition.answer)
+    params['Test']=qual_definition.question
+    params['AnswerKey']=qual_definition.answer
+    #data={}
+    #data['Test']=urllib.quote(qual_definition.question)
+    #data['Answer']=urllib.quote(qual_definition.answer)
     print params
     conn = get_mt_connection(session);
-    resp=conn._process_request('CreateQualificationType',params);
-    if resp.status != True:
-        raise MTurkException(resp)
+
+    response = conn.make_request('CreateQualificationType', params,verb='POST')
+    print response.status
+    resp= conn._process_response(response, [('CreateQualificationTypeResponse',QualificationType)])
     print resp
-    id = resp.QualificationType
-    qual.mt_qual_id=id
-    qual.save()
+    #resp=conn._process_request('CreateQualificationType',params);
+    print resp
+    if resp.status != True:
+        print resp
+        raise MTurkException(resp)
+
+    resp_qual=resp[0]
+    if resp_qual.valid:
+        id = resp_qual.id
+        qual.mt_qual_id=id
+        qual.save()
+    else:
+        id= None
+
     return id
 
 
@@ -2004,15 +2066,18 @@ def opt_get_session_grades(request,session_code):
     resp=HttpResponse();
 
     ref={};
-    ref_id=0;
+    ref_id=ManualGradeRecord.objects.count()+100000;
     for s in session.submittedtask_set.all():
         for g in s.manualgraderecord_set.all():
             w=g.worker
             if g.reference in ref:
                 r=ref[g.reference];
             else:
-                r=ref_id
-                ref_id+=1;
+                if "/" in g.reference:
+                    r=int(g.reference.split("/")[1])
+                else:
+                    r=ref_id
+                    ref_id+=1;
                 ref[g.reference]=r;
             resp.write("%d %d %d %d %d %d\n" % (s.id,r,
                                              g.quality,g.valid,
