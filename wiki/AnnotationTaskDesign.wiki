@@ -101,7 +101,7 @@ Recursive annotations are defined with {{{<annotation type="2level">}}} declarat
 }}}
 
 
-== Fixed topolygon graph annotations ==
+== Fixed topology graph annotations ==
 
 It is often useful to annotate with a fixed layout. An example could be landmarks on human face or joint locations of a person. The graph is specified by:
  * a list of nodes with names (internal representation), labels for display, tags for display in the image and colors (random by default)
