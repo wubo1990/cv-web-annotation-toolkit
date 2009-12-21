@@ -3,6 +3,7 @@
 <script src="js/prototype.js" type="text/javascript"></script>
 <script src="js/scriptaculous.js" type="text/javascript"></script>
 <script src="js/mt.js" type="text/javascript"></script>
+<script src="js/easy_selection.js" type="text/javascript"></script>
 
 <script>
 
@@ -31,8 +32,11 @@ function decode(strToDecode)
 </script>
 
 <style>
-div.aspect {border:solid};
-img.example {height:60px};
+div.aspect {border:solid; }
+
+img.example { }
+img.example_sel { border-width:thick; border:solid; border-color: #00F;}
+
 </style>
 <!-- img.example {width:100px}; -->
 
@@ -89,6 +93,42 @@ Any comments/suggestions/etc: <input type=text name="Comments" id="Comments" val
 
 MT_setup_instructions();
 
+var cur_sel = null;
+
+function select_img(evt){
+   img=evt.target;
+   class_list = ["example","example_sel"];
+   if ( cur_sel ){
+      cycle_class(     cur_sel,class_list);
+   }
+   cur_sel = img;
+   cycle_class(     cur_sel,class_list);
+}
+
+
+Event.observe(window, 'load', function() {
+    Event.observe(document, 'keypress', function(e){
+       var code;
+       if (!e) var e = window.event;
+       if (e.keyCode) code = e.keyCode;
+       else if (e.which) code = e.which;
+       if(cur_sel)
+       {
+         var character = String.fromCharCode(code);
+         if((code>48 && code<58) || (character=="j") || (character=="t"))
+         {
+            if((character=="j") || (character=="t"))
+                character='T';
+            tgt=$("aspect"+character);
+	    tgt.appendChild(cur_sel);
+	    cur_sel.style.maxHeight=thumbnail_max_H;
+	    cur_sel.style.maxWidth=thumbnail_max_W;
+            cur_sel.aspect=tgt.id;
+            cur_sel=null;
+         }	   
+       }
+    });
+});
 
 
 function collect_results_on_submit(){
@@ -174,6 +214,7 @@ for(i=0;i<images.length;i++){
    img.class="full";
    img.style.maxHeight=full_max_H;
    img.style.maxWidth=full_max_W;
+   img.onclick=select_img;
 
    $('images_div').appendChild(img);
    new Draggable(img,{'revert':true});
@@ -333,6 +374,9 @@ Droppables.add("images_div",{
             //form.action = "https://workersandbox.mturk.com/mturk/externalSubmit";
         }
     }
+
+
+
 </script>
 
 

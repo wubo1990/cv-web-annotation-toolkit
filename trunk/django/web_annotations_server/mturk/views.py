@@ -111,7 +111,16 @@ def showtask(request,session_code):
         pass
     session = get_object_or_404(Session,code=session_code)
 
-    task = get_object_or_404(MTHit,ext_hitid=request.REQUEST['ExtID'])
+    try:
+        if 'ExtID' in request.REQUEST:
+            task_id=request.REQUEST['ExtID']
+        else:
+            task_id=request.REQUEST['extid']
+    except:
+        if 'extid' in request.REQUEST:
+            task_id=request.REQUEST['extid']
+
+    task = get_object_or_404(MTHit,ext_hitid=task_id)
 
     if "workerId" in request.REQUEST:
         worker_id=request.REQUEST["workerId"]
@@ -150,11 +159,14 @@ def submit_result(request):
     print request.POST;
 
 
-
-    if 'ExtID' in request.REQUEST:
-        task_id=request.REQUEST['ExtID']
-    else:
-        task_id=request.REQUEST['extid']
+    try:
+        if 'ExtID' in request.REQUEST:
+            task_id=request.REQUEST['ExtID']
+        else:
+            task_id=request.REQUEST['extid']
+    except:
+        if 'extid' in request.REQUEST:
+            task_id=request.REQUEST['extid']
 
     task = get_object_or_404(MTHit,ext_hitid=task_id)
 
@@ -786,7 +798,7 @@ def newHIT(request):
 	if session.standalone_mode:
             return HttpResponse("%s" % hit.ext_hitid)
 
-        taskurl=settings.HOST_NAME_FOR_MTURK+"mt/get_task/"+str(session.code)+"/?ExtID="+hit.ext_hitid;
+        taskurl=settings.HOST_NAME_FOR_MTURK+"mt/get_task/"+str(session.code)+"/?extid="+hit.ext_hitid;
 
         q = ExternalQuestion(external_url=taskurl, frame_height=800)
 
@@ -858,7 +870,7 @@ def new_HIT_generic(request):
 	if session.standalone_mode:
             return HttpResponse("%s" % hit.ext_hitid)
 
-        taskurl=settings.HOST_NAME_FOR_MTURK+"mt/get_task/"+str(session.code)+"/?ExtID="+hit.ext_hitid;
+        taskurl=settings.HOST_NAME_FOR_MTURK+"mt/get_task/"+str(session.code)+"/?extid="+hit.ext_hitid;
 
         q = ExternalQuestion(external_url=taskurl, frame_height=800)
 
@@ -1024,6 +1036,7 @@ def copy_session(request,prototype_session_code,new_session_code):
     new_session.save();
     return HttpResponse("+ %d" % new_session.id)
 
+@login_required
 def submit_redo_HITs(request,session_code):
     session = get_object_or_404(Session,code=session_code);
 
@@ -1051,7 +1064,7 @@ def submit_redo_HITs(request,session_code):
             print "Hit",hit.id ,"is done"
             continue
         print hit.id," is not done"
-        taskurl=settings.HOST_NAME_FOR_MTURK+"mt/get_task/"+str(session.code)+"/?ExtID="+hit.ext_hitid;
+        taskurl=settings.HOST_NAME_FOR_MTURK+"mt/get_task/"+str(session.code)+"/?extid="+hit.ext_hitid;
         q = ExternalQuestion(external_url=taskurl, frame_height=800)
 
 	if session.sandbox:
@@ -1077,9 +1090,11 @@ def submit_redo_HITs(request,session_code):
                                             approval_delay=t.approval_delay, 
                                             annotation="IGNORE",
                                             qualifications=qualifications)
-            #postS=pickler.dumps(create_hit_rs)
-            #print postS
-            assert(create_hit_rs.status == True)
+            postS=pickler.dumps(create_hit_rs)
+            print postS
+            print create_hit_rs
+            if create_hit_rs.status != True:
+                return render_to_response('mturk/aws_error_report.html',{'resultset':create_hit_rs,'session':session});
             print create_hit_rs.HITTypeId
             session.hit_type=create_hit_rs.HITTypeId;
             session.save();
@@ -1264,7 +1279,7 @@ def add_hit_to_session(session,params):
     if session.standalone_mode:
         return (True,"%s" % hit.ext_hitid)
 
-    taskurl=settings.HOST_NAME_FOR_MTURK+"mt/get_task/"+str(session.code)+"/?ExtID="+hit.ext_hitid;
+    taskurl=settings.HOST_NAME_FOR_MTURK+"mt/get_task/"+str(session.code)+"/?extid="+hit.ext_hitid;
 
     q = ExternalQuestion(external_url=taskurl, frame_height=800)
 
@@ -1293,7 +1308,8 @@ def add_hit_to_session(session,params):
                                         approval_delay=t.approval_delay, 
                                         annotation="IGNORE",
                                         qualifications=qualifications)
-        assert(create_hit_rs.status == True)
+        if create_hit_rs.status != True:
+            return (False, "Error talking to AWS: %s (%s)" % (create_hit_rs.Message,create_hit_rs.Code));
         print create_hit_rs.HITTypeId
         session.hit_type=create_hit_rs.HITTypeId;
         session.save();
@@ -1317,7 +1333,7 @@ def activate_hit(session,hit):
     if session.standalone_mode:
         return (True,"%s" % hit.ext_hitid)
 
-    taskurl=settings.HOST_NAME_FOR_MTURK+"mt/get_task/"+str(session.code)+"/?ExtID="+hit.ext_hitid;
+    taskurl=settings.HOST_NAME_FOR_MTURK+"mt/get_task/"+str(session.code)+"/?extid="+hit.ext_hitid;
 
     q = ExternalQuestion(external_url=taskurl, frame_height=800)
 
@@ -1346,7 +1362,8 @@ def activate_hit(session,hit):
                                         approval_delay=t.approval_delay, 
                                         annotation="IGNORE",
                                         qualifications=qualifications)
-        assert(create_hit_rs.status == True)
+        if create_hit_rs.status != True:
+            return (False, "Error talking to AWS: %s (%s)" % (create_hit_rs.Message,create_hit_rs.Code));
 
         session.hit_type=create_hit_rs.HITTypeId;
         session.save();
@@ -1356,7 +1373,7 @@ def activate_hit(session,hit):
     try:
         mt_hit_id=create_hit_rs.HITId
     except:
-        return (False,None);
+        return (False, "Error talking to AWS: %s (%s)" % (create_hit_rs.Message,create_hit_rs.Code));
     else:
         mthit=MechTurkHit(session=session,mthit=hit,state=1,mechturk_hit_id=mt_hit_id);
         mthit.save();
@@ -1419,38 +1436,41 @@ def get_session_images3(request,session_code):
 #def get_session_images4(request,session_code):
 def get_session_work_units(request,session_code):
 	session = get_object_or_404(Session,code=session_code)
-
+        task_type=session.task_def.type;
         results={};
 	for hit in session.mthit_set.all():            
             parms=hit.parse_parameters();
 
             hit_d={};
-            frame=parms.get('frame',None);
-            if frame:
-                hit_d['frame']=frame
-            frame_id=parms.get('frame_id',None)
-            if frame_id:
-                hit_d['frame_id']=frame_id
-            ref_time=parms.get('ref_time',None)
-            if ref_time:
-                hit_d['ref_time']=ref_time
-            topic_in=parms.get('topic_in',None)
-            if topic_in:
-                hit_d['topic_in']=topic_in
-            original_name=parms.get('original_name',None)
-            if original_name:
-                hit_d['original_name']=original_name
+            hit_d['task_type']=str(task_type.name);
+            hit_d['task_id']=str(session.task_def.name);
+            if task_type=="gxml":
+                frame=parms.get('frame',None);
+                if frame:
+                    hit_d['frame']=frame
+                frame_id=parms.get('frame_id',None)
+                if frame_id:
+                    hit_d['frame_id']=frame_id
+                ref_time=parms.get('ref_time',None)
+                if ref_time:
+                    hit_d['ref_time']=ref_time
+                topic_in=parms.get('topic_in',None)
+                if topic_in:
+                    hit_d['topic_in']=topic_in
+                original_name=parms.get('original_name',None)
+                if original_name:
+                    hit_d['original_name']=original_name
 
-            image_dir=os.path.join(settings.DATASETS_ROOT,session.code);
-            original_fn =os.path.join(image_dir,frame+"-original.jpg");
-            if os.path.exists(original_fn):
-                img_id=frame+"-original"
-            else:
-                img_id=frame
-            
+                image_dir=os.path.join(settings.DATASETS_ROOT,session.code);
+                original_fn =os.path.join(image_dir,frame+"-original.jpg");
+                if os.path.exists(original_fn):
+                    img_id=frame+"-original"
+                else:
+                    img_id=frame
+                hit_d['image_id']=img_id;
+
             hit_d['int_id']=hit.id;
             hit_d['ext_work_unit_id']=hit.ext_hitid;
-            hit_d['image_id']=img_id;
             results[hit.ext_hitid]=hit_d
 
         resp=HttpResponse()

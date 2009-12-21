@@ -11,5 +11,7 @@ urlpatterns = patterns('',
 
     (r'^create_download/(?P<session_code>[\w\-]+)/xml_masks/$', 'mturk.protocols.gxml.views.create_xml_masks_download'),
 
+    (r'^create_masks/(?P<session_code>[\w\-]+)/$', 'mturk.protocols.gxml.views.create_masks'),
+
 );
                        

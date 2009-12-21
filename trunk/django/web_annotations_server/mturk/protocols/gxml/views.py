@@ -59,11 +59,12 @@ def do_upload_image(request,session,form,uploaded_file):
         hit=mturk.models.MTHit(session=session,ext_hitid=rand_id,int_hitid=id,parameters=params);
 	hit.save();
 	if form.cleaned_data["submit_for_annotation"]:
-		(activated,id)=mturk.views.activate_hit(session,hit);
+		(activated,msg)=mturk.views.activate_hit(session,hit);
 	else:
 		activated=False
+		msg="submission disabled"
 
-	return HttpResponse("done. Activated %d" % activated)
+	return HttpResponse("done. Activated %d, %s" % (activated,msg))
 
 
 
@@ -158,14 +159,17 @@ def do_upload_image_tgz(request,session,form,uploaded_file):
 		hit=mturk.models.MTHit(session=session,ext_hitid=rand_id,int_hitid=id,parameters=params);
 		hit.save();
 		nAdded+=1;
+		errors=""
 		if form.cleaned_data["submit_for_annotation"]:
 			(activated,hitid)=mturk.views.activate_hit(session,hit);
 			if activated:
 				nActivated+=1;
+			else:
+				errors+="\n"+hitid;
 		else:
 			pass
 
-	return HttpResponse("done. Added %d, Activated %d, Skipped because HIT exists %d, Skipped because they exceed the HIT limit %d" % (nAdded,nActivated,nSkippedExisting,nSkippedOverLimit))
+	return HttpResponse("done. Added %d, Activated %d, Skipped because HIT exists %d, Skipped because they exceed the HIT limit %d. Errors:%s" % (nAdded,nActivated,nSkippedExisting,nSkippedOverLimit,errors))
 
 
 def create_full_pack_download(request,session_code):
@@ -224,3 +228,30 @@ def create_xml_masks_download(request,session_code):
 	os.system("tar cvzCf %s/%s/ %s/%s-%s-xml_and_masks.tgz %s"%(download_rt,timeid,download_rt,session.code,timeid,session.code))
 
 	return HttpResponseRedirect("/mt/download/"+session.code+"/xml_and_masks/"+session.code+"-"+timeid+"-xml_and_masks.tgz")
+
+
+def create_masks(request,session_code):
+	session = get_object_or_404(mturk.models.Session,code=session_code)
+	download_rt=os.path.join(settings.DATASETS_ROOT,'downloads',session.code,'xml_and_masks');
+	if not os.path.exists(download_rt):
+		os.makedirs(download_rt);	
+
+	img_rt=os.path.join(settings.DATASETS_ROOT,session.code);
+	fns=os.listdir(img_rt);
+	if len(fns)==0:
+		return HttpResponse("Failed. No images")
+	fn=fns[0];
+	im = Image.open(os.path.join(img_rt,fn));
+	img_resolution = "%dx%d" % (im.size[0],im.size[1]);
+
+	timeid=strftime("%d-%b-%Y-%H-%M-%S")
+	proc=subprocess.Popen("/var/django2/session_results.sh --session=%s --server=%s --saveto=%s/%s/%s/" % (session.code,settings.SITE_NAME,download_rt,timeid,session.code), shell=True,env={})
+	proc.communicate();
+
+	proc=subprocess.Popen("/var/django2/session_results_masks.sh %s/%s/%s/ %s" % (download_rt,timeid,session.code,img_resolution),shell=True,env={})
+	proc.communicate();
+
+	masks_rt=os.path.join(settings.DATASETS_ROOT,'masks',session.code);
+	os.system("cp %s/%s/%s/masks/* %s" % (download_rt,timeid,session.code,masks_rt))
+
+	return HttpResponseRedirect("done");

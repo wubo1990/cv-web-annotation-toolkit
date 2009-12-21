@@ -24,9 +24,9 @@ from xmlmisc import *
 
 try:
 	try:
-		import Image, ImageDraw
+		import Image, ImageDraw, ImageChops
 	except:
-		from PIL import Image, ImageDraw
+		from PIL import Image, ImageDraw, ImageChops
 except:	
 	Image=None
 
@@ -123,6 +123,31 @@ def get_wnd2(request,item_name,l,t,w,h):
 	c = im.crop(map(lambda v:int(round(v)),[float(l),float(t),float(l)+float(w),float(t)+float(h)]));
 	response = HttpResponse(mimetype="image/jpeg")
 	c.save(response, "JPEG")
+
+	return response
+
+def get_wnd2_mask(request,item_name,l,t,w,h):
+	mask_name=request.REQUEST['mask_name']
+
+	image_filename=os.path.join(settings.DATASETS_ROOT,item_name);
+	mask_filename=os.path.join(settings.DATASETS_ROOT,mask_name);
+	#if not os.path.exists(image_filename):
+	#	raise Http404();
+	#if not os.path.exists(mask_filename):
+	#	raise Http404();
+	im = Image.open(image_filename);	
+	mask = Image.open(mask_filename);	
+
+	box=map(lambda v:int(round(v)),[float(l),float(t),float(l)+float(w),float(t)+float(h)]);
+	c = im.crop(box);
+	m = mask.crop(box);
+
+	m = m.convert("RGB");
+	print m.size
+	print c.size
+	c_masked = ImageChops.multiply(c, m)
+	response = HttpResponse(mimetype="image/jpeg")
+	c_masked.save(response, "JPEG")
 
 	return response
 
