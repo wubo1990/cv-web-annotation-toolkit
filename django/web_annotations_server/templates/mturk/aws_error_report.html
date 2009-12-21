@@ -1,0 +1,13 @@
+{% extends "mturk/base_app.html" %}
+
+{% block content %}
+Encountered an error while communicating with Amazon Web Services using session <b>{{session.code}}</b> and account <b>{{session.funding.name}}</b>.
+<hr/>
+<table>
+<tr><th>Error code:</th><td>{{resultset.Code}}</td></tr>
+<tr><th>Message:</th><td>{{resultset.Message}}</td></tr>
+</table>
+<hr/>
+
+{% endblock %}
+
