@@ -47,7 +47,7 @@ def render_annotation_mini(a,w=None,h=None,visual_only=False):
     if not h:
       h=350;
 
-    str_gxml="<iframe id='show_ann_%d' width='%d' height='%d' marginheight='0' marginwidth='0' src='/code/gxml_show.html?swf=label_generic&swf_w=%d&swf_h=%d&img_base=%s&video=%s&frame=%s&task=%s&mode=display&annotationURL=/datastore/annotation/%d/'></iframe>" % (a.id,w,h,w,h,"/",a.ref_data.ds.name,str_img,task,a.id)
+    str_gxml="<iframe id='show_ann_%d' width='%d' height='%d' marginheight='0' marginwidth='0' src='/code/gxml_show.html?swf=label_generic&swf_w=%d&swf_h=%d&img_base=%s&video=%s&frame=%s&task=%s&mode=display&annotation_url=/datastore/annotation/%d/'></iframe>" % (a.id,w,h,w,h,"/",a.ref_data.ds.name,str_img,task,a.id)
     return mark_safe(str_gxml+has_ref_str)
   if a.annotation_type.category=="grade10":
     h={}

@@ -191,7 +191,12 @@ class MTHit(models.Model):
           return str(self.int_hitid)
 
 	def get_filename(self):
-          return os.path.join(settings.DATASETS_ROOT, self.session.code, self.parse_parameters()["frame"] + ".jpg")
+		if "frame" in self.parse_parameters():
+			return os.path.join(settings.DATASETS_ROOT, self.session.code, self.parse_parameters()["frame"] + ".jpg")
+		elif "image_url" in self.parse_parameters():
+			return self.parse_parameters()["image_url"]
+		else:
+			return None
 
 	def parse_parameters(self):
 		params={};

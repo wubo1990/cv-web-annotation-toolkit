@@ -17,9 +17,6 @@ urlpatterns = patterns('',
     (r'^(?P<protocol>[\w-]+)/(?P<session_code>[\w\-]+)/task.html', 'mturk.views.showtask'),
 
 
-
-
-
     (r'^get_task/(?P<session_code>[\w\-]+)/', 'mturk.views.showtask'),
     (r'^submit/', 'mturk.views.submit_result'),
 
@@ -36,6 +33,10 @@ urlpatterns = patterns('',
     (r'^results/(?P<session_code>[\w\-]+)/$', 'mturk.views.show_paged_results_base'),
     (r'^results/(?P<session_code>[\w\-]+)/p(?P<page>[0-9]+)/$', 'mturk.views.show_paged_results'),
     (r'^all_results/(?P<session_code>[\w\-]+)/$', 'mturk.views.show_all_results'),
+    
+    (r'^bad_results/(?P<session_code>[\w\-]+)/$', 'mturk.views.show_bad_results_paged_base'),
+    (r'^bad_results/(?P<session_code>[\w\-]+)/p(?P<page>[0-9]+)/$', 'mturk.views.show_bad_results_paged'),  
+
     (r'^good_results/(?P<session_code>[\w\-]+)/$', 'mturk.views.show_good_results_paged_base'),
     (r'^good_results/(?P<session_code>[\w\-]+)/p(?P<page>[0-9]+)/$', 'mturk.views.show_good_results_paged'),
 
@@ -137,14 +138,16 @@ urlpatterns = patterns('',
 
     (r'^stats/session_details/(?P<session_code>[\w\-]+)/$', 'mturk.views.stats_session_detail'),
 
-    (r'^internal/create_qualifications/$', 'mturk.views.create_qualifications'),
-    (r'^qualification/create/(?P<session_code>[\w\-]+)/(?P<qualification_name>[\w\.\-]+)/$', 'mturk.views.create_qualification'),
+    #(r'^internal/create_qualifications/$', 'mturk.qualifications.views.create_qualifications'),
+
 
 
     (r'^p/video_events/', include('mturk.protocols.video_events.urls')),
     (r'^p/gxml/', include('mturk.protocols.gxml.urls')),
 
     (r'^payments/', include('mturk.payments.urls')),
+    (r'^qualification/', include('mturk.qualifications.urls')),
+    (r'^qualifications/', include('mturk.qualifications.urls')),
 
 
     (r'^download/(?P<path>.*)$', 'django.views.static.serve', {'document_root': os.path.join(settings.DATASETS_ROOT,'downloads')}),

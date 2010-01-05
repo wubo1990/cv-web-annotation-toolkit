@@ -3,6 +3,9 @@ from django.conf import settings
 
 from mturk.protocols.task import TaskEngine
 
+import xml.dom.minidom
+from xml.dom.minidom import Node
+
 
 class GXmlTaskEngine(TaskEngine):
     def get_internal_params(self):
@@ -81,9 +84,7 @@ class GXmlTaskEngine(TaskEngine):
         url=url+"&task_url="+urllib.quote(settings.HOST_NAME_FOR_MTURK+"tasks/"+session.task_def.name+".xml")
 
 
-        url=url+"&image_url="+urllib.quote(settings.HOST_NAME_FOR_MTURK+"frames/"+session.code+ \
-                                               "/"+task.parse_parameters()["frame"]+".jpg");
-
+        url=url+self.get_frame_part(self,session,task);
 
         url=url+"&mode=display";
         url=url+"&display_mode="+grading_parameters.get("display_mode","thumbnail");
@@ -113,11 +114,13 @@ class GXmlTaskEngine(TaskEngine):
         url=url+"&task_url="+urllib.quote(settings.HOST_NAME_FOR_MTURK+"tasks/"+session.task_def.name+".xml")
 
 
-        url=url+"&image_url="+urllib.quote(settings.HOST_NAME_FOR_MTURK+"frames/"+session.code+ \
-                                               "/"+task.parse_parameters()["frame"]+".jpg");
+        url=url+self.get_frame_part(self,session,task);
 
 
-        url=url+"&mode=input";
+
+        url=url+"&mode="+task.parse_parameters().get("mode","input");
+        if "annotation_url" in task.parse_parameters():
+            url=url+"&annotation_url="+urllib.quote(task.parse_parameters()["annotation_url"])
         url=url+"&swf_w=700&swf_h=700";
         url=url+"&instructions="+urllib.quote(session.task_def.instructions_url);
         
@@ -140,7 +143,9 @@ class GXmlTaskEngine(TaskEngine):
         url=url+self.get_frame_part(session,task);
         url=url+"&img_base="+settings.HOST_NAME_FOR_MTURK;
         
-        url=url+"&mode=MT2";
+        url=url+"&mode="+task.parse_parameters().get("mode","MT2");
+        if "annotation_url" in task.parse_parameters():
+            url=url+"&annotation_url="+urllib.quote(task.parse_parameters()["annotation_url"])
         url=url+"&swf_w=700&swf_h=700";
         url=url+"&instructions="+urllib.quote(session.task_def.instructions_url);
         
@@ -161,7 +166,17 @@ class GXmlTaskEngine(TaskEngine):
 	GET,POST=submission.get_response()
 
 	shapes_xml=urllib.unquote_plus(POST['sites']);
-        #print shapes_xml
-        #print POST
+        #return shapes_xml
 
-	return shapes_xml
+        x_doc = xml.dom.minidom.parseString(shapes_xml)
+
+        x_ref = x_doc.createElement("submission")
+        x_doc.documentElement.appendChild(x_ref);
+
+        #reference data
+        x_ref.setAttribute("ref-session",str(submission.session.code));
+        x_ref.setAttribute("ref-hit",submission.hit.ext_hitid);
+        x_ref.setAttribute("ref-submission",str(submission.id));
+        x_ref.setAttribute("url",submission.get_persistent_url());
+
+	return x_doc.toxml()
