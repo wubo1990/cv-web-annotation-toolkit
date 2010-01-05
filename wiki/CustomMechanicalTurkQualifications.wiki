@@ -18,7 +18,7 @@ Once qualification is defined, we need to create qualification requirement, whic
 = Other operations =
  1. To *manually* force creation of the qualification use "create" action: {{{/mt/qualification/create/<session_code>/<qualification_requirement_name>/}}}. This action is useful only if you want to see the qualification before creating any HITs. The qualification is created automatically.
  1. To *manually* update the qualification use "update" action: {{{/mt/qualification/update/<session_code>/<qualification_requirement_name>/}}}. 
- 1. To see the question and answer xml, use {{{/mt/qualification/show/ <qual definition name> /question/}}} and {{{/mt/qualification/show/ <qual definition name> /answer/}}}. These require login.
+ 1. To see the question and answer xml, use {{{/mt/qualification/show/ <qual definition name> /question/}}} and {{{/mt/qualification/show/ <qual definition name> /answer/}}}. These require login for security and are useful to check for XML errors.
 
 = Qualification properties =
 The qualification properties are passed through to the Amazon API. By default, the *Name* of the qualification is specified in the qualification definition name field. However, the *Name* property will override it if specified in properties page.
