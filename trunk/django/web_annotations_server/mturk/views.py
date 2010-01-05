@@ -23,6 +23,7 @@ try:
     from boto.mturk.question import ExternalQuestion
     from boto.mturk.qualification import Qualifications, PercentAssignmentsApprovedRequirement,Requirement
     from boto.mturk.qualification_type import *
+    import qualifications.views as qual_views
     hasBoto=True
 except Exception,e:
     print e
@@ -35,6 +36,8 @@ import django
 
 from models import *
 from models_stats import *
+
+from common import *
 
 try:
     from mturk.temp_rosnode import TmpNode
@@ -313,6 +316,32 @@ def show_all_results(request,session_code):
         protocol=session.task_def.type.name
         results=session.submittedtask_set.all()
         return object_list(request,queryset=results,template_name='protocols/'+protocol+'/grading_list.html');
+
+def show_bad_results_paged_base(request,session_code):
+    return HttpResponseRedirect("p1/");
+
+def show_bad_results_paged(request,session_code,page=1,order_by=None,num_per_page=None,template_name=None):
+    session = get_object_or_404(Session,code=session_code)
+
+    protocol=session.task_def.type.name;
+
+    if order_by:
+        results=session.submittedtask_set.order_by(order_by);
+    else:
+        results=session.submittedtask_set.all();
+        results=results.filter(final_grade__lt=6);
+    print results.count();
+
+    if not num_per_page:
+        num_per_page=session.task_def.type.get_engine().get_internal_params().get('list_num_per_page',settings.NUM_HITS_PER_PAGE)
+
+    page_range=map(lambda x:int(math.floor(x/num_per_page)+1),range(1,results.count(),num_per_page));
+
+    if not template_name:
+        template_name='protocols/' +protocol+'/show_list.html'
+        return object_list(request,queryset=results, paginate_by=num_per_page, page=page,
+                    template_name=template_name,extra_context={'page_range':page_range});
+
 
 def show_good_results_paged_base(request,session_code):
     return HttpResponseRedirect("p1/");
@@ -714,20 +743,6 @@ def grading_report_for_worker(request,worker_id):
 
 
 
-def add_session_qualifications(qualifications,session,force_create=False):
-    for q in session.mturk_qualification.all():
-        print "QUAL",q.id
-        if q.mt_qual_id is None or q.mt_qual_id =="" or force_create:
-            create_qualification_internal(session,q)
-
-        req=Requirement(
-                qualification_type_id=q.mt_qual_id,
-                comparator=q.comparator,
-                integer_value=q.value, 
-                required_to_preview=False);
-        qualifications.add(req);
-    return qualifications
-
 def newHIT(request):
 	print request.POST
 	session_code = request.REQUEST['session']
@@ -814,10 +829,7 @@ def newHIT(request):
         t=session.task_def;
         if not session.hit_type:
             qualifications = Qualifications()
-            qualifications.add(PercentAssignmentsApprovedRequirement(comparator="GreaterThan", integer_value="90"))
-
-            add_session_qualifications(qualifications,session);
-
+            qual_views.add_session_qualifications(qualifications,session);
 
             create_hit_rs = conn.create_hit(question=q, 
                                             lifetime=t.lifetime,
@@ -886,9 +898,8 @@ def new_HIT_generic(request):
         t=session.task_def;
         if not session.hit_type:
             qualifications = Qualifications()
-            qualifications.add(PercentAssignmentsApprovedRequirement(comparator="GreaterThan", integer_value="90"))
+            qual_views.add_session_qualifications(qualifications,session);
 
-            add_session_qualifications(qualifications,session);
 
             create_hit_rs = conn.create_hit(question=q, 
                                             lifetime=t.lifetime,
@@ -908,6 +919,7 @@ def new_HIT_generic(request):
         else:
             create_hit_rs = conn.create_hit(question=q, hit_type=session.hit_type);
             print create_hit_rs
+
 
         mt_hit_id=create_hit_rs.HITId
         mthit=MechTurkHit(session=session,mthit=hit,state=1,mechturk_hit_id=mt_hit_id); #state=Active
@@ -979,23 +991,12 @@ def update_session_hittype(session,new_hit_type):
 
 
 
-class MTurkException(Exception):
-     def __init__(self, rs):
-         self.rs = rs
-     def __str__(self):
-         return str(self.rs)
 
 
-def get_mt_connection(session):
-    if session.sandbox:
-        awshost='mechanicalturk.sandbox.amazonaws.com'
-    else:
-        awshost='mechanicalturk.amazonaws.com'
 
-    conn = MTurkConnection(host=awshost,aws_secret_access_key=session.funding.secret_key,aws_access_key_id=session.funding.access_key)
-    return conn
 
-def create_session_hit_type(session,force_create_qualifications=False):
+
+def create_session_hit_type(session):
 
     conn = get_mt_connection(session)
 
@@ -1003,10 +1004,8 @@ def create_session_hit_type(session,force_create_qualifications=False):
 
     t=session.task_def;
     qualifications = Qualifications()
-    qualifications.add(PercentAssignmentsApprovedRequirement(comparator="GreaterThan", integer_value="90"))
+    qual_views.add_session_qualifications(qualifications,session);
 
-    qualifications=add_session_qualifications(qualifications,session,force_create_qualifications);
-    print qualifications.get_as_params()
     create_hit_rs = conn.register_hit_type(  title=t.title,
                                              description=t.description,
                                             keywords=str(t.keywords),
@@ -1034,6 +1033,8 @@ def copy_session(request,prototype_session_code,new_session_code):
     new_session.code=new_session_code;
     new_session.id = None;
     new_session.save();
+    for q in session.mturk_qualification.all():
+        new_session.mturk_qualification.add(q)
     return HttpResponse("+ %d" % new_session.id)
 
 @login_required
@@ -1076,10 +1077,8 @@ def submit_redo_HITs(request,session_code):
         t=session.task_def;
         if not session.hit_type:
             qualifications = Qualifications()
-            qualifications.add(PercentAssignmentsApprovedRequirement(comparator="GreaterThan", integer_value="90"))
+            qual_views.add_session_qualifications(qualifications,session);
 
-            add_session_qualifications(qualifications,session);
-            print t.reward
             create_hit_rs = conn.create_hit(question=q, 
                                             lifetime=t.lifetime,
                                             max_assignments=t.max_assignments,
@@ -1295,9 +1294,8 @@ def add_hit_to_session(session,params):
     t=session.task_def;
     if not session.hit_type:
         qualifications = Qualifications()
-        qualifications.add(PercentAssignmentsApprovedRequirement(comparator="GreaterThan", integer_value="90"))
+        qual_views.add_session_qualifications(qualifications,session);
 
-        add_session_qualifications(qualifications,session);
         create_hit_rs = conn.create_hit(question=q, 
                                         lifetime=t.lifetime,
                                         max_assignments=t.max_assignments,
@@ -1349,9 +1347,8 @@ def activate_hit(session,hit):
     t=session.task_def;
     if not session.hit_type:
         qualifications = Qualifications()
-        qualifications.add(PercentAssignmentsApprovedRequirement(comparator="GreaterThan", integer_value="90"))
+        qual_views.add_session_qualifications(qualifications,session);
 
-        add_session_qualifications(qualifications,session);
         create_hit_rs = conn.create_hit(question=q, 
                                         lifetime=t.lifetime,
                                         max_assignments=t.max_assignments,
@@ -1415,7 +1412,9 @@ def get_session_images3(request,session_code):
 	for hit in session.mthit_set.all():            
             parms=hit.parse_parameters();
             
-            frame=parms.get('frame','n/a');
+            frame=parms.get('frame',None);
+            if frame is None:
+                frame=parms.get('image_url','n/a');
             frame_id=parms.get('frame_id','n/a')
             ref_time=parms.get('ref_time','n/a')
             topic_in=parms.get('topic_in','n/a')
@@ -1888,110 +1887,12 @@ def stats_session_detail(request,session_code):
 
 
 
-@login_required
-def create_qualification(request,session_code,qualification_name):
-    session = get_object_or_404(Session,code=session_code)
-    qual = get_object_or_404(MTurkQualification,name=qualification_name)
-    create_qualification_internal(session,qual)
-
-    return HttpResponse("+")
-
-def create_qualification_internal(session,qual):
-    qual_definition = qual.qualification_def; 
-    params={'Name':qual_definition.name,
-            'Description':'',
-            'Keywords':''};
-    for prop in qual_definition.properties.split('\n'):
-        print prop
-        if prop.strip()=="":
-            continue
-        (k,v)=prop.split('=');
-        params[k]=v.strip()
-        
-    #params['Test']=xml.sax.saxutils.escape(qual_definition.question)
-    #params['Answer']=xml.sax.saxutils.escape(qual_definition.answer)
-    #params['Test']=urllib.quote(qual_definition.question)
-    #params['Answer']=urllib.quote(qual_definition.answer)
-    params['Test']=qual_definition.question
-    params['AnswerKey']=qual_definition.answer
-    #data={}
-    #data['Test']=urllib.quote(qual_definition.question)
-    #data['Answer']=urllib.quote(qual_definition.answer)
-    print params
-    conn = get_mt_connection(session);
-
-    response = conn.make_request('CreateQualificationType', params,verb='POST')
-    print response.status
-    resp= conn._process_response(response, [('CreateQualificationTypeResponse',QualificationType)])
-    print resp
-    #resp=conn._process_request('CreateQualificationType',params);
-    print resp
-    if resp.status != True:
-        print resp
-        raise MTurkException(resp)
-
-    resp_qual=resp[0]
-    if resp_qual.valid:
-        id = resp_qual.id
-        qual.mt_qual_id=id
-        qual.save()
-    else:
-        id= None
-
-    return id
 
 
 
 
-def create_qualifications(request):
 
-    results=[]
-    for q in MTurkQualification.objects.all():
-        if q.mt_qual_id=="":
-            wrk=os.path.join(settings.MTURK_WORK,"qual",str(q.id));
-            if not os.path.exists(wrk):
-                os.makedirs(wrk);
-            fn_q=os.path.join(wrk,'workload.question');
-            fn_a=os.path.join(wrk,'workload.answer');
-            fn_p=os.path.join(wrk,'workload.properties');
 
-            fQ=open(fn_q,'w')
-            print >>fQ,q.qualification_def.question
-            fQ.close();
-
-            fA=open(fn_a,'w')
-            print >>fA,q.qualification_def.answer
-            fA.close();
-
-            fP=open(fn_p,'w')
-            print >>fP,q.qualification_def.properties
-            print >>fP,"Name=",q.qualification_def.name
-            fP.close();
-            
-            if q.is_sandbox:
-                sandbox_flag='-sandbox'
-            else:
-                sandbox_flag=''
-
-            cmd=os.path.join(settings.MTURK_ENV,'MT_create_qualification.sh')
-            env_file=os.path.join(settings.MTURK_ENV,'env.source');
-            print [cmd, env_file, wrk, sandbox_flag]
-            (output,err) = Popen(cmd +" "+env_file +" " + wrk +" "+ sandbox_flag, shell=True, stdout=PIPE,executable="/bin/bash").communicate()
-            print output,err
-            qual_file=os.path.join(wrk,'workload.properties.success');
-            fID=open(qual_file,'r')
-            qual=fID.readlines()[1].strip();
-            q.mt_qual_id=qual
-            q.save();
-
-        if q.qualification_def is None:
-            qd_name="Built-in"
-        else:
-            qd_name=q.qualification_def.name
-        results.append((str(q),q.mt_qual_id,q.is_sandbox,qd_name));
-
-    return render_to_response('mturk/internal_qual_report.html',
-                              {'results':results});
 
 
 

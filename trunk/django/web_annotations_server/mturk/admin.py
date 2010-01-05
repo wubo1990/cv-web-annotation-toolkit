@@ -3,6 +3,7 @@ from models import Session,SessionExclusion,FundingAccount,MTHit,SubmittedTask,W
 
 import views
 import mturk.payments.views
+import mturk.qualifications.views
 
 class FundingAccountAdmin(admin.ModelAdmin):
     pass	
@@ -46,9 +47,15 @@ class MTQualAdmin(admin.ModelAdmin):
     list_display = ('id','name','qualification_def','comparator','value','is_sandbox');
     save_as=True
 
+
+def check_qualification(modeladmin, request, queryset):
+    return mturk.qualifications.views.check_qualifications(request,queryset);
+    
+
 class MTQualDefAdmin(admin.ModelAdmin):
     list_display = ('id','name');
     save_as=True    
+
 
 class SessionExclusionAdmin(admin.ModelAdmin):
     pass	

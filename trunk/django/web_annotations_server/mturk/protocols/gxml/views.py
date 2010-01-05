@@ -178,21 +178,21 @@ def create_full_pack_download(request,session_code):
 	if not os.path.exists(download_rt):
 		os.makedirs(download_rt);	
 
-	img_rt=os.path.join(settings.DATASETS_ROOT,session.code);
-	fns=os.listdir(img_rt);
-	if len(fns)==0:
-		return HttpResponse("Failed. No images")
-	fn=fns[0];
-	im = Image.open(os.path.join(img_rt,fn));
-	img_resolution = "%dx%d" % (im.size[0],im.size[1]);
-
 	timeid=strftime("%d-%b-%Y-%H-%M-%S")
-	#proc=subprocess.Popen("rosrun cv_mech_turk session_results.py --session=%s --server=%s --saveto=%s/%s/%s/; env" % (session.code,settings.SITE_NAME,download_rt,timeid,session.code),stdout=subprocess.PIPE, stderr=subprocess.PIPE,stdin=subprocess.PIPE, shell=True)
-
-	#(stdoutdata, stderrdata)=proc.communicate("source /var/django2/ros.env; echo rosrun cv_mech_turk session_results.py --session=%s --server=%s --saveto=%s/%s/%s/; env" % (session.code,settings.SITE_NAME,download_rt,timeid,session.code));
+	save_dir=os.path.join(download_rt,timeid,session.code);
 
 	proc=subprocess.Popen("/var/django2/session_results.sh --session=%s --server=%s --saveto=%s/%s/%s/" % (session.code,settings.SITE_NAME,download_rt,timeid,session.code), shell=True,env={})
 	proc.communicate();
+
+	img_rt=os.path.join(save_dir,'images');
+	fns=os.listdir(img_rt);
+	fn=fns[0];
+	print img_rt,fn
+
+	im = Image.open(os.path.join(img_rt,fn));
+	img_resolution = "%dx%d" % (im.size[0],im.size[1]);
+	print img_resolution
+
 
 	proc=subprocess.Popen("/var/django2/session_results_masks.sh %s/%s/%s/ %s" % (download_rt,timeid,session.code,img_resolution),shell=True,env={})
 	proc.communicate();

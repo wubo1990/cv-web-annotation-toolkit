@@ -41,7 +41,7 @@ Filename: {{ s.hit.get_filename }}
 <br>
 
 
-<iframe height=800 width=750 src="{{s.get_view_url}}&{{s.hit.parameters}}&annotationURL=mt/submission_data_xml/{{s.id}}/{{s.hit.ext_hitid}}/"></iframe>
+<iframe height=800 width=750 src="{{s.get_view_url}}&{{s.hit.parameters}}&annotation_url=/mt/submission_data_xml/{{s.id}}/{{s.hit.ext_hitid}}/"></iframe>
 <br/>
 {% if s.get_parsed.comments %}
 <b>Comment: </b>{{ s.get_parsed.comments }} <br/>
