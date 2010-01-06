@@ -1135,6 +1135,8 @@ def get_hit_results_xml(request,ext_id,filter_good_results=False):
         print st.id,st.final_grade 
 
         if filter_good_results:
+            if not st.valid:
+                continue
             grade_xml="<grades>"
             grade=None
             feedback="";
@@ -1158,6 +1160,7 @@ def get_hit_results_xml(request,ext_id,filter_good_results=False):
 
 
         s=s+st.get_parsed().shapes;
+        break
 
     if s=="":
         raise Http404;

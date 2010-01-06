@@ -167,8 +167,12 @@ class GXmlTaskEngine(TaskEngine):
 
 	shapes_xml=urllib.unquote_plus(POST['sites']);
         #return shapes_xml
-
-        x_doc = xml.dom.minidom.parseString(shapes_xml)
+        try:
+            x_doc = xml.dom.minidom.parseString(shapes_xml)
+        except:
+            x_doc=xml.dom.minidom.Document();
+            x_res = x_doc.createElement("results")
+            x_doc.appendChild(x_res);
 
         x_ref = x_doc.createElement("submission")
         x_doc.documentElement.appendChild(x_ref);
