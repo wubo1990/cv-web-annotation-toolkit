@@ -6,6 +6,7 @@
 <script src="js/AC_RunActiveContent.js" language="javascript"></script>
 <script language="javascript" src="/code/js/prototype.js" > </script>
 <script language="javascript" src="/code/js/mt.js" > </script>
+<script language="javascript" src="/code/js/webtoolkit.cookies.js" > </script>
 </head>
 
 
@@ -27,7 +28,9 @@ IMPORTANT: Read the <a id="a_instructions" href="instructions.html" target="wnd_
 <div id="flash_div"></div>
 </td><td>
 <a id='help_frame_ref' target="_blank" href="#">Open help chat in a new window</a><br/>
+
 <iframe id='help_frame' src="" style="width:250px;height:440px;" scrolling="no" allowtransparency="true" border="0" frameborder="0" ></iframe>
+<br/><a href="#" onclick="return hide_chat()">hide chat </a> / <a href="#" onclick="return show_chat()">show chat</a>
 
 </td></tr></table>
 <noscript>
@@ -136,9 +139,23 @@ for (i = 0; i <= args_list.length; i++)
 	}
 }
 
+var Cookies = new CookieHandler();
+var show_gchat = Cookies.getCookie('show_gchat'); // get cookie
+if (typeof(show_gchat) == 'undefined' || show_gchat==null) 
+{
+show_gchat=1;
+Cookies.setCookie('show_gchat', show_gchat, 30*60*60); // set cookie for 1 month
+}
 
-$('help_frame').src='http://www.google.com/friendconnect/discuss?scope=web&topic='+task_id+'%3A%20clarifications%3A(MechTurk)'
-$('help_frame_ref').href='http://www.google.com/friendconnect/discuss?scope=web&topic='+task_id+'%3A%20clarifications%3A(MechTurk)'
+if(show_gchat==1)
+{
+$('help_frame').src='http://www.google.com/friendconnect/discuss?scope=web&topic='+task_id+'%3A%20clarifications%3A(MechTurk)';
+$('help_frame').style.display='block';
+}else{
+$('help_frame').style.display='none';
+}
+
+$('help_frame_ref').href='http://www.google.com/friendconnect/discuss?scope=web&topic='+task_id+'%3A%20clarifications%3A(MechTurk)';
 
 if( display_mode=="thumbnail"){
     $('instructions_div').style.display='none';
@@ -190,6 +207,19 @@ $('MT_form').action=submitURL;
 
 create_flash_interface(swf,swf_w,swf_h,query_args);
 
-
+var hide_chat = function()
+{
+show_gchat = 0;
+Cookies.setCookie('show_gchat', show_gchat, 30*60*60); // set cookie for 1 month
+$('help_frame').src=""
+$('help_frame').style.display="none"
+}
+var show_chat = function()
+{
+show_gchat = 1;
+Cookies.setCookie('show_gchat', show_gchat, 30*60*60); // set cookie for 1 month
+$('help_frame').src='http://www.google.com/friendconnect/discuss?scope=web&topic='+task_id+'%3A%20clarifications%3A(MechTurk)'
+$('help_frame').style.display="block"
+}
 </script></body>
 </html>
