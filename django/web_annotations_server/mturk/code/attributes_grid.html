@@ -61,7 +61,7 @@ Any comments/suggestions/etc: <input type=text name="Comments" id="Comments" val
 <input type=hidden name="submit_time" id="submit_time" value="">
 
 
-<input type=submit>
+<input type=submit id="submitButton">
 
 </div>
 
@@ -110,8 +110,8 @@ function decode(strToDecode)
     {
         mode_value=="AmazonMTproduction"
         // If we're previewing, disable the button and give it a helpful message
-	//document.getElementById('submitButton').disabled = true;
-	//document.getElementById('submitButton').value = "You must ACCEPT the HIT before you can submit the results.";
+	document.getElementById('submitButton').disabled = true;
+	document.getElementById('submitButton').value = "You must ACCEPT the HIT before you can submit the results.";
     } else {
         var form = document.getElementById('MT_form');
         if (document.referrer && ( document.referrer.indexOf('workersandbox') != -1) ) {
@@ -299,7 +299,7 @@ var check_after_load=function()
         }else if(obj_type=="video")
         {
 	  task_template=video_task_template;
-	  flash_str = create_flash(id,src,320,240,1);
+	  flash_str = create_flash(id,src,320,240,"play");
 
    	  s += task_template.evaluate({id: id, flash_str:flash_str, src:src, attributes_html:updated_html  });
         }

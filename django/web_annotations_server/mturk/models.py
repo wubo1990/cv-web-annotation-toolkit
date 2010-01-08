@@ -388,6 +388,23 @@ class Worker(models.Model):
 		else:
 			return self.worker
 
+"""
+class WorkerMetrics(models.Model):
+	worker 	= models.ForeignKey(Worker);
+
+	num_submitted = models.IntegerField(default=0);
+	num_approved  = models.IntegerField(default=0);
+	GPA           = models.DecimalField(max_digits=7,decimal_places=4);
+
+	def __str__(self):
+		if self.session:
+			return self.worker+"@"+self.session.code
+		else:
+			return self.worker
+
+class WorkerMetricsQualifications(models.Model):
+        account = models.ForeignKey(FundingAccount(models.Model):
+"""
 
 
 class GoldStandardQualification(models.Model):
