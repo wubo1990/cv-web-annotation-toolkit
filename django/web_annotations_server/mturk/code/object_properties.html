@@ -13,6 +13,10 @@
   <link href="css/mt.css" rel="stylesheet" type="text/css"/>
 
   <script language="javascript" src="any.js" ></script>
+
+  <style>
+    img.object_display {width:640px};
+  </style>
 </head>
 
 <body >
@@ -31,7 +35,7 @@ IMPORTANT: Read the <a id="a_instructions" href="instructions.html" target="wnd_
 
 <div id="task_content" style="display:none">
 <hr/>
-  <img id="A_img_0001" src=""/>  <br/> 
+  <img id="A_img_0001" class="object_display" src=""/>  <br/> 
   <table>
 <tr>  <td>Object keywords</td><td> <input name="A_obj01_keywords" type="input" size="80"/> </td><td>(list anything relevant to this object).</td></tr>
 <tr>  <td>Object category</td><td> <input name="A_obj01_object_category" type="input"/> </td><td>(what is the best category name for this object? "the ....").</td></tr>
@@ -57,8 +61,8 @@ What to do with it:<br/>
 <tr><td>  Does it belong to office supplies?</td><td> <input name="A_obj01_put_office_supplies" type="checkbox"/> </td><td>(E.g. pens, notepads)</td></tr>
 <tr><td>  Is it clothing or shoes?</td><td> <input name="A_obj01_put_clothing" type="checkbox"/> (E.g. shoes, coats, hats)</td></tr>
 <tr><td>  Where would you place it (keywords)? </td><td><input name="A_obj01_where_to_place" type="input" size="80"/> </td><td>(E.g. yogurts go to kitchen, fridge, trash)</td></tr>
-<tr><td>  Can we tip it? </td><td>  <input name="A_obj01_can_tip" type="checkbox"/> </td><td> (yes, only if really nothing happens - no things fall out of it, etc)</td></tr>
-<tr><td>  What else can we do with this object?</td><td> <textarea name="A_obj01_other_actions" rows="4" cols="80"></textarea> </td><td>(How would you refer to this object when speaking to another person?).</td></tr>
+<!--<tr><td>  Can we tip it? </td><td>  <input name="A_obj01_can_tip" type="checkbox"/> </td><td> (yes, only if really nothing happens - no things fall out of it, etc)</td></tr>-->
+<tr><td>  What else can we do with this object?</td><td> <textarea name="A_obj01_other_actions" rows="4" cols="80"></textarea> </td><td>(give verbs and phrases of reasonable actions with this object).</td></tr>
 </table>
 <hr/>
 

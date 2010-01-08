@@ -1,5 +1,5 @@
 from django.contrib import admin
-from models import Session,SessionExclusion,FundingAccount,MTHit,SubmittedTask,Worker,Task,TaskType,MTurkQualificationDefinition,MTurkQualification,Payment
+from models import Session,SessionExclusion,FundingAccount,MTHit,SubmittedTask,Worker,Task,TaskType,MTurkQualificationDefinition,MTurkQualification,Payment,WorkerProfile,Worker,WorkerMetricsQualifications
 
 import views
 import mturk.payments.views
@@ -60,6 +60,11 @@ class MTQualDefAdmin(admin.ModelAdmin):
 class SessionExclusionAdmin(admin.ModelAdmin):
     pass	
 
+class WorkerProfileAdmin(admin.ModelAdmin):
+    pass	
+
+class WorkerMetricsQualificationsAdmin(admin.ModelAdmin):
+    pass
 
 def confirm_for_payment(modeladmin, request, queryset):
     queryset.filter(state__in=[1,2]).update(state=3)
@@ -93,3 +98,6 @@ admin.site.register(MTurkQualification,MTQualAdmin);
 admin.site.register(MTurkQualificationDefinition,MTQualDefAdmin);
 
 admin.site.register(Payment,PaymentAdmin);
+
+admin.site.register(WorkerProfile,WorkerProfileAdmin);
+admin.site.register(WorkerMetricsQualifications,WorkerMetricsQualificationsAdmin);

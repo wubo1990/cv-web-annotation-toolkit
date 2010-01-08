@@ -23,3 +23,13 @@ def get_mt_connection(session):
 
     conn = MTurkConnection(host=awshost,aws_secret_access_key=session.funding.secret_key,aws_access_key_id=session.funding.access_key)
     return conn
+
+
+def get_mt_connection_for_account(funding,is_sandbox):
+    if is_sandbox:
+        awshost='mechanicalturk.sandbox.amazonaws.com'
+    else:
+        awshost='mechanicalturk.amazonaws.com'
+
+    conn = MTurkConnection(host=awshost,aws_secret_access_key=funding.secret_key,aws_access_key_id=funding.access_key)
+    return conn
