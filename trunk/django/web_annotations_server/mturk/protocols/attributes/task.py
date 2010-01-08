@@ -34,6 +34,7 @@ class AttributesTaskEngine(TaskEngine):
         url=url+"&task="+session.task_def.name
 
         url=url+"&video="+session.code;
+        url=url+"&video_mode=play";
         url=url+"&img_base="+settings.HOST_NAME_FOR_MTURK;
         url=url+"&instructions="+urllib.quote(session.task_def.instructions_url);
 
@@ -76,6 +77,7 @@ class AttributesTaskEngine(TaskEngine):
         url=url+"&task="+session.task_def.name
 
         url=url+"&video="+session.code;
+        url=url+"&video_mode=play";
         url=url+"&img_base="+settings.HOST_NAME_FOR_MTURK;
         url=url+"&mode=input";
         url=url+"&instructions="+urllib.quote(session.task_def.instructions_url);

@@ -163,9 +163,10 @@ def submit_result(request):
 
 
     try:
+        task_id=""
         if 'ExtID' in request.REQUEST:
             task_id=request.REQUEST['ExtID']
-        else:
+        if task_id=="" and 'extid' in request.REQUEST:
             task_id=request.REQUEST['extid']
     except:
         if 'extid' in request.REQUEST:
