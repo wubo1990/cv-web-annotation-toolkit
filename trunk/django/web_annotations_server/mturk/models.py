@@ -17,11 +17,13 @@ from django.db import models,connection
 from django.contrib import admin
 from django.contrib.auth.models import User
 
+from django.contrib.localflavor.us.models import USStateField
+
 
 #DEPRECATED: Should remove
 from django.shortcuts import get_object_or_404 
 
-
+import snippets.country_field
 
 
 class FundingAccount(models.Model):
@@ -388,23 +390,51 @@ class Worker(models.Model):
 		else:
 			return self.worker
 
-"""
-class WorkerMetrics(models.Model):
+
+WORKER_PARTICIPATION_LEVEL = (
+            (1, 'Newcomer'),                  #to 30  , min GPA 9.0 or 100 @ 7.0
+            (2, 'Returning worker'),          #to 100 , min GPA 9.0 or 500 @ 8.0 
+            (3, 'Power worker'),              #to 500 , min GPA 9.0 or to 2000, min GPA 8.0
+            (4, 'Super power worker'),        #to 2000, min GPA 9.0 or to 10K @ 8.0
+            (5, 'Expert'),                    #
+            (6, 'Manager'),
+            (7, 'Administrator'),
+        )        
+
+class WorkerProfile(models.Model):
 	worker 	= models.ForeignKey(Worker);
+	user    = models.ForeignKey(User,help_text="Linked user for the worker",null=True);
+
+	level = models.IntegerField(default=1,choices=WORKER_PARTICIPATION_LEVEL);
 
 	num_submitted = models.IntegerField(default=0);
 	num_approved  = models.IntegerField(default=0);
-	GPA           = models.DecimalField(max_digits=7,decimal_places=4);
+	GPA           = models.DecimalField(max_digits=7,decimal_places=4,default="0.0");
+
+	country       = snippets.country_field.CountryField(null=True,blank=True);
+	state         = USStateField(null=True,blank=True);
 
 	def __str__(self):
-		if self.session:
-			return self.worker+"@"+self.session.code
-		else:
-			return self.worker
+		return self.worker.worker+"["+self.get_level_display() +"]";
+
+EXTERNAL_ENGINE = (
+	(1, 'MT sandbox'),
+	(2, 'MT production'),
+)
+
+WORKER_METRICS = (
+	(1, 'Worker level'),
+	(2, 'Num approved'),
+	(3, 'Grade point average 0-10'),
+)
 
 class WorkerMetricsQualifications(models.Model):
-        account = models.ForeignKey(FundingAccount(models.Model):
-"""
+        account       = models.ForeignKey(FundingAccount);
+	engine        = models.IntegerField(default=1,choices=EXTERNAL_ENGINE);	
+	metric_type   = models.IntegerField(choices=WORKER_METRICS);	
+	external_id   = models.TextField(blank=True,null=True)
+	def __str__(self):
+		return self.account.name+"-"+self.get_metric_type_display() +"-"+self.get_engine_display()+"["+self.external_id+"]";					   
 
 
 class GoldStandardQualification(models.Model):

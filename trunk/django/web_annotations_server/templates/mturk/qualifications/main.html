@@ -1,0 +1,23 @@
+{% extends "mturk/base_app.html" %}
+
+{% block content %}
+
+{% if user.is_anonymous %}
+<p>
+Please <a href="/accounts/login/?next=/"> login</a> or <a href="/accounts/register/">register</a>.
+{% else %}
+
+{% endif %}
+
+Qualification operations:<br/>
+<a href="/mt/qualification/update_internal_qualifications/">Update internal qualifications</a><br/>
+
+Create automatic qualifications on turk:<br/>
+/mt/qualification/create_automatic_qualifications/ "funding account" /<br/>
+<br/>
+<br/>
+Assign qualifications:<br/>
+/mt/qualification/assign_qualifications_to_workers/ "funding account" /<br/>
+
+{% endblock %}
+
