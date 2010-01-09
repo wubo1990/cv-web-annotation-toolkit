@@ -47,7 +47,7 @@ class AttributesTaskEngine(TaskEngine):
         return url
 
 
-    def get_grading_view_url(self,submission):
+    def get_grading_view_url(self,submission,grading_parameters={}):
         return self.get_submission_view_url(submission)
 
 

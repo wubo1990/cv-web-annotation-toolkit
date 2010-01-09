@@ -364,7 +364,11 @@ class SubmittedTask(models.Model):
 
 	def get_grading_view_url(self,grading_params={}):
 		te=self.hit.session.task_def.type.get_engine();
-		return te.get_grading_view_url(self,grading_params)
+		try:
+			return te.get_grading_view_url(self,grading_params)
+		except Exception,e:
+			print e
+			raise
 
 	def get_persistent_url(self):
 		return settings.HOST_NAME_FOR_MTURK+"mt/submission_data_xml/"+str(self.id)+"/"+self.hit.ext_hitid+"/";
@@ -425,7 +429,7 @@ EXTERNAL_ENGINE = (
 WORKER_METRICS = (
 	(1, 'Worker level'),
 	(2, 'Num approved'),
-	(3, 'Grade point average 0-10'),
+	(3, 'Grade point average 0-100'),
 )
 
 class WorkerMetricsQualifications(models.Model):
@@ -452,7 +456,7 @@ class MTurkQualification(models.Model):
 	name             = models.TextField()
 	qualification_def = models.ForeignKey('MTurkQualificationDefinition',null=True,blank=True);
 	mt_qual_id       = models.TextField(blank=True)
-	comparator       = models.TextField()
+	comparator       = models.TextField(help_text=" LessThan | LessThanOrEqualTo | GreaterThan | GreaterThanOrEqualTo | EqualTo | NotEqualTo | Exists  ")
 	value            = models.TextField()
 	qualification_url = models.URLField(blank=True);
 	is_sandbox = models.BooleanField();

@@ -1,7 +1,7 @@
 
 
 
-
+import time
 
 try:
     from boto.mturk.connection import MTurkConnection
@@ -40,7 +40,7 @@ def add_session_qualifications(qualifications,session):
     """Add all qualifications relevant to a session. Create the qualifications as necessary."""
 
     qualifications.add(PercentAssignmentsApprovedRequirement(comparator="GreaterThan", integer_value="90"))
-
+    force_create=False
     for q in session.mturk_qualification.all():
         if q.mt_qual_id is None or q.mt_qual_id =="" or force_create:
             create_qualification_internal(session,q)
@@ -219,8 +219,8 @@ def create_qualifications_for_worker_metrics(request,funding_account):
     return HttpResponse("+ done")
 
 def create_qualifications_for_worker_metrics_internal(funding_account):
-    #for engine,is_sandbox in [(1,True),(2,False)]:
-    for engine,is_sandbox in [(1,True)]:
+    for engine,is_sandbox in [(1,True),(2,False)]:
+    #for engine,is_sandbox in [(1,True)]:
         conn= get_mt_connection_for_account(funding_account,is_sandbox);
         for metric in [1,2,3]:
             q,created=WorkerMetricsQualifications.objects.get_or_create(account=funding_account,engine=engine,metric_type=metric);
@@ -257,17 +257,24 @@ def assign_qualification(conn,q,w,qual_value):
         response = conn._process_request('UpdateQualificationScore', params)
 
 
+def valid_worker(w,acct,is_sandbox):
+    c=SubmittedTask.objects.all().filter(worker=w.worker.worker,session__funding__id=acct.id,session__sandbox=is_sandbox).count()
+    print w.worker.worker,c
+    return c
 
 def assign_built_in_qualifications_to_workers(funding_account):
     acct = get_object_or_404(FundingAccount,name=funding_account)
     #for engine,is_sandbox in [(1,True),(2,False)]:
-    for engine,is_sandbox in [(1,True)]:
+    #for engine,is_sandbox in [(1,True)]:
+    for engine,is_sandbox in [(2,False)]:
         conn= get_mt_connection_for_account(acct,is_sandbox);
         q={};
         for metric in [1,2,3]:
             q[metric]=WorkerMetricsQualifications.objects.get(account=acct,engine=engine,metric_type=metric);
         
         for w in WorkerProfile.objects.all():
+            if not valid_worker(w,acct,is_sandbox):
+                continue
             #Worker level
             assign_qualification(conn,q[1],w,w.level);
 
@@ -276,6 +283,7 @@ def assign_built_in_qualifications_to_workers(funding_account):
 
             #GPA
             assign_qualification(conn,q[3],w,int(w.GPA*10));
+            time.sleep(0.1)
 
 
 @login_required

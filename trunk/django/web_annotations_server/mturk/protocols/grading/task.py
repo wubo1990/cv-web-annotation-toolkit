@@ -36,8 +36,9 @@ class GradingTaskEngine(TaskEngine):
         return url
 
 
-    def get_grading_view_url(self,submission):
+    def get_grading_view_url(self,submission,grading_params={}):
         return self.get_submission_view_url(submission)
+
 
 
     def reinterpret_task_parameters(self,task):
