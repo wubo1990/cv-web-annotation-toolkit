@@ -1177,6 +1177,11 @@ def get_hit_results_xml(request,ext_id,filter_good_results=False):
 def grading_submit_session(request,session_code,grading_session_code):
     session = get_object_or_404(Session,code=session_code);
 
+    grade_all_submissions=False;
+    if "grade_all_submissions" in request.REQUEST:
+        grade_all_submissions=bool(request.REQUEST['grade_all_submissions'])
+
+
     try:
         grading_session = get_object_or_404(Session,code=grading_session_code);
     except Http404:
@@ -1201,6 +1206,9 @@ def grading_submit_session(request,session_code,grading_session_code):
                 exclude=SessionExclusion(session_A=grading_session,session_B=other_session,decline_reason="Participation in two review sessions isn't allowed.");
                 exclude.save();
 
+    exclude,created=SessionExclusion.objects.get_or_create(session_A=session,session_B=grading_session,decline_reason="You can't do grading, because you submitted work in this session.");
+    exclude.save();
+
     if  request.user != session.owner and not request.user.is_superuser:
         raise Http404;
 
@@ -1208,11 +1216,17 @@ def grading_submit_session(request,session_code,grading_session_code):
     te=grading_session.task_def.type.get_engine();
     grading_params=te.reinterpret_task_parameters(grading_session.task_def)
 
+    if grade_all_submissions:
+        submissions_rs=session.submittedtask_set.all()
+    else:
+        submissions_rs=session.submittedtask_set.filter(state__in=[1,2])
+        
+
     stats={};
-    stats['num_to_grade']=session.submittedtask_set.filter(state__in=[1,2]).count();
+    stats['num_to_grade']=submissions_rs.count();
     all_grading_items=[];
-    #for t in session.submittedtask_set.all():
-    for t in session.submittedtask_set.filter(state__in=[1,2]):
+
+    for t in submissions_rs:
         submission_id=session.code+"/"+ str(t.id)
         submission_url=t.get_grading_view_url(grading_params);
         worker_id=t.worker
