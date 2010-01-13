@@ -33,29 +33,47 @@ def prepare_data(m):
                         target_size=map(lambda s:int(s),val.split(','))
 
                 print target_size
-                #ds_rt=os.path.join(settings.LEARNING_DS_ROOT,str(src.id))
+
                 ds_rt=os.path.join(settings.LEARNING_DS_ROOT,str(src.id))
                 if src.source_session is not None:
                     mech = session_results_VOC.MechFetchResults(Site.objects.get_current().domain,
                                                                 src.source_session.code, ds_rt,
                                                                 target_size);
-                    mech.fetch_results()
-                    
-                    ds_paths   = mech.copy_dataset_to(data_root)
-                    image_sets = mech.split_files(mech.all_image_names,float(src.percent_train)/100,
-                                     float(src.percent_validation)/100,
-                                     float(src.percent_test)/100,src.random_seed);
-                    if bFirst:
-                        save_mode='w';
-                        bFirst=False;
-                    else:
-                        save_mode='a';                        
-                    mech.save_imagesets(image_sets,ds_paths['image_sets_main'],save_mode)
-
                 else:
-                    print "Unknown source"
-                    return False
+                    optlist, args = getopt.getopt(src.source_ref.split(' '), "", ["server=","session="])
+                    srv=None
+                    session_code=None
+                    for (field, val) in optlist:
+                        if field == "--server":
+                            srv=val;
+                        elif field == "--session":
+                            session_code=val
+                    print src.source_ref, optlist,srv,session_code
+                    if not srv or not session_code:
+                        print "Unknown source"
+                        return False
+                    
+                    mech = session_results_VOC.MechFetchResults(srv,
+                                                                session_code, ds_rt,
+                                                                target_size);
 
+                mech.fetch_results()
+                ds_paths   = mech.copy_dataset_to(data_root)
+                image_sets = mech.split_files(mech.all_image_names,float(src.percent_train)/100,
+                                              float(src.percent_validation)/100,
+                                              float(src.percent_test)/100,src.random_seed);
+
+                if bFirst:
+                    save_mode='w';
+                    bFirst=False;
+                else:
+                    save_mode='a';                        
+                mech.save_imagesets(image_sets,ds_paths['image_sets_main'],save_mode)
+
+
+
+
+                
             local_dir=os.path.join(data_root,'local/model-%d-ds' % m.id);
             ensure_dir(local_dir)
             results_dir=os.path.join(data_root,'results/model-%d-ds' % m.id);

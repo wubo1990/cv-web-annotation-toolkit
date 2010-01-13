@@ -7,8 +7,10 @@ urlpatterns = patterns('',
     (r'^$', 'cv_models.views.main'),
     (r'^download/(?P<model_id>[0-9]+)/(?P<object_tag>[\w-]+)/', 'cv_models.views.download_model'),
 
-    (r'^model/(?P<model_id>[0-9]+)/', 'cv_models.views.model_dashboard'),                       
+    (r'^model/(?P<model_id>[0-9]+)/', 'cv_models.views.model_dashboard'),
 
+    (r'^sfm3d/', include('cv_models.sfm_3dmodel.urls')),
+                       
 )
 
 """                       

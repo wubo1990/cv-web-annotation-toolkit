@@ -40,3 +40,56 @@ def get_model_performance_stats(m):
         print perf_values_list
     
     return report;
+
+
+class ProgressState:
+    def __init__(self,location,action_prefix,expected_count):
+        self.location=location
+        self.action_prefix=action_prefix
+        self.expected_count=expected_count
+        self.status={"Unknown":1}
+        
+    def read_status(self,root_location):
+        status_dir=os.path.join(root_location,self.location);
+        print status_dir
+        if not os.path.exists(status_dir):
+            return
+        print "+",status_dir
+        filenames=os.listdir(status_dir);
+        print filenames,self.action_prefix
+        status_names=filter(lambda s: re.match(self.action_prefix+'\.status$',s),filenames);
+
+        for fn in status_names:
+            fIn=open(os.path.join(status_dir,fn),'r');
+            sts=fIn.readline().strip();
+            print sts,self.status
+            self.status[sts] = self.status.get(sts,0)+1;
+            fIn.close();
+            if "Unknown" in self.status:
+                del self.status["Unknown"]
+
+    def title(self):
+        return self.location+"/"+self.action_prefix
+
+    
+def get_model_progress_information(m):
+    steps=[];
+    ticket_location=os.path.join(m.location,'tickets');
+
+    fn1=os.path.join(ticket_location,'expected');
+    fn2=os.path.join(m.location,'../','expected-'+m.get_model_type_display());
+    print fn2
+    if os.path.exists(fn1):
+        fn=fn1;
+    else:
+        fn=fn2;
+    print fn
+    if os.path.exists(fn):
+        fInp=open(fn,'r');
+        for rcd in fInp.readlines():
+            (location,state_prefix,str_count)=rcd.split(' ')
+            s=ProgressState(location,state_prefix,int(str_count));
+            s.read_status(ticket_location);
+            steps.append(s)
+        fInp.close()
+    return steps;

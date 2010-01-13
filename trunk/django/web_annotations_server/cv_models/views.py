@@ -49,5 +49,6 @@ def model_dashboard(request,model_id):
     
     model = get_object_or_404(LearnedModel,id=model_id)
     accuracy_report = stats.get_model_performance_stats(model);
+    model_progress = stats.get_model_progress_information(model);
 
-    return render_to_response('cv_models/model_dashboard.html',{'user':request.user,'model':model,'m':model,'accuracy_report':accuracy_report});    
+    return render_to_response('cv_models/model_dashboard.html',{'user':request.user,'model':model,'m':model,'accuracy_report':accuracy_report,'progress':model_progress});    
