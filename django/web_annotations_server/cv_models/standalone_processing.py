@@ -110,19 +110,22 @@ def test_model(m):
             m.save()
         
         
-def run_training(model_id=None):
+def run_training(model_id=None,force_action=None):
     if model_id:
         allmodels=LearnedModel.objects.filter(id=model_id);
     else:
         allmodels=LearnedModel.objects.filter(model_status__in=[2,3]);
         
     for m in allmodels:
-        if m.model_status == 2: #"learning"
-            action="train"
-        elif m.model_status == 3: #"testing"
-            action="test"
+        if force_action:
+            action=force_action
         else:
-            action="?"
+            if m.model_status == 2: #"learning"
+                action="train"
+            elif m.model_status == 3: #"testing"
+                action="test"
+            else:
+                action="?"
 
             
         if action=="train":
@@ -157,11 +160,12 @@ def usage(progname):
 if __name__=="__main__":
     
     progname = sys.argv[0]
-    optlist, args = getopt.getopt(sys.argv[1:], "", ["help", "model="])
+    optlist, args = getopt.getopt(sys.argv[1:], "", ["help", "model=","action="])
 
     model_id=None
     mode="continuous";
-            
+    force_action=None
+    
     for (field, val) in optlist:
         if field == "--help":
             usage(progname)
@@ -169,10 +173,13 @@ if __name__=="__main__":
         elif field == "--model":
             model_id=int(val)
             mode="single_model";
+        elif field == "--action":
+            force_action=val
+
 
     if mode=="continuous":
         run_training_cycle();
     elif mode=="single_model":
-        run_training(model_id);
+        run_training(model_id,force_action);
     else:
         print "Unknown model ID", model_id

@@ -94,7 +94,7 @@ class LearnedModel(models.Model):
     locked_until = models.DateTimeField(null=True,blank=True);
 
     def __str__(self): 
-        return self.name+" ["+self.code+"]"
+        return self.name+" ["+self.code+"] @" + self.get_model_status_display()
     
     def get_ext(self):
         if self.model_type==1:
