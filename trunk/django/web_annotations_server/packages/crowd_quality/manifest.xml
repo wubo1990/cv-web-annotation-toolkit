@@ -1,0 +1,15 @@
+<package>
+  <description brief="crowd_quality">
+     crowd_quality
+  </description>
+  <author>Alexander Sorokin</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/crowd_quality</url>
+  <depend package="rospy"/>
+  <depend package="mech_turk"/>
+  <depend package="rosoct"/>
+
+</package>
+
+
