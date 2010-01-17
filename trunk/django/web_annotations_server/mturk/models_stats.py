@@ -415,8 +415,7 @@ def compute_session_conflicts2(session):
     try:
     	    cursor = connection.cursor()
 
-	    
-cursor.execute("""
+	    cursor.execute("""
 SELECT s.id, count(distinct quality) c FROM `mturk_submittedtask` s, mturk_manualgraderecord g WHERE s.id = g.submission_id and s.session_id= %s and g.valid and s.valid group by s.id
 """,[session.id])
 	    for r in cursor.fetchall():
