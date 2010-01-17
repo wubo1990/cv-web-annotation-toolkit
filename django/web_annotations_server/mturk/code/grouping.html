@@ -42,8 +42,7 @@ img.example_sel { border-width:thick; border:solid; border-color: #00F;}
 
 <body>
 
-<form id="MT_form" name="MT_form" action="/mt/submit/" method="POST"
-onsubmit="return collect_results_on_submit()">
+<form id="MT_form" name="MT_form" action="/mt/submit/" method="POST" onsubmit="return collect_results_on_submit()">
 
 <div id="instructions_div">
 IMPORTANT: Read the <a id="a_instructions" href="instructions.html" target="wnd_instructions">instructions</a>!! <!--<b>Instructions have been updated!</b><br/>-->
@@ -86,12 +85,17 @@ Any comments/suggestions/etc: <input type=text name="Comments" id="Comments" val
 <input type=hidden name="workerId" id="workerId" value="">
 <input type=submit id="submitButton" value="submit">
 
+<input type=hidden name="load_time" id="load_time" value="">
+<input type=hidden name="submit_time" id="submit_time" value="">
+
 </form>
 </body>
 
 <script>
 
 MT_setup_instructions();
+var now = new Date();
+$('load_time').value=now.toUTCString();
 
 var cur_sel = null;
 
@@ -132,6 +136,8 @@ Event.observe(window, 'load', function() {
 
 
 function collect_results_on_submit(){
+var now = new Date();
+$('submit_time').value=now.toUTCString();
 
 answer="";
 for(i=0;i<images.length;i++){

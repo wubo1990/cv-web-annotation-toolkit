@@ -8,12 +8,16 @@ from mturk.protocols.task import TaskEngine
 import cPickle as pickler
 
 class AttributesTaskEngine(TaskEngine):
+    """ This task determines a collection of attributes for each item."""
+
+
     def get_internal_params(self):
         return {'list_num_per_page':3,
                 'frame_w':800,'frame_h':1500};
 
 
     def get_base_url(self):
+        """HTML file implementing the interface"""
         return "/code/attributes_grid.html?"
 
 
@@ -21,6 +25,8 @@ class AttributesTaskEngine(TaskEngine):
         return self.get_submission_view_url(submission)
 
     def get_submission_view_url(self,submission):
+        """How to form a submission URL"""
+
         hit=submission.hit;
         session=hit.session;
 
@@ -53,17 +59,8 @@ class AttributesTaskEngine(TaskEngine):
 
     def reinterpret_task_parameters(self,task):
         xmlObj=task.parse_parameters_xml();
-        #@sampling_node=xmlmisc.xget(xmlObj,"sampling")[0];
-        #overlap=float(xmlmisc.xget_a(sampling_node,"overlap"))
 
-        #layout_node=xmlmisc.xget(xmlObj,"layout")[0];
-        #num_per_task=int(xmlmisc.xget_a(layout_node,"num_per_task"));
-        return {} #{'overlap':overlap,'num_per_task':num_per_task};
-
-    def get_models(self):
-        print sys.modules.keys()
-        return sys.modules["web_annotations_server.mturk.models"]
-
+        return {} 
 
     def get_task_page_url(self,task,request):
         session=task.session;
@@ -100,7 +97,6 @@ class AttributesTaskEngine(TaskEngine):
         return self.get_submission_xml_doc(submission).toxml();
 
     def get_submission_xml_doc(self,submission):
-        print self
 
         task_prototype_parameters = minidom.parseString(submission.session.task_def.interface_xml);
         work_unit_parameters = minidom.parseString(submission.hit.parameters);
@@ -115,7 +111,6 @@ class AttributesTaskEngine(TaskEngine):
     
         session_code=submission.hit.session.code;
 	GET,POST=submission.get_response();
-        print GET,POST
 
         valid_attributes={};
         for i in items:
@@ -139,14 +134,14 @@ class AttributesTaskEngine(TaskEngine):
         x_root.setAttribute("ref-session",str(submission.session.code));
         x_root.setAttribute("ref-hit",submission.hit.ext_hitid);
         x_root.setAttribute("ref-submission",str(submission.id));
+        x_root.setAttribute("id",str(submission.id));
 
         if(comment):
             x_obj = x_doc.createElement("comments")
             x_obj.setAttribute("text",comment);
             x_root.appendChild(x_obj);
-            print POST
+
         x_doc.appendChild(x_root);
-        print object_attributes;
         for (obj,attrs) in object_attributes.items():
             x_obj = x_doc.createElement("object")
             x_obj.setAttribute("id",obj);
@@ -160,25 +155,3 @@ class AttributesTaskEngine(TaskEngine):
 
         return x_doc
 
-
-        answer=POST['answer'];
-        answer=answer.split(',');
-
-        parameters= minidom.parseString(submission.hit.parameters);
-                                    
-        images=parameters.getElementsByTagName("img");
-
-        x_doc=minidom.Document();
-
-        x_root = x_doc.createElement("groups")
-        x_doc.appendChild(x_root);
-        for (i,a) in enumerate(answer):
-            x_info = x_doc.createElement("img")
-            x_root.appendChild(x_info);
-            x_info.setAttribute("id",str(i+1));
-            x_info.setAttribute("group",a);
-            x_info.setAttribute("url",images[i].getAttribute("src"));
-
-        print answer
-        print x_doc.toxml()
-        return x_doc

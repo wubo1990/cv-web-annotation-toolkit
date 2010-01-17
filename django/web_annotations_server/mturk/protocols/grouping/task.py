@@ -51,15 +51,9 @@ class GroupingTaskEngine(TaskEngine):
 
     def reinterpret_task_parameters(self,task):
         xmlObj=task.parse_parameters_xml();
-        #@sampling_node=xmlmisc.xget(xmlObj,"sampling")[0];
-        #overlap=float(xmlmisc.xget_a(sampling_node,"overlap"))
-
-        #layout_node=xmlmisc.xget(xmlObj,"layout")[0];
-        #num_per_task=int(xmlmisc.xget_a(layout_node,"num_per_task"));
-        return {} #{'overlap':overlap,'num_per_task':num_per_task};
+        return {} 
 
     def get_models(self):
-        print sys.modules.keys()
         return sys.modules["web_annotations_server.mturk.models"]
 
 
@@ -108,6 +102,11 @@ class GroupingTaskEngine(TaskEngine):
 
         x_doc=minidom.Document();
         x_root = x_doc.createElement("groups")
+        x_root.setAttribute("ref-session",str(submission.session.code));
+        x_root.setAttribute("ref-hit",submission.hit.ext_hitid);
+        x_root.setAttribute("ref-submission",str(submission.id));
+        x_root.setAttribute("id",str(submission.id));
+
         x_doc.appendChild(x_root);
         for (i,a) in enumerate(answer):
             x_info = x_doc.createElement("img")
@@ -116,6 +115,5 @@ class GroupingTaskEngine(TaskEngine):
             x_info.setAttribute("group",a);
             x_info.setAttribute("url",images[i].getAttribute("src"));
 
-        print answer
-        print x_doc.toxml()
+        
         return x_doc

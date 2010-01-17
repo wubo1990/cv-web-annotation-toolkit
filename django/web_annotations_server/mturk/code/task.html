@@ -50,6 +50,9 @@ Any comments/suggestions/etc: <input type=text name="Comments" id="Comments" val
 <input type=hidden name="workerId" id="workerId" value="">
 <input type=hidden name="mode" id="mode" value="">
 
+<input type=hidden name="load_time" id="load_time" value="">
+<input type=hidden name="submit_time" id="submit_time" value="">
+
 </form>
 
 
@@ -64,7 +67,9 @@ var run_submit=function (){
 {
  alert("You must accept the task first");
 }else{
-   $('MT_form').submit();
+  var now=new Date();
+  $('submit_time').value=now.toUTCString();
+  $('MT_form').submit();
 }
 }
 
@@ -202,7 +207,8 @@ if(mode_value=="AmazonMTsandbox"){
 
 
 $('MT_form').action=submitURL;
-
+var now = new Date();
+$('load_time').value=now.toUTCString();
 
 
 create_flash_interface(swf,swf_w,swf_h,query_args);

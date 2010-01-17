@@ -1,5 +1,5 @@
 
-
+import sys
 
 class TaskEngine:
     def get_task_view_url(self,task_instance):
@@ -21,3 +21,7 @@ class TaskEngine:
     def get_submission_xml(self,submission):
         return ""
 
+
+    def get_models(self):
+        """ To avoid recursive dependencies, this is the only way tasks are allowed to access mturk.models"""
+        return sys.modules["web_annotations_server.mturk.models"]
