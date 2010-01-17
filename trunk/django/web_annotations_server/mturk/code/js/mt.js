@@ -26,7 +26,7 @@ var mt_mode;
 var MT_setup = function (){
     mode_value=gup('mode');
     mt_mode = mode_value;
-    
+
     submitURL="";
     if(mode_value=="AmazonMTsandbox"){
 	submitURL="http://workersandbox.mturk.com/mturk/externalSubmit";
@@ -39,16 +39,16 @@ var MT_setup = function (){
 		document.getElementById('submitButton').disabled = true;
 		document.getElementById('submitButton').value = "You must ACCEPT the HIT before you can submit the results.";
 		form.action = "http://www.mturk.com/mturk/externalSubmit";
-	    } 
-	else 
+	    }
+	else
 	    {
 		var form = document.getElementById('MT_form');
-		if (document.referrer && ( document.referrer.indexOf('workersandbox') != -1) ) 
+		if (document.referrer && ( document.referrer.indexOf('workersandbox') != -1) )
 		    {
 			form.action = "http://workersandbox.mturk.com/mturk/externalSubmit";
 		    }
 	    }
-	
+
     }else if(mode_value=="MT2"){
 	submitURL="/mt/submit/";
     }else if(mode_value=="sandbox2"){
@@ -161,7 +161,7 @@ var mt_after_load = function()
 
 var mt_onTaskXMLLoaded=function(transport)
 {
-    
+
     if (transport.responseXML)
 	{
 	    active_task_resp = transport;
@@ -170,7 +170,7 @@ var mt_onTaskXMLLoaded=function(transport)
 	    mt_after_load();
 	}
 }
-    
+
 
 var mt_onAnnotationXMLLoaded=function(transport)
 {
@@ -180,7 +180,7 @@ var mt_onAnnotationXMLLoaded=function(transport)
 	    annotation_data = transport.responseXML;
 	    annotation_done=1;
 	    mt_after_load();
-	    
+
 	}
 }
 
@@ -192,7 +192,7 @@ var mt_onParametersXMLLoaded=function(transport)
 	    parameters_data = transport.responseXML;
 	    parameters_done=1;
 	    mt_after_load();
-	    
+
 	}
 }
 

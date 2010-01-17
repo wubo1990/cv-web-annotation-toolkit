@@ -84,7 +84,7 @@ class GXmlTaskEngine(TaskEngine):
         url=url+"&task_url="+urllib.quote(settings.HOST_NAME_FOR_MTURK+"tasks/"+session.task_def.name+".xml")
 
 
-        url=url+self.get_frame_part(self,session,task);
+        url=url+self.get_frame_part(session,task);
 
         url=url+"&mode=display";
         url=url+"&display_mode="+grading_parameters.get("display_mode","thumbnail");
@@ -114,7 +114,7 @@ class GXmlTaskEngine(TaskEngine):
         url=url+"&task_url="+urllib.quote(settings.HOST_NAME_FOR_MTURK+"tasks/"+session.task_def.name+".xml")
 
 
-        url=url+self.get_frame_part(self,session,task);
+        url=url+self.get_frame_part(session,task);
 
 
 
@@ -181,6 +181,7 @@ class GXmlTaskEngine(TaskEngine):
         x_ref.setAttribute("ref-session",str(submission.session.code));
         x_ref.setAttribute("ref-hit",submission.hit.ext_hitid);
         x_ref.setAttribute("ref-submission",str(submission.id));
+        x_ref.setAttribute("id",str(submission.id));
         x_ref.setAttribute("url",submission.get_persistent_url());
 
 	return x_doc.toxml()

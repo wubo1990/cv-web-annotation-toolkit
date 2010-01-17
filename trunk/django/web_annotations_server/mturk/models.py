@@ -297,6 +297,7 @@ class SubmittedTask(models.Model):
             return self.submitted - self.hit.submitted
           return None
 
+
 	def get_comments(self): 
 		v=self.get_parsed();
 		return v.comments
