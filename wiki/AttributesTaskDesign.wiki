@@ -73,3 +73,18 @@ Finally, the actual table row should contain the definition of the actual contro
 
 This HTML is a template. When we instantiate it, we will replace "ATTR" with the object ID for which this attribute is specified. This way, we'll have multiple form elements for different objects and attributes.
 
+
+= Work unit XML =
+
+Each work unit contains a sequence of items whos attributes we want:
+
+{{{
+<?xml version='1.0'?>
+<items>
+  <item id="VIDEO_1_ID" type="video" src="/frames/session-test/video1.flv"/> 
+  <item id="VIDEO_2_ID_STRING" type="video" src="/frames/session-test/video1.flv"/> 
+  <item id="m59_sfm_c01_options.txt.masked3" type="image" src="/frames/session-test.jpg"/> 
+</items>
+}}}
+
+The items could be either videos or images. Both contain "src" attribute to specify the image/video URL. Note that video URLs must be local(from the same server). Image URLs can point anywhere.
