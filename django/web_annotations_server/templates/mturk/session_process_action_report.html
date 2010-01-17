@@ -1,0 +1,13 @@
+{% extends "mturk/base_app.html" %}
+
+{% block content %}
+
+Session:{{session.code}}<hr/>
+Action completed:{{action}}<br/>
+Approved submissions: {{stats.num_approved}}<br/>
+Rejected submissions: {{stats.num_rejected}}<br/>
+<hr/>
+Resubmitted work units: {{stats.num_activated}}<br/>
+
+{% endblock %}
+

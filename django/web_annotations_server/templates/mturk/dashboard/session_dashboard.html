@@ -34,24 +34,16 @@ SANDBOX
 PRODUCTION
 {% endif %}].<br/>
 
-HITs {{stats.hits.count}} of {{session.HITlimit}}. <b>Idle {{stats.hits.num_idle}}</b><br/>
+HITs {{stats.hits.count}} of {{session.HITlimit}}. <b>Idle {{stats.hits.num_idle}}, Active {{stats.hits.num_active}}, Finalized {{stats.hits.num_finalized}}</b><br/>
 Submissions: Total {{session.submittedtask_set.count}}. Approved {{stats.submissions.approved}}. Rejected {{stats.submissions.rejected}}. <b>Open {{stats.submissions.open}}.</b><br/>
 
 <hr/>
-<hr/>
-<h2>Tasks</h2>
-{% if session.sandbox %}
-<a href="https://workersandbox.mturk.com/mturk/preview?groupId={{session.hit_type}}">On MechTurk (sandbox)</a>
-{% else %}
-<a href="https://www.mturk.com/mturk/preview?groupId={{session.hit_type}}">On MechTurk (production)</a>
-{% endif %}<br/>
-Internally: <a href="/mt/session_hits/{{session.code}}/0/">All</a> || 
-<a href="/mt/session_hits/{{session.code}}/1/">New</a> | <a href="/mt/session_hits/{{session.code}}/2/">Submitted</a>
-<br/>
-<br/>
-<a href="/mt/expire_session_hits/{{session.code}}/">Expire all outstanding hits from this session</a>.<br/>
-<br/>
-<a href="/mt/expire_session_hits_by_type/{{session.code}}/">Expire <b>all</b> hits with the same <b>task</b> as this session</a>.
+<h2>Common actions</h2>
+<ul>
+<li><a href="/mt/grading/{{session.code}}/">Grading paged</a></li>
+<li><a href="/mt/process_graded_submissions/{{session.code}}/">Process graded submissions</a></li>
+<li><a href="#downloads">Downloads</a></li>
+</ul>
 
 <hr/>
 
@@ -87,6 +79,24 @@ Automatic (<a href="/autograding/">info</a>) - very very very experimental (use 
 <li>
 <a href="/autograding/build_model_from_session/{{session.code}}/">Build</a> model from this session</li>
 </ul>
+
+
+<h2>Tasks</h2>
+{% if session.sandbox %}
+<a href="https://workersandbox.mturk.com/mturk/preview?groupId={{session.hit_type}}">On MechTurk (sandbox)</a>
+{% else %}
+<a href="https://www.mturk.com/mturk/preview?groupId={{session.hit_type}}">On MechTurk (production)</a>
+{% endif %}<br/>
+Internally: <a href="/mt/session_hits/{{session.code}}/0/">All</a> || 
+<a href="/mt/session_hits/{{session.code}}/1/">New</a> | <a href="/mt/session_hits/{{session.code}}/2/">Submitted</a>
+<br/>
+<br/>
+<a href="/mt/expire_session_hits/{{session.code}}/">Expire all outstanding hits from this session</a>.<br/>
+<br/>
+<a href="/mt/expire_session_hits_by_type/{{session.code}}/">Expire <b>all</b> hits with the same <b>task</b> as this session</a>.
+
+<hr/>
+
 
 <h2>Grade statistics</h2>
 (contains multiple counts per submission)<br/>
@@ -180,14 +190,12 @@ Std time :{{stats.timing.std}}<br/>
 <a href="/mt/p/gxml/upload/{{session.code}}/image_tgz/">Single folder with jpeg images</a>. (smth.tgz with my_folder/abc*.jpg)
 
     {% endcase %}
-    {% case 2 %} Evaluation in progress{% endcase %}
-    {% case 3 %} Evaluation completed successfully{% endcase %}
-    {% case 4 %} Evaluation failed {% endcase %}
 {% endswitch %}
 
 
 
-<h2>Download</h2>
+<h2><a id="downloads">Download</a></h2>
+
 {% switch session.task_def.type.name %}
     {% case "video_events" %} {% endcase %}
     {% case "gxml" %}
@@ -206,9 +214,16 @@ Std time :{{stats.timing.std}}<br/>
 </ul>
 
     {% endcase %}
-    {% case 2 %} Evaluation in progress{% endcase %}
-    {% case 3 %} Evaluation completed successfully{% endcase %}
-    {% case 4 %} Evaluation failed {% endcase %}
+
+
+    {% case "attributes" %}
+<a href="/mt/p/attributes/create_download/{{session.code}}/raw_xml/">Create raw XML (work units, work submissions).</a><br/>
+<ul>
+{% for fn in session.list_downloads.raw_xml %}
+<li><a href="/mt/download/{{session.code}}/raw_xml/{{fn}}">{{fn}}</a></li>
+{% endfor %}
+</ul>
+    {% endcase %}
 {% endswitch %}
 
 <br/>

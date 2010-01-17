@@ -159,9 +159,6 @@ def showtask(request,session_code):
 
 def submit_result(request):
 
-    print request.POST;
-
-
     try:
         task_id=""
         if 'ExtID' in request.REQUEST:
@@ -177,8 +174,7 @@ def submit_result(request):
     #The HIT can belong to some other session
     session = task.session;
     session_code=session.code;
-    #session_code=request.REQUEST['session']
-    #session = get_object_or_404(Session,code=session_code)
+
 
     workerId=request.REQUEST['workerId'];
     assignmentId=request.REQUEST['assignmentId'];
@@ -208,8 +204,6 @@ def submit_result(request):
     session.task_def.type.get_engine().on_submit(submission);
     task.state=2; #Submitted
     task.save()
-
-
 
 
     if ros_sender:
@@ -331,7 +325,7 @@ def show_bad_results_paged(request,session_code,page=1,order_by=None,num_per_pag
     else:
         results=session.submittedtask_set.all();
         results=results.filter(final_grade__lt=6);
-    print results.count();
+
 
     if not num_per_page:
         num_per_page=session.task_def.type.get_engine().get_internal_params().get('list_num_per_page',settings.NUM_HITS_PER_PAGE)
@@ -1345,59 +1339,6 @@ def add_hit_to_session(session,params):
 
 
 
-def activate_hit(session,hit):
-    if session.standalone_mode:
-        return (True,"%s" % hit.ext_hitid)
-
-    taskurl=settings.HOST_NAME_FOR_MTURK+"mt/get_task/"+str(session.code)+"/?extid="+hit.ext_hitid;
-
-    q = ExternalQuestion(external_url=taskurl, frame_height=800)
-
-    if session.sandbox:
-        awshost='mechanicalturk.sandbox.amazonaws.com'
-    else:
-        awshost='mechanicalturk.amazonaws.com'
-
-    conn = MTurkConnection(host=awshost,aws_secret_access_key=session.funding.secret_key,aws_access_key_id=session.funding.access_key)
-
-    keywords=session.task_def.get_keywords()
-
-    t=session.task_def;
-    if not session.hit_type:
-        qualifications = Qualifications()
-        qual_views.add_session_qualifications(qualifications,session);
-
-        create_hit_rs = conn.create_hit(question=q, 
-                                        lifetime=t.lifetime,
-                                        max_assignments=t.max_assignments,
-                                        title=t.title,
-                                        keywords=str(t.keywords),
-                                        reward = t.reward,
-                                        duration=t.duration,
-                                        approval_delay=t.approval_delay, 
-                                        annotation="IGNORE",
-                                        qualifications=qualifications)
-        if create_hit_rs.status != True:
-            return (False, "Error talking to AWS: %s (%s)" % (create_hit_rs.Message,create_hit_rs.Code));
-
-        session.hit_type=create_hit_rs.HITTypeId;
-        session.save();
-    else:
-        create_hit_rs = conn.create_hit(question=q, hit_type=session.hit_type);
-
-    try:
-        mt_hit_id=create_hit_rs.HITId
-    except:
-        return (False, "Error talking to AWS: %s (%s)" % (create_hit_rs.Message,create_hit_rs.Code));
-    else:
-        mthit=MechTurkHit(session=session,mthit=hit,state=1,mechturk_hit_id=mt_hit_id);
-        mthit.save();
-
-        hit.state=6 #Active.
-        hit.save();
-
-        return (True,"%s" % hit.ext_hitid)
-
 
 
 
@@ -1597,6 +1538,96 @@ def reject_poor_results(request,session_code):
 
 
 
+def compute_final_grade(session,result):
+    grade = None
+    feedback="";
+
+    for g in result.manualgraderecord_set.all():
+        if not g.valid:
+            continue
+
+        if grade:
+            if grade>g.quality:
+                grade=g.quality;
+                feedback=g.feedback;
+        else:
+            grade=g.quality;
+            feedback=g.feedback;
+
+    return (grade,feedback)
+
+
+
+
+
+def finalize_graded_submissions(session):
+    results=session.submittedtask_set.all().exclude(state=4).exclude(state=3)
+    
+    (conn,te)=get_session_context({},session);
+
+    num_approved=0;
+    num_failed_to_approve=0;
+    num_rejected=0;
+    num_failed_to_reject=0;
+    for r in results:
+
+        (grade,feedback) = compute_final_grade(session,r);
+
+        if grade is None:
+            #It's not a graded submission
+            continue
+
+        if grade>3:
+            success=mt_approve_submission(r,grade,feedback,  conn,te);
+            if success:
+                num_approved+=1;
+            else:
+                num_failed_to_approve+=1;
+        else:
+            success=mt_reject_submission(r,grade,feedback,  conn,te);
+            if success:
+                num_rejected+=1;
+            else:
+                num_failed_to_reject+=1;
+
+    return ( num_approved, num_rejected, num_failed_to_approve, num_failed_to_reject)
+
+
+def repost_idle_submissions(session):
+
+    num_activated=0;
+    for work_unit in session.mthit_set.filter(state__in=[1,5,7]):
+        activate_hit(session,work_unit)
+        num_activated+=1;
+
+    return num_activated
+
+
+
+@login_required
+def process_graded_submissions(request,session_code):
+    session = get_object_or_404(Session,code=session_code)
+
+    try:
+        (conn,te) = get_session_context({},session)
+
+        ( num_approved, num_rejected, num_failed_to_approve, num_failed_to_reject) = finalize_graded_submissions(session);
+
+        if num_failed_to_approve>0 or num_failed_to_reject>0:
+            return render_to_response('mturk/failure.html',
+                                      {'msg':'Failed to approve %d submissions, failed to reject %d submissions. See server log for details.' % (num_failed_to_approve,num_failed_to_reject)})
+
+
+        num_activated = repost_idle_submissions(session);
+
+        stats={'num_activated':num_activated,'num_approved':num_approved,'num_rejected':num_rejected};
+        return render_to_response('mturk/session_process_action_report.html',
+                                  {'action':'Process graded submissions','stats':stats,'session':session})
+
+    except MTurkException, ex:
+        return render_to_response('mturk/aws_error_report.html',{'resultset':ex.rs,'session':session});
+
+
 
 
 @login_required
@@ -1610,7 +1641,6 @@ def approve_good_results(request,session_code):
 
         conn = MTurkConnection(host=awshost,aws_secret_access_key=session.funding.secret_key,aws_access_key_id=session.funding.access_key)
 
-     	#results=session.submittedtask_set.all()
      	results=session.submittedtask_set.all().exclude(state=4).exclude(state=3)
 	strAns="assignmentIdToReject\tassignmentIdToRejectComment<br/>";
         te=session.task_def.type.get_engine();
@@ -1762,18 +1792,6 @@ def session_stats(request,session_code):
     return resp;
 
 
-def expire_hit(conn,hit_id):
-    params = {'HITId' : hit_id,}
-    
-    return conn._process_request('ForceExpireHIT', params)
-
-def change_hit_type(conn,hit_id,hit_type_id):
-    params = {'HITId' : str(hit_id),'HITTypeId':str(hit_type_id),'Operation':'ChangeHITTypeOfHIT'}
-    print params
-    rs =  conn._process_request('ChangeHITTypeOfHIT', params)
-    #rs =  conn.temp_make_request('ChangeHITTypeOfHIT', params)
-    #print rs.read()
-    return rs
 
 
 @login_required
@@ -2022,5 +2040,8 @@ def opt_get_session_grades(request,session_code):
                                              g.quality,g.valid,
                                              w.id,w.utility))
     return resp
+
+
+
 
 

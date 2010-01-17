@@ -13,7 +13,7 @@ class AttributesTaskEngine(TaskEngine):
 
     def get_internal_params(self):
         return {'list_num_per_page':3,
-                'frame_w':800,'frame_h':1500};
+                'frame_w':1200,'frame_h':1500};
 
 
     def get_base_url(self):

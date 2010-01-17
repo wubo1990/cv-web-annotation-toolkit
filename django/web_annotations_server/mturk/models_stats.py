@@ -251,12 +251,12 @@ SELECT MIN(s.submitted - h.submitted), MAX(s.submitted - h.submitted), AVG(s.sub
             
     hit_stats={};
     hit_stats['count']=session.mthit_set.count();
-    hit_stats['num_idle']=session.mthit_set.filter(state=5).count();
+    hit_stats['num_idle']=session.mthit_set.filter(state__in=[1,3,5,7]).count();
     hit_stats['num_active']=session.mthit_set.filter(state=6).count();
+    hit_stats['num_finalized']=session.mthit_set.filter(state=4).count();
 
     hit_stats['counts_by_state']=hit_counts_by_state(session);
 
-    print hit_stats
     conflicts=compute_session_conflicts2(session);
     session_grades_distribution=compute_session_grade_distribution(session);
 
