@@ -7,6 +7,7 @@
 <script language="javascript" src="js/mt.js" > </script>
 <script src="/code/js/easy_selection.js"></script>
 <script src="js/AC_RunActiveContent.js" language="javascript"></script>
+<script src="/code/js/attributes_grid.js"></script>
 <style>
 .even {background-color:#FFF;}
 .odd {background-color:#BBB;}
@@ -288,7 +289,7 @@ var check_after_load=function()
 	var src = i.getAttribute("src");
 
 	objID="A_obj"+id;
-	updated_html = parameters_display_html_str.replace(/ATTR/g,objID).replace("<display_html>","").replace("</display_html>","");
+	updated_html = parameters_display_html_str.replace(/ATTR/g,objID).replace("<display_html>","").replace("</display_html>","").replace(/<td>/g,"<td onclick='table_cell_click(event);'>").replace(/<input/g,"<input onclick='stop_bubble(event);'");
 
 	var task_template;
 
@@ -311,63 +312,18 @@ var check_after_load=function()
       s += "</table>";
 
       $('task_content').innerHTML = s;
-      
-      if( mode_value == "display" )
-        {
 
-	  var attributes_root = parameters_data.getElementsByTagName('attributes')[0];
-          var attributes=attributes_root.getElementsByTagName('attribute');  
-          var attribute_names=[];			  
-          for( var aID=0;aID<attributes.length;aID++)
-          {
-            var attr_id=attributes[aID].getAttribute('id');
-	    attribute_names[aID]= attr_id ;
-          }
-
-	  var objects=annotation_data.getElementsByTagName('object');
-			       
-          for( var oID=0;oID<objects.length;oID++)
-          {
-	     var object=objects[oID];
-	     var obj_id = object.getAttribute('id');
-             for( var aID=0;aID<attribute_names.length;aID++)
-             {
-
-		var attr=object.getAttribute(attribute_names[aID]);
-		if(attr==null)
-		{
-		}else{
-                  f=$('MT_form')['A_obj'+obj_id+'_'+attribute_names[aID]];
-		  if(f.type=="checkbox")
-		  {			
-		    if(attr=="on")f.checked=1;
-		  }else if(f.type=="select-one"){
-		    f.value=attr;
-		  }else if(f.type=="textarea"){
-		    f.value=attr;
-		  }else{
-  		    for( var fID=0;fID<f.length;fID++)
-		    {
-			var field=f[fID];
-			if(field.value==attr)
-			{
-			  field.checked=true;
-			  break;
-			}
-		    }
-		  }
-		}
-             }
-          }
-	  var comments=annotation_data.getElementsByTagName('comments');
-	  var comments_str="";
-	  for(var iC=0;iC<comments.length;iC++)
-	  { 
-	    comments_str += comments[iC].getAttribute('text');
-	  }
-          $('Comments').value=comments_str;
-       }
-    }
+      if( mode_value == "display" || mode_value == "edit" )
+      {
+	   attribute_names=get_attribute_names(parameters_data)
+	   set_submission_data(attribute_names,annotation_data);
+      }
+      if( mode_value == "input" )
+      {
+	   attribute_names=get_attribute_names(parameters_data)
+	   set_initial_attribute_values(attribute_names,task_data);
+      }
+   }
 
 			  
 };
@@ -423,7 +379,7 @@ var onAnnotationXMLLoaded=function(transport)
 var now = new Date();
 $('load_time').value=now.toUTCString();
 
-if(mode_value=="display")
+if(mode_value=="display" || mode_value=="edit")
   {
     $('submit_div').style.display="none";
 

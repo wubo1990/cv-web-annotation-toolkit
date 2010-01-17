@@ -118,6 +118,8 @@ urlpatterns = patterns('',
 
     (r'^reject_worker_all/(?P<worker_id>[\w\-]+)/$', 'mturk.views.reject_worker_all'),
 
+    (r'^process_graded_submissions/(?P<session_code>[\w\-]+)/$', 'mturk.views.process_graded_submissions'),
+
     (r'^reject_poor_results/(?P<session_code>[\w\-]+)/$', 'mturk.views.reject_poor_results'),
     (r'^approve_good_results/(?P<session_code>[\w\-]+)/$', 'mturk.views.approve_good_results'),
     (r'^approve_all_results/(?P<session_code>[\w\-]+)/$', 'mturk.views.approve_all_results'),
@@ -144,6 +146,7 @@ urlpatterns = patterns('',
 
     (r'^p/video_events/', include('mturk.protocols.video_events.urls')),
     (r'^p/gxml/', include('mturk.protocols.gxml.urls')),
+    (r'^p/attributes/', include('mturk.protocols.attributes.urls')),
 
     (r'^payments/', include('mturk.payments.urls')),
     (r'^qualification/', include('mturk.qualifications.urls')),
@@ -157,5 +160,9 @@ urlpatterns = patterns('',
 
     (r'^opt/(?P<session_code>[\w\-]+)/submissions/$', 'mturk.views.opt_get_session_submissions'),
     (r'^opt/(?P<session_code>[\w\-]+)/grades/$', 'mturk.views.opt_get_session_grades'),
+
+
+
+    (r'^project/submit_boxes_to_attributes/$', 'mturk.protocols.attributes.views.submit_boxes_to_attributes'),                       
 );
                        

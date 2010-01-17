@@ -1,0 +1,24 @@
+{% extends 'evaluation/base_app.html' %}
+
+{% block content %}
+Choose which session to post for attribute annotation:<br/>
+
+{% if form.is_multipart %}
+    <form enctype="multipart/form-data" method="post" action="">
+{% else %}
+    <form method="post" action="">
+{% endif %}
+<table>
+ {% for field in form %}
+ <tr><td>
+            {{ field.label_tag }}</td><td>
+	    {{ field }}</td><td>
+            {{ field.errors }}</td>
+</tr>
+    {% endfor %}
+<tr><td colspan=3 align="center">
+    <input type="submit" value="Post images" /></td></tr>
+</table>	  
+</form>
+
+{% endblock %}
