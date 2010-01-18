@@ -135,6 +135,7 @@ def do_upload_image_tgz(request,session,form,uploaded_file):
 
 	id = session.mthit_set.count();
 	limit = session.HITlimit;
+	errors=""
 	for img_name in  image_names:
 		original_name = img_name
 
@@ -159,7 +160,6 @@ def do_upload_image_tgz(request,session,form,uploaded_file):
 		hit=mturk.models.MTHit(session=session,ext_hitid=rand_id,int_hitid=id,parameters=params);
 		hit.save();
 		nAdded+=1;
-		errors=""
 		if form.cleaned_data["submit_for_annotation"]:
 			(activated,hitid)=mturk.views.activate_hit(session,hit);
 			if activated:
@@ -181,7 +181,7 @@ def create_full_pack_download(request,session_code):
 	timeid=strftime("%d-%b-%Y-%H-%M-%S")
 	save_dir=os.path.join(download_rt,timeid,session.code);
 
-	proc=subprocess.Popen("/var/django2/session_results.sh --session=%s --server=%s --saveto=%s/%s/%s/" % (session.code,settings.SITE_NAME,download_rt,timeid,session.code), shell=True,env={})
+	proc=subprocess.Popen("rosrun cv_mech_turk session_results.py --session=%s --server=%s --saveto=%s/%s/%s/" % (session.code,settings.SITE_NAME,download_rt,timeid,session.code),shell=True)
 	proc.communicate();
 
 	img_rt=os.path.join(save_dir,'images');
@@ -194,7 +194,7 @@ def create_full_pack_download(request,session_code):
 	print img_resolution
 
 
-	proc=subprocess.Popen("/var/django2/session_results_masks.sh %s/%s/%s/ %s" % (download_rt,timeid,session.code,img_resolution),shell=True,env={})
+	proc=subprocess.Popen("rosrun cv_mech_turk convert_session_results_to_mask %s/%s/%s/ %s" % (download_rt,timeid,session.code,img_resolution),shell=True)
 	proc.communicate();
 
 	os.system("tar cvzCf %s/%s/ %s/%s-%s-pack.tgz %s"%(download_rt,timeid,download_rt,session.code,timeid,session.code))
@@ -213,15 +213,16 @@ def create_xml_masks_download(request,session_code):
 	fns=os.listdir(img_rt);
 	if len(fns)==0:
 		return HttpResponse("Failed. No images")
+
 	fn=fns[0];
 	im = Image.open(os.path.join(img_rt,fn));
 	img_resolution = "%dx%d" % (im.size[0],im.size[1]);
 
 	timeid=strftime("%d-%b-%Y-%H-%M-%S")
-	proc=subprocess.Popen("/var/django2/session_results.sh --session=%s --server=%s --saveto=%s/%s/%s/" % (session.code,settings.SITE_NAME,download_rt,timeid,session.code), shell=True,env={})
+	proc=subprocess.Popen("rosrun cv_mech_turk session_results.py --session=%s --server=%s --saveto=%s/%s/%s/" % (session.code,settings.SITE_NAME,download_rt,timeid,session.code), shell=True,env={})
 	proc.communicate();
 
-	proc=subprocess.Popen("/var/django2/session_results_masks.sh %s/%s/%s/ %s" % (download_rt,timeid,session.code,img_resolution),shell=True,env={})
+	proc=subprocess.Popen("rosrun cv_mech_turk convert_session_results_to_mask %s/%s/%s/ %s" % (download_rt,timeid,session.code,img_resolution),shell=True,env={})
 	proc.communicate();
 
 	os.system("rm %s/%s/%s/images/*" % (download_rt,timeid,session.code))
@@ -245,10 +246,10 @@ def create_masks(request,session_code):
 	img_resolution = "%dx%d" % (im.size[0],im.size[1]);
 
 	timeid=strftime("%d-%b-%Y-%H-%M-%S")
-	proc=subprocess.Popen("/var/django2/session_results.sh --session=%s --server=%s --saveto=%s/%s/%s/" % (session.code,settings.SITE_NAME,download_rt,timeid,session.code), shell=True,env={})
+	proc=subprocess.Popen("rosrun cv_mech_turk session_results.py --session=%s --server=%s --saveto=%s/%s/%s/" % (session.code,settings.SITE_NAME,download_rt,timeid,session.code), shell=True,env={})
 	proc.communicate();
 
-	proc=subprocess.Popen("/var/django2/session_results_masks.sh %s/%s/%s/ %s" % (download_rt,timeid,session.code,img_resolution),shell=True,env={})
+	proc=subprocess.Popen("rosrun cv_mech_turk convert_session_results_to_mask %s/%s/%s/ %s" % (download_rt,timeid,session.code,img_resolution),shell=True,env={})
 	proc.communicate();
 
 	masks_rt=os.path.join(settings.DATASETS_ROOT,'masks',session.code);

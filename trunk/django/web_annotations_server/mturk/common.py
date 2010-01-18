@@ -7,6 +7,7 @@ try:
     from boto.mturk.question import ExternalQuestion
     from boto.mturk.qualification import Qualifications, PercentAssignmentsApprovedRequirement,Requirement
     from boto.mturk.qualification_type import *
+    import qualifications.views as qual_views
     hasBoto=True
 except:
     hasBoto=False
@@ -27,7 +28,10 @@ def get_mt_connection(session):
     else:
         awshost='mechanicalturk.amazonaws.com'
 
-    conn = MTurkConnection(host=awshost,aws_secret_access_key=session.funding.secret_key,aws_access_key_id=session.funding.access_key)
+    conn = MTurkConnection(host=awshost,
+                           aws_secret_access_key=session.funding.secret_key.encode('ascii'),
+                           aws_access_key_id=session.funding.access_key.encode('ascii'))
+
     return conn
 
 
@@ -37,7 +41,9 @@ def get_mt_connection_for_account(funding,is_sandbox):
     else:
         awshost='mechanicalturk.amazonaws.com'
 
-    conn = MTurkConnection(host=awshost,aws_secret_access_key=funding.secret_key,aws_access_key_id=funding.access_key)
+    conn = MTurkConnection(host=awshost,
+                           aws_secret_access_key=session.funding.secret_key.encode('ascii'),
+                           aws_access_key_id=session.funding.access_key.encode('ascii'))
     return conn
 
 
@@ -181,19 +187,15 @@ def activate_hit(session,hit):
 
     q = ExternalQuestion(external_url=taskurl, frame_height=800)
 
-    if session.sandbox:
-        awshost='mechanicalturk.sandbox.amazonaws.com'
-    else:
-        awshost='mechanicalturk.amazonaws.com'
+    conn = get_mt_connection(session)
 
-    conn = MTurkConnection(host=awshost,aws_secret_access_key=session.funding.secret_key,aws_access_key_id=session.funding.access_key)
 
     keywords=session.task_def.get_keywords()
 
     t=session.task_def;
     if not session.hit_type:
         qualifications = Qualifications()
-        qual_views.add_session_qualifications(qualifications,session);
+        add_session_qualifications(qualifications,session);
 
         create_hit_rs = conn.create_hit(question=q, 
                                         lifetime=t.lifetime,
@@ -211,7 +213,9 @@ def activate_hit(session,hit):
         session.hit_type=create_hit_rs.HITTypeId;
         session.save();
     else:
-        create_hit_rs = conn.create_hit(question=q, hit_type=session.hit_type);
+        num_active_assignments=hit.submittedtask_set.filter(state__in=SUBMISSION_STATE_CAN_BE_VALID).count()
+        num_assignments_to_activate=t.max_assignments - num_active_assignments;
+        create_hit_rs = conn.create_hit(question=q, hit_type=session.hit_type, max_assignments=num_assignments_to_activate)
 
     try:
         mt_hit_id=create_hit_rs.HITId
@@ -282,3 +286,32 @@ def mt_reject_submission(r,grade,feedback,  conn,te):
     except Exception,e:
         print 'Reject FAILED: %s\t"%s" : %s <br/>'% (r.assignment_id,feedback,str(e))
         return False
+
+
+
+
+def create_session_hit_type(session):
+
+    conn = get_mt_connection(session)
+
+    keywords=session.task_def.get_keywords()
+
+    t=session.task_def;
+    qualifications = Qualifications()
+    qual_views.add_session_qualifications(qualifications,session);
+
+    create_hit_rs = conn.register_hit_type(  title=t.title,
+                                             description=t.description,
+                                            keywords=str(t.keywords),
+                                            reward = t.reward,
+                                            duration=t.duration,
+                                            approval_delay=t.approval_delay, 
+                                            qual_req=qualifications)
+    if (create_hit_rs.status != True):
+        raise MTurkException(create_hit_rs);
+
+
+    print "Created HIT Type",create_hit_rs.HITTypeId
+    hit_type_id=create_hit_rs.HITTypeId;
+    return hit_type_id
+

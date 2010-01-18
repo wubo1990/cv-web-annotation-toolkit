@@ -176,7 +176,6 @@ HIT_STATE = (
             (6, 'Active'),
             (7, 'Rejected'),
         )        
-
 class MTHit(models.Model):
 	session=models.ForeignKey(Session);
 
@@ -269,6 +268,8 @@ SUBMISSION_STATE = (
             (5, 'Pending approval'),
             (6, 'Pending rejection'),
         )        
+SUBMISSION_STATE_CAN_BE_VALID=[1,2,3,5];
+
 class SubmittedTask(models.Model):
 	hit = models.ForeignKey(MTHit);
 	session = models.ForeignKey(Session);
