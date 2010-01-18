@@ -19,12 +19,34 @@ import mturk.views
 
 
 
-def do_post(request,session,form):
+def do_post(request,form):
+	target_session = form.cleaned_data['target_session'];
+	
+	working_dir=os.path.join(settings.DATASETS_ROOT,'downloads',target_session.code,'work');
+	if not os.path.exists(working_dir):
+		os.makedirs(working_dir);
+
+	timeid=strftime("%d-%b-%Y-%H-%M-%S")
+	annotations_dir=os.path.join(working_dir,timeid);
+
+	source_session_list=None
+	for source_session in form.cleaned_data['source_sessions']:
+		save_dir=os.path.join(working_dir,timeid,source_session.code);
+
+		proc=subprocess.Popen("rosrun cv_mech_turk session_results.py --session=%s --server=%s --saveto=%s/%s/%s/" % (source_session.code,settings.SITE_NAME,working_dir,timeid,source_session.code), shell=True)
+		proc.communicate();
+		if not source_session_list:
+			source_session_list=source_session.code
+		else:
+			source_session_list += ','+source_session.code
+
+	import sys
+	proc=subprocess.Popen("rosrun mech_turk send_boxes_to_attributes.py --target-session=%s --server=%s --annotations=%s --multiple-source-sessions=%s " % (target_session.code,settings.SITE_NAME,annotations_dir,source_session_list), shell=True)	
+	proc.communicate()
+
 	return HttpResponse("done");
 
 	user = request.user;
-        print form.cleaned_data
-	print uploaded_file
         submission_rt=os.path.join(settings.DATASETS_ROOT,session.code);
 
         id = session.mthit_set.count()+1;
@@ -51,7 +73,7 @@ def submit_boxes_to_attributes(request):
     if request.method == 'POST':
         form = PostBoxesToAttributesForm(request.POST, request.FILES)
         if form.is_valid():
-            return do_post(request,session,form);
+            return do_post(request,form);
     else:
         form = PostBoxesToAttributesForm()
 
@@ -67,7 +89,7 @@ def create_raw_xml_download(request,session_code):
     timeid=strftime("%d-%b-%Y-%H-%M-%S")
     save_dir=os.path.join(download_rt,timeid,session.code);
 
-    proc=subprocess.Popen("/var/django/session_xml_results.sh --session=%s --server=%s --saveto=%s/%s/%s/" % (session.code,settings.SITE_NAME,download_rt,timeid,session.code), shell=True,env={})
+    proc=subprocess.Popen("rosrun cv_mech_turk session_XML_results.py --session=%s --server=%s --saveto=%s/%s/%s/" % (session.code,settings.SITE_NAME,download_rt,timeid,session.code), shell=True)
     proc.communicate();
 
     os.system("tar cvzCf %s/%s/ %s/%s-%s-raw_xml.tgz %s"%(download_rt,timeid,download_rt,session.code,timeid,session.code))

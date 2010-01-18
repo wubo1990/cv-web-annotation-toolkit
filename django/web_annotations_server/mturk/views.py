@@ -808,49 +808,11 @@ def newHIT(request):
 	if session.standalone_mode:
             return HttpResponse("%s" % hit.ext_hitid)
 
-        taskurl=settings.HOST_NAME_FOR_MTURK+"mt/get_task/"+str(session.code)+"/?extid="+hit.ext_hitid;
+        created,ext_id = activate_hit(session,hit)
+        if not created:
+            return HttpResponse("- %s" % ext_id)
 
-        q = ExternalQuestion(external_url=taskurl, frame_height=800)
-
-	if session.sandbox:
-            awshost='mechanicalturk.sandbox.amazonaws.com'
-        else:
-            awshost='mechanicalturk.amazonaws.com'
-
-        conn = MTurkConnection(host=awshost,aws_secret_access_key=session.funding.secret_key,aws_access_key_id=session.funding.access_key)
-
-        keywords=session.task_def.get_keywords()
-
-        t=session.task_def;
-        if not session.hit_type:
-            qualifications = Qualifications()
-            qual_views.add_session_qualifications(qualifications,session);
-
-            create_hit_rs = conn.create_hit(question=q, 
-                                            lifetime=t.lifetime,
-                                            max_assignments=t.max_assignments,
-                                            title=t.title,
-                                            keywords=str(t.keywords),
-                                            reward = t.reward,
-                                            duration=t.duration,
-                                            approval_delay=t.approval_delay, 
-                                            annotation="IGNORE",
-                                            qualifications=qualifications)
-            print pickler.dumps(create_hit_rs)
-            assert(create_hit_rs.status == True)
-            print create_hit_rs
-            print create_hit_rs.HITTypeId
-            session.hit_type=create_hit_rs.HITTypeId;
-            session.save();
-        else:
-            create_hit_rs = conn.create_hit(question=q, hit_type=session.hit_type);
-            #print pickler.dumps(create_hit_rs)
-
-        mt_hit_id=create_hit_rs.HITId
-        mthit=MechTurkHit(session=session,mthit=hit,state=1,mechturk_hit_id=mt_hit_id); #state=Active
-        mthit.save();
-        
-	return HttpResponse("%s" % hit.ext_hitid)
+	return HttpResponse("%s" % ext_id)
 
 
 
@@ -877,50 +839,13 @@ def new_HIT_generic(request):
 	if session.standalone_mode:
             return HttpResponse("%s" % hit.ext_hitid)
 
-        taskurl=settings.HOST_NAME_FOR_MTURK+"mt/get_task/"+str(session.code)+"/?extid="+hit.ext_hitid;
+        created,ext_id = activate_hit(session,hit)
+        if not created:
+            return HttpResponse("- %s" % ext_id)
 
-        q = ExternalQuestion(external_url=taskurl, frame_height=800)
-
-	if session.sandbox:
-            awshost='mechanicalturk.sandbox.amazonaws.com'
-        else:
-            awshost='mechanicalturk.amazonaws.com'
-
-        conn = MTurkConnection(host=awshost,aws_secret_access_key=session.funding.secret_key,aws_access_key_id=session.funding.access_key)
-
-        keywords=session.task_def.get_keywords()
-
-        t=session.task_def;
-        if not session.hit_type:
-            qualifications = Qualifications()
-            qual_views.add_session_qualifications(qualifications,session);
+	return HttpResponse("%s" % ext_id)
 
 
-            create_hit_rs = conn.create_hit(question=q, 
-                                            lifetime=t.lifetime,
-                                            max_assignments=t.max_assignments,
-                                            title=t.title,
-                                            keywords=str(t.keywords),
-                                            reward = t.reward,
-                                            duration=t.duration,
-                                            approval_delay=t.approval_delay, 
-                                            annotation="IGNORE",
-                                            qualifications=qualifications)
-            assert(create_hit_rs.status == True)
-            print create_hit_rs
-            print create_hit_rs.HITTypeId
-            session.hit_type=create_hit_rs.HITTypeId;
-            session.save();
-        else:
-            create_hit_rs = conn.create_hit(question=q, hit_type=session.hit_type);
-            print create_hit_rs
-
-
-        mt_hit_id=create_hit_rs.HITId
-        mthit=MechTurkHit(session=session,mthit=hit,state=1,mechturk_hit_id=mt_hit_id); #state=Active
-        mthit.save();
-
-	return HttpResponse("%s" % hit.ext_hitid)
 
 
 @login_required
@@ -991,30 +916,6 @@ def update_session_hittype(session,new_hit_type):
 
 
 
-def create_session_hit_type(session):
-
-    conn = get_mt_connection(session)
-
-    keywords=session.task_def.get_keywords()
-
-    t=session.task_def;
-    qualifications = Qualifications()
-    qual_views.add_session_qualifications(qualifications,session);
-
-    create_hit_rs = conn.register_hit_type(  title=t.title,
-                                             description=t.description,
-                                            keywords=str(t.keywords),
-                                            reward = t.reward,
-                                            duration=t.duration,
-                                            approval_delay=t.approval_delay, 
-                                            qual_req=qualifications)
-    if (create_hit_rs.status != True):
-        raise MTurkException(create_hit_rs);
-
-
-    print "Created HIT Type",create_hit_rs.HITTypeId
-    hit_type_id=create_hit_rs.HITTypeId;
-    return hit_type_id
 
 def copy_session(request,prototype_session_code,new_session_code):
     session = get_object_or_404(Session,code=prototype_session_code);
@@ -1060,55 +961,12 @@ def submit_redo_HITs(request,session_code):
             print "Hit",hit.id ,"is done"
             continue
         print hit.id," is not done"
-        taskurl=settings.HOST_NAME_FOR_MTURK+"mt/get_task/"+str(session.code)+"/?extid="+hit.ext_hitid;
-        q = ExternalQuestion(external_url=taskurl, frame_height=800)
 
-	if session.sandbox:
-            awshost='mechanicalturk.sandbox.amazonaws.com'
-        else:
-            awshost='mechanicalturk.amazonaws.com'
-
-        conn = MTurkConnection(host=awshost,aws_secret_access_key=session.funding.secret_key,aws_access_key_id=session.funding.access_key)
-        t=session.task_def;
-        if not session.hit_type:
-            qualifications = Qualifications()
-            qual_views.add_session_qualifications(qualifications,session);
-
-            create_hit_rs = conn.create_hit(question=q, 
-                                            lifetime=t.lifetime,
-                                            max_assignments=t.max_assignments,
-                                            title=t.title,
-                                            keywords=str(t.keywords),
-                                            reward = t.reward,
-                                            duration=t.duration,
-                                            approval_delay=t.approval_delay, 
-                                            annotation="IGNORE",
-                                            qualifications=qualifications)
-            postS=pickler.dumps(create_hit_rs)
-            print postS
-            print create_hit_rs
-            if create_hit_rs.status != True:
-                return render_to_response('mturk/aws_error_report.html',{'resultset':create_hit_rs,'session':session});
-            print create_hit_rs.HITTypeId
-            session.hit_type=create_hit_rs.HITTypeId;
-            session.save();
-        else:
-            create_hit_rs = conn.create_hit(question=q, hit_type=session.hit_type);
-        print dir(create_hit_rs)
+        created,ext_id = activate_hit(session,hit)
+        if not created:
+            return render_to_response('mturk/error_report.html',{'error':ext_id,'session':session});
 
         print "Hit",hit.id ,"is submitted"
-        hit.state=6;
-        hit.save();
-
-        mt_hit_id=create_hit_rs.HITId
-        mthit=MechTurkHit(session=session,mthit=hit,state=1,mechturk_hit_id=mt_hit_id); #state=Active
-        mthit.save();
-
-        #print create_hit_rs
-        #postS=pickler.dumps(create_hit_rs)
-        #print postS
-        #print create_hit_rs.HITId
-
         num_submitted += 1;
 
     return HttpResponse("%d" % num_submitted)
@@ -1120,7 +978,6 @@ def get_hit_results_xml(request,ext_id,filter_good_results=False):
     task_id=ext_id;
     print task_id;
 
-	 #request.REQUEST['extid']
     task = get_object_or_404(MTHit,ext_hitid=task_id);
     print task
 
@@ -1290,53 +1147,7 @@ def add_hit_to_session(session,params):
     if session.standalone_mode:
         return (True,"%s" % hit.ext_hitid)
 
-    taskurl=settings.HOST_NAME_FOR_MTURK+"mt/get_task/"+str(session.code)+"/?extid="+hit.ext_hitid;
-
-    q = ExternalQuestion(external_url=taskurl, frame_height=800)
-
-    if session.sandbox:
-        awshost='mechanicalturk.sandbox.amazonaws.com'
-    else:
-        awshost='mechanicalturk.amazonaws.com'
-        
-    conn = MTurkConnection(host=awshost,aws_secret_access_key=session.funding.secret_key,aws_access_key_id=session.funding.access_key)
-
-    keywords=session.task_def.get_keywords()
-
-    t=session.task_def;
-    if not session.hit_type:
-        qualifications = Qualifications()
-        qual_views.add_session_qualifications(qualifications,session);
-
-        create_hit_rs = conn.create_hit(question=q, 
-                                        lifetime=t.lifetime,
-                                        max_assignments=t.max_assignments,
-                                        title=t.title,
-                                        keywords=str(t.keywords),
-                                        reward = t.reward,
-                                        duration=t.duration,
-                                        approval_delay=t.approval_delay, 
-                                        annotation="IGNORE",
-                                        qualifications=qualifications)
-        if create_hit_rs.status != True:
-            return (False, "Error talking to AWS: %s (%s)" % (create_hit_rs.Message,create_hit_rs.Code));
-        print create_hit_rs.HITTypeId
-        session.hit_type=create_hit_rs.HITTypeId;
-        session.save();
-    else:
-        create_hit_rs = conn.create_hit(question=q, hit_type=session.hit_type);
-        print create_hit_rs
-        print create_hit_rs.HITId
-
-    #hit.mt_hitid=create_hit_rs.HITId
-    hit.save()
-
-    mt_hit_id=create_hit_rs.HITId
-    mthit=MechTurkHit(session=session,mthit=hit,state=1,mechturk_hit_id=mt_hit_id);
-    mthit.save();
-
-    return (True,"%s" % hit.ext_hitid)
-
+    return activate_hit(session,hit)
 
 
 
@@ -1487,7 +1298,7 @@ def reject_poor_results(request,session_code):
         else:
             awshost='mechanicalturk.amazonaws.com'
 
-        conn = MTurkConnection(host=awshost,aws_secret_access_key=session.funding.secret_key,aws_access_key_id=session.funding.access_key)
+        conn = get_mt_connection(session)    
 
         results=session.submittedtask_set.all().exclude(state=4).exclude(state=3);
         print results.count()
@@ -1634,12 +1445,7 @@ def process_graded_submissions(request,session_code):
 def approve_good_results(request,session_code):
 	session = get_object_or_404(Session,code=session_code);
 
-        if session.sandbox:
-            awshost='mechanicalturk.sandbox.amazonaws.com'
-        else:
-            awshost='mechanicalturk.amazonaws.com'
-
-        conn = MTurkConnection(host=awshost,aws_secret_access_key=session.funding.secret_key,aws_access_key_id=session.funding.access_key)
+        conn = get_mt_connection(session)    
 
      	results=session.submittedtask_set.all().exclude(state=4).exclude(state=3)
 	strAns="assignmentIdToReject\tassignmentIdToRejectComment<br/>";
@@ -1696,12 +1502,7 @@ def approve_good_results(request,session_code):
 def approve_all_results(request,session_code):
 	session = get_object_or_404(Session,code=session_code);
 
-        if session.sandbox:
-            awshost='mechanicalturk.sandbox.amazonaws.com'
-        else:
-            awshost='mechanicalturk.amazonaws.com'
-
-        conn = MTurkConnection(host=awshost,aws_secret_access_key=session.funding.secret_key,aws_access_key_id=session.funding.access_key)
+        conn = get_mt_connection(session)    
 
      	results=session.submittedtask_set.all()
 	strAns="assignmentIdToReject\tassignmentIdToRejectComment<br/>";
@@ -1723,12 +1524,7 @@ def approve_all_results(request,session_code):
 
 @login_required
 def approve_all_results_str(request,session):
-        if session.sandbox:
-            awshost='mechanicalturk.sandbox.amazonaws.com'
-        else:
-            awshost='mechanicalturk.amazonaws.com'
-
-        conn = MTurkConnection(host=awshost,aws_secret_access_key=session.funding.secret_key,aws_access_key_id=session.funding.access_key)
+        conn = get_mt_connection(session)    
 
      	results=session.submittedtask_set.all()
 	strAns=""
@@ -1798,12 +1594,7 @@ def session_stats(request,session_code):
 def expire_session_hits(request,session_code):
     session = get_object_or_404(Session,code=session_code);
 
-    if session.sandbox:
-        awshost='mechanicalturk.sandbox.amazonaws.com'
-    else:
-        awshost='mechanicalturk.amazonaws.com'
-        
-    conn = MTurkConnection(host=awshost,aws_secret_access_key=session.funding.secret_key,aws_access_key_id=session.funding.access_key)
+    conn = get_mt_connection(session)    
 
     hits=session.mechturkhit_set.all()
     
@@ -1826,12 +1617,8 @@ def expire_session_hits(request,session_code):
 def expire_session_hits_by_type(request,session_code):
     session = get_object_or_404(Session,code=session_code);
 
-    if session.sandbox:
-        awshost='mechanicalturk.sandbox.amazonaws.com'
-    else:
-        awshost='mechanicalturk.amazonaws.com'
-        
-    conn = MTurkConnection(host=awshost,aws_secret_access_key=session.funding.secret_key,aws_access_key_id=session.funding.access_key)
+    conn = get_mt_connection(session)    
+
 
     resp=HttpResponse();
     total_num_results = None
@@ -1911,14 +1698,24 @@ def get_ros_publishers(request):
 
 def stats_session_detail(request,session_code):
     session = get_object_or_404(Session,code=session_code)
+    te=session.task_def.type.get_engine();
+    
     submissions=session.submittedtask_set.all().order_by('submitted');
+    print submissions
+    times=[];
     for s in submissions:
+        times.append(te.estimate_time_spent(s));
         s.diff=(s.submitted - s.hit.submitted).seconds;
     
     submissions=sorted(submissions,lambda a,b:a.diff-b.diff);
+    
+    if len(times)==0:
+        average_time='N/A';
+    else:
+        average_time="%0.2f" % (sum(times)/len(times));
 
     return render_to_response('mturk/stats_session_details.html',
-                              {'user':request.user,'session':session,'submissions':submissions});
+                              {'user':request.user,'session':session,'submissions':submissions,'times':times,'average_time':average_time});
 
 
 
@@ -1937,12 +1734,8 @@ def get_session_context(connections,session):
     if session.code in connections:
         return connections[session.code];
 
-    if session.sandbox:
-        awshost='mechanicalturk.sandbox.amazonaws.com'
-    else:
-        awshost='mechanicalturk.amazonaws.com'
-        
-    conn = MTurkConnection(host=awshost,aws_secret_access_key=session.funding.secret_key,aws_access_key_id=session.funding.access_key)
+    conn = get_mt_connection(session)    
+
     te=session.task_def.type.get_engine();
 
     ctx=(conn,te);
@@ -2045,3 +1838,6 @@ def opt_get_session_grades(request,session_code):
 
 
 
+@login_required
+def update_start_times(request):
+    pass

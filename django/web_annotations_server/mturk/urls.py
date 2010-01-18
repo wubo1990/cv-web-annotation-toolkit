@@ -162,6 +162,7 @@ urlpatterns = patterns('',
     (r'^opt/(?P<session_code>[\w\-]+)/grades/$', 'mturk.views.opt_get_session_grades'),
 
 
+    (r'^fix/update_start_times/$', 'mturk.views.update_start_times'),                       
 
     (r'^project/submit_boxes_to_attributes/$', 'mturk.protocols.attributes.views.submit_boxes_to_attributes'),                       
 );

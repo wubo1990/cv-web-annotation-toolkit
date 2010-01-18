@@ -9,8 +9,32 @@
 
 {% block content %}
 
-{{session.code}}
+{{session.code}}<br/>
+Average time per submission: {{average_time}} seconds<br/>
+<hr/>
 
+<canvas id='times_graph'>
+
+<script>
+   var g = new Bluff.Line('times_graph', 400);
+
+  // Set theme and options
+  g.theme_keynote();
+  g.title = 'Timing of submissions';
+
+  // Add data and labels
+  var subm=[
+{% for t in times %}{{t}}, {% endfor %}
+  ];
+  g.data('Time per submission',subm); 
+  //g.labels = {0: '2003',10:'213'};
+
+  // Render the graph
+  g.draw();
+</script>
+
+<hr/>
+{% comment %}
 <canvas id='submission_graph'>
 
 <script>
@@ -30,4 +54,6 @@
   // Render the graph
   g.draw();
 </script>
+
+{% endcomment %}
 {% endblock %}

@@ -174,10 +174,12 @@ Submissions:
 <li><a href="/mt/stats/session_details/{{session.code}}/">Details</a></li>
 </ul>
 <br/>
+{% comment %}
 Min time :{{stats.timing.min}}<br/>
 Max time :{{stats.timing.max}}<br/>
 Avg time :{{stats.timing.avg}}<br/>
 Std time :{{stats.timing.std}}<br/>
+{% endcomment %}
 
 
 <hr/>
@@ -188,7 +190,9 @@ Std time :{{stats.timing.std}}<br/>
     {% case "gxml" %}
 <a href="/mt/p/gxml/upload/{{session.code}}/image/">Single image</a><br/>
 <a href="/mt/p/gxml/upload/{{session.code}}/image_tgz/">Single folder with jpeg images</a>. (smth.tgz with my_folder/abc*.jpg)
-
+    {% endcase %}
+    {% case "attributes" %}
+<a href="/mt/project/submit_boxes_to_attributes/">From boxes sessions</a>
     {% endcase %}
 {% endswitch %}
 

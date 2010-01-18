@@ -3,6 +3,8 @@ from django.conf import settings
 
 from mturk.protocols.task import TaskEngine
 
+from datastore import xmlmisc
+
 import xml.dom.minidom
 from xml.dom.minidom import Node
 
@@ -185,3 +187,26 @@ class GXmlTaskEngine(TaskEngine):
         x_ref.setAttribute("url",submission.get_persistent_url());
 
 	return x_doc.toxml()
+
+
+    def estimate_time_spent(self,submission):
+        GET,POST=submission.get_response();
+        try:
+            st=POST['load_time'];
+            et=POST['submit_time'];
+            time_fmt="%a, %d %b %Y %H:%M:%S %Z"
+            s= time.strptime(st,time_fmt)
+            e= time.strptime(et,time_fmt)
+            seconds_spent =  time.mktime(e)-time.mktime(s)
+            return seconds_spent
+        except Exception,e:
+            shapes_xml=urllib.unquote_plus(POST['sites']);
+            try:
+                x_doc = xml.dom.minidom.parseString(shapes_xml)
+                meta_node=xmlmisc.xget(x_doc,"meta")[0];
+                load_time=float(xmlmisc.xget_a_d(meta_node,"load_time","0"));
+                submit_time=float(xmlmisc.xget_a_d(meta_node,"submit_time","0"));
+                return (submit_time-load_time)/1000;
+            except:
+                return 0
+
