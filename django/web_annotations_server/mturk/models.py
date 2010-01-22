@@ -214,7 +214,7 @@ class MTHit(models.Model):
 		te=type.get_engine();
 		return te.get_thumbnail_url(self)
 
-
+WorkUnit=MTHit
 
 
 MT_HIT_STATE = (

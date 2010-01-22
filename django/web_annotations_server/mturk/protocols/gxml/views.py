@@ -119,8 +119,8 @@ def do_upload_image_tgz(request,session,form,uploaded_file):
 		fname=fixed_filename;
         status=os.system("tar xvzCf %s %s" % (upload_dir,os.path.join(upload_dir,fname)));
 
-	dirs=filter(lambda s: s <> fname, os.listdir(upload_dir))
-
+	dirs=filter(lambda s: s <> fname and s[0] <> ".", os.listdir(upload_dir))
+	print dirs
 	if len(dirs) <> 1:
 		return HttpResponse("Error: more than 1 folder in the tgz file");
 
