@@ -98,22 +98,9 @@ def show_session_hits(request,session_code,hit_state,page=1):
 
 
 def showtask(request,session_code):
-    if  0 and session_code=='willow-10-23-2009-s1-box':
-        """This code immediately submits the result to MTurk without doing any work. This is a weird way to remove incorrectly submitted tasks form MTurk. Those will get auto-approved and paid by timeout."""
-        """
-        if 'workerId' in request.REQUEST:
-            workerId=request.REQUEST["workerId"]
-            ext_hitid=request.REQUEST['ExtID']
-            assignmentId=request.REQUEST['assignmentId'];
-            submit_target="http://www.mturk.com/mturk/externalSubmit"
-            return render_to_response('mturk/after_submit.html',
-                                      {'submit_target':submit_target,
-                                       'extid': ext_hitid, 'workerId':workerId,
-                                       'assignmentId':assignmentId});
-        """
-        pass
     session = get_object_or_404(Session,code=session_code)
 
+    task_id=None
     try:
         if 'ExtID' in request.REQUEST:
             task_id=request.REQUEST['ExtID']
@@ -123,8 +110,14 @@ def showtask(request,session_code):
         if 'extid' in request.REQUEST:
             task_id=request.REQUEST['extid']
 
-    task = get_object_or_404(MTHit,ext_hitid=task_id)
-
+    if task_id:
+        task = get_object_or_404(MTHit,ext_hitid=task_id)
+    else:
+        id=random_task_i_havent_done(session,request.user)
+        if id is None:
+            return render_to_response('mturk/not_available.html');
+        task = get_object_or_404(MTHit,id=id)
+    
     if "workerId" in request.REQUEST:
         worker_id=request.REQUEST["workerId"]
         print worker_id
@@ -177,6 +170,8 @@ def submit_result(request):
 
 
     workerId=request.REQUEST['workerId'];
+    if workerId=="":
+        workerId=request.user.username;
     assignmentId=request.REQUEST['assignmentId'];
 
 
@@ -813,6 +808,7 @@ def newHIT(request):
             return HttpResponse("- %s" % ext_id)
 
 	return HttpResponse("%s" % ext_id)
+
 
 
 

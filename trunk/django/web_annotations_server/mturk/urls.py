@@ -12,6 +12,9 @@ urlpatterns = patterns('',
     (r'^all/$', 'mturk.views.main_all'),
     (r'^index/$', 'mturk.views.main'),
 
+    (r'^RPC2$', 'rpc4django.views.serve_rpc_request'),
+                      
+
     (r'^dashboard/', include('mturk.dashboard.urls')),
 
     (r'^(?P<protocol>[\w-]+)/(?P<session_code>[\w\-]+)/task.html', 'mturk.views.showtask'),
