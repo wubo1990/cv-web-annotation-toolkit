@@ -1,0 +1,15 @@
+<package>
+  <description brief="mech_turk_server">
+
+     mech_turk_server
+
+  </description>
+  <author>Alexander Sorokin</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://pr.willowgarage.com/wiki/mech_turk_server</url>
+
+  <rosdep name="scipy"/>
+</package>
+
+
