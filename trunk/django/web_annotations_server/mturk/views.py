@@ -96,6 +96,61 @@ def show_session_hits(request,session_code,hit_state,page=1):
 
 
 
+def post_image(request,session_code=None,frame=None):
+
+    if session_code is None:
+        session_code = request.REQUEST['session']
+
+    if frame is None:
+        frame = request.REQUEST['frame']
+
+
+    image_dir=os.path.join(settings.DATASETS_ROOT,session.code);
+
+    if not os.path.exists(image_dir):
+        os.makedirs(image_dir);
+
+    image=request.FILES['image']
+    storage = FileSystemStorage(image_dir);
+    if 'reduce-quality' in request.REQUEST or 'reduce-resolution' in request.REQUEST:
+        quality=request.REQUEST.get('reduce-quality',None)
+        resolution=request.REQUEST.get('reduce-resolution',None)
+        path = storage.save(os.path.join(image_dir,frame+"-original.jpg"),image);
+        img=Image.open(os.path.join(image_dir,frame+"-original.jpg"));
+        if resolution:
+            (newW,newH)=map(lambda s:float(s),resolution.split("x"));
+            img = img.resize((newW,newH),Image.BICUBIC)
+        if quality:
+            img.save(os.path.join(image_dir,frame+".jpg"),"JPEG",quality=int(quality));                
+        else:
+            img.save(os.path.join(image_dir,frame+".jpg"))
+
+    else:
+        path = storage.save(os.path.join(image_dir,frame+".jpg"),image);
+
+    return HttpResponse(frame)
+
+
+def post_video(request,session_code=None,video_file=None):
+
+    if session_code is None:
+        session_code = request.REQUEST['session']
+
+    if video_file is None:
+        video_file = request.REQUEST['video_file']
+
+    video_dir=os.path.join(settings.DATASETS_ROOT,session.code);
+
+    if not os.path.exists(video_dir):
+        os.makedirs(video_dir);
+
+    video=request.FILES['video']
+    storage = FileSystemStorage(image_dir);
+    path = storage.save(os.path.join(image_dir,video_file),video);
+
+    return HttpResponse(video_file)
+
+
 
 def showtask(request,session_code):
     session = get_object_or_404(Session,code=session_code)
@@ -840,6 +895,9 @@ def new_HIT_generic(request):
             return HttpResponse("- %s" % ext_id)
 
 	return HttpResponse("%s" % ext_id)
+
+
+
 
 
 

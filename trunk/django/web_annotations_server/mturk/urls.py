@@ -23,6 +23,8 @@ urlpatterns = patterns('',
     (r'^get_task/(?P<session_code>[\w\-]+)/', 'mturk.views.showtask'),
     (r'^submit/', 'mturk.views.submit_result'),
 
+    (r'^post_image/(?P<session_code>\d+)/(?P<frame>[\w\-]+)/$', 'mturk.views.post_image'),
+    (r'^post_video/(?P<session_code>\d+)/(?P<video_file>[\w\-]+)/$', 'mturk.views.post_video'),
 
     (r'^submission_data_xml/(?P<id>\d+)/(?P<ext_hitid>[\w\-]+)/$', 'mturk.views.get_submission_data_xml'),
     (r'^submission_rendered/(?P<id>\d+)/(?P<ext_hitid>[\w\-]+)/$', 'mturk.views.get_rendered_submission'),
