@@ -26,6 +26,8 @@ from django.shortcuts import get_object_or_404
 import snippets.country_field
 
 
+
+
 class FundingAccount(models.Model):
 	name=models.SlugField();
 	access_key=models.CharField(max_length=25)
@@ -143,6 +145,12 @@ class Session(models.Model):
 	
 	gold_standard_qualification = models.ForeignKey('GoldStandardQualification',null=True,blank=True);
 	mturk_qualification = models.ManyToManyField('MTurkQualification',blank=True,null=True);
+
+
+	class Meta:
+		permissions = (
+			("rpc-access", "Allow access over RPC"),
+			)
 
 	def parse_parameters(self):
 		return {};
@@ -279,7 +287,7 @@ class SubmittedTask(models.Model):
 	response = models.TextField();
 
 	started    = models.DateTimeField(null=True,blank=True);
-	submitted = models.DateTimeField(auto_now_add=True);
+	submitted  = models.DateTimeField(auto_now_add=True);
 
 	shapes = None;
 	comments = None;
@@ -290,6 +298,10 @@ class SubmittedTask(models.Model):
                                  help_text="The final grade assigned to submission.");
 	state   = models.IntegerField(choices=SUBMISSION_STATE,default=1);
 
+	class Meta:
+		permissions = (
+			("can_submit_work", "Can post new submissions"),
+			)
 	def __str__(self):
 		return str(self.id)
 
@@ -308,6 +320,12 @@ class SubmittedTask(models.Model):
 		te=self.session.task_def.type.get_engine()
 		print self
 		return te.get_submission_xml(self)
+
+	def get_timing(self):
+		te=self.session.task_def.type.get_engine()
+		(start,end)=te.get_work_timing(self);
+		return (start,end)
+
 
 	def get_parsed(self):
 		#print "SELF:", self

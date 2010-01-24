@@ -35,6 +35,15 @@ class TaskEngine:
             print e
             return 0            
 
+    def get_work_timing(self,submission):
+        try:
+            GET,POST=submission.get_response();
+            st=POST['load_time'];
+            et=POST['submit_time'];
+            return (st,et)
+        except Exception,e:
+            return ('','')            
+
     def get_models(self):
         """ To avoid recursive dependencies, this is the only way tasks are allowed to access mturk.models"""
         return sys.modules["web_annotations_server.mturk.models"]
