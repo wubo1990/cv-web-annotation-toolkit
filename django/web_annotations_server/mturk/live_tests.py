@@ -46,8 +46,8 @@ from rpc import list_work_unit_submissions
 
 
 from rpc import get_session
-from rpc import get_session_work_units
-from rpc import get_work_unit_submissions
++ from rpc import get_session_work_units
++ from rpc import get_work_unit_submissions
 
 
 + create_session
@@ -166,7 +166,7 @@ class TestRPC(unittest.TestCase):
 
         self.assertEqual(submissions[0]['id'] ,submission_id)
 
-        test_worker_id_2=self.generate_id('test_worker')
+        test_worker_id_2= self.generate_id('test_worker')
         assignment_id_2 = self.generate_id('test-assignment-1');
         submission_id_2 = s.mt.submit_work(new_work_unit_id,test_worker_id_2,assignment_id_2,submission_data)
 

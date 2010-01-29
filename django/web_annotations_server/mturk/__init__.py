@@ -8,6 +8,7 @@ from rpc import list_work_unit_submissions
 from rpc import get_session
 from rpc import get_session_work_units
 from rpc import get_work_unit_submissions
+from rpc import get_work_unit_submissions_filtered
 
 from rpc import create_session
 from rpc import copy_session

@@ -171,6 +171,37 @@ def get_work_unit_submissions(work_unit_extid):
 
 
 
+def get_submission_grade_optimistic(st):
+    grade=None
+    feedback="";
+    for g in st.manualgraderecord_set.filter(valid=True):
+        if grade:
+            if grade>g.quality:
+                grade=g.quality;
+                feedback=g.feedback;
+            else:
+                grade=g.quality;
+                feedback=g.feedback;
+
+    return (grade,feedback)
+
+
+
+
+@rpcmethod(name='mt.get_work_unit_submissions_filtered')
+def get_work_unit_submissions_filtered(work_unit_extid,filter):
+    wu=WorkUnit.objects.get(ext_hitid=work_unit_extid);
+
+    submissions=[];
+    for s in wu.submittedtask_set.all():
+        (grade,feedback) = get_submission_grade_optimistic(s)
+        if grade is not None and grade>7:
+            submissions.append(format_submission(s));
+    
+    return submissions
+
+
+
 
 
 
@@ -244,7 +275,7 @@ def generate_image_id(self,prefix=None):
         return rand_id
 
 @rpcmethod(name='mt.post_image')
-def post_image(session_id,img,image_name,**kwargs):
+def post_image(session_id,img,image_name,reduce_jpeg_resolution=None,web_jpeg_quality=None,**kwargs):
     session=get_object_or_404(Session,code=session_id)
 
     if image_name is None or image_name=='' or image_name=='*AUTO':

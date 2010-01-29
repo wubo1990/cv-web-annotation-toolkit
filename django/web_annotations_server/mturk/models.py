@@ -353,27 +353,7 @@ class SubmittedTask(models.Model):
 		self.unpickled_response=pickler.loads(str(self.response))
 		return self.unpickled_response;
 
-	"""
 
-		if not self.session.parameters:
-			protocol="g-xml"
-		else:
-			sParm=self.session.parse_parameters();
-			protocol=sParm['protocol'];
-
-		if protocol=="people14":
-			(shapes,comments)=people14_parse_submission(self)
-
-			#print self
-		elif protocol=="g-outlets" or protocol=="g-xml":
-			(shapes_xml,comments)=g_xml_parse_submission(self)
-			self.shapes=shapes_xml;
-			self.comments=comments;
-			#print self
-		else:
-			raise "Error: unknown protocol "+protocol
-		return self;
-		"""
 	def get_view_url(self):
 		te=self.hit.session.task_def.type.get_engine();
 		print te
