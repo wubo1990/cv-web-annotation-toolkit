@@ -1243,7 +1243,7 @@ def get_session_images3(request,session_code):
             ref_time=parms.get('ref_time','n/a')
             topic_in=parms.get('topic_in','n/a')
             original_name=parms.get('original_name','n/a')
-            print parms
+
             image_dir=os.path.join(settings.DATASETS_ROOT,session.code);
             original_fn =os.path.join(image_dir,frame+"-original.jpg");
             if os.path.exists(original_fn):
