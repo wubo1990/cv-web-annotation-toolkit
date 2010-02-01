@@ -184,6 +184,7 @@ class GXmlTaskEngine(TaskEngine):
         x_ref.setAttribute("ref-hit",submission.hit.ext_hitid);
         x_ref.setAttribute("ref-submission",str(submission.id));
         x_ref.setAttribute("id",str(submission.id));
+        x_ref.setAttribute("worker",str(submission.worker));
         x_ref.setAttribute("url",submission.get_persistent_url());
 
 	return x_doc.toxml()
