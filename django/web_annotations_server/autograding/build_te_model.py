@@ -29,7 +29,7 @@ If the output model exists, it will do noting.
 
 def get_next_action(data_root):
     log_fn=os.path.join(data_root,'log.txt');
-    log_line=open(log_fn,'r').readlines()[-2].strip();
+    log_line=open(os.path.expanduser(log_fn),'r').readlines()[-2].strip();
     if log_line.startswith("Suggested action: "):
         return log_line.replace("Suggested action: ","")
     return None
@@ -68,7 +68,7 @@ def build_model(data_root,ag_bin=None,train_file='data.train',val_file='data.val
 
     done_training=False
     while not done_training:
-        action = get_next_action(data_root)
+        action = get_next_action("./")
         print "Next action is ",action
         action_cmd=os.path.join(ag_bin,action);
         action_status = os.system(action_cmd)        
@@ -83,14 +83,14 @@ if __name__=="__main__":
 
     optlist, args = getopt.getopt(sys.argv[1:], "t:v:r:s:w:b:he:", ["help", "ag_bin=", "train=","val=","attr=","work_dir=","speed=","extra="])
 
-    ag_bin=TE_BIN_LOCATION;
+    ag_bin="";
     train="data.train"
     validation="data.valid"
     attr="data.attr"
     speed="fast"
     extra_args=""
 
-    work_dir=None
+    work_dir="./"
     
     for (field, val) in optlist:
         print field,val
