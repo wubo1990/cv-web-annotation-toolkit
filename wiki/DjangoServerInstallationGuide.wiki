@@ -22,24 +22,26 @@ The installation assumes a bare Ubuntu linux 9.10 machine. It has been tested on
 {{{
 sudo apt-get install mysql-server python python-mysqldb 
 }}}
- # Recommended: Install phpmyadmin. It greatly helps in database administration
+ # Recommended: Install phpmyadmin. It greatly helps in database administration. It will ask, which server to configure. Choose apache2. Make sure to write down the passwords.
 {{{
 sudo apt-get install phpmyadmin
 }}}
- # PIL (python imaging library) for image manipulations  
+ # Install PIL (python imaging library) if it hasn't been installed. It's used for on-the-fly image manipulations and converting images.
 {{{
-sudo apt-get install python-image
+sudo apt-get install python-imaging
 }}}
 
 = ROS install =
 
-Follow instructions on [http://www.ros.org/wiki/ROS/Installation ros.org]. Do "ROS-only" install:
+ROS provides great software management tools and many components of the server are ROS packages. For certain cases, the installation can be omitted, but it's really easy to install. It will download lots of stuff though.
+
+The instructions come from [http://www.ros.org/wiki/ROS/Installation ros.org]. We create a system-wide install, but we don't really need full shared install (we skip marking as NO_BUILD):
 {{{
 sudo apt-get install build-essential python-yaml cmake subversion
 
 wget --no-check-certificate http://ros.org/rosinstall -O ~/rosinstall
 chmod 755 ~/rosinstall
-~/rosinstall ~/ros http://ros.org/rosconfigs/ros.rosconfig 
+sudo ~/rosinstall /opt/ros http://ros.org/rosconfigs/ros.rosconfig 
 }}}
 
 
