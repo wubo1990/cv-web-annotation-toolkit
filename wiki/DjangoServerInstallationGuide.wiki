@@ -3,27 +3,68 @@
 
 = Introduction =
 
-This is a very rough installation guide. I hopefully lists all dependencies.
+The cv_web_tk server supports multiple components: 
+ * mech_turk task server 
+ * VOC competition server
+ * Annotation storage and access server
+ * CV Web models
+
+This installation guide guide walks through the installation of the common components and the mech turk server. Other components can be installed separately as django applications.
+
+The installation assumes a bare Ubuntu linux 9.10 machine. It has been tested on
+ * Karmik Ubuntu (9.10) in vmware player (Link to final image).
+
 
 = Prerequisites =
+ # Install Ubuntu 9.10
+ # Install all package updates
+ # Install mysql, python, python-mysqldb 
+{{{
+sudo apt-get install mysql-server python python-mysqldb 
+}}}
+ # Recommended: Install phpmyadmin. It greatly helps in database administration
+{{{
+sudo apt-get install phpmyadmin
+}}}
+ # PIL (python imaging library) for image manipulations  
+{{{
+sudo apt-get install python-image
+}}}
 
- * mysql
- * python 2.5
- * python-mysqldb 
- * PIL (python imaging library) for some image stuff 
+= ROS install =
+
+Follow instructions on [http://www.ros.org/wiki/ROS/Installation ros.org]. Do "ROS-only" install:
+{{{
+sudo apt-get install build-essential python-yaml cmake subversion
+
+wget --no-check-certificate http://ros.org/rosinstall -O ~/rosinstall
+chmod 755 ~/rosinstall
+~/rosinstall ~/ros http://ros.org/rosconfigs/ros.rosconfig 
+}}}
+
 
 = Libraries and packages =
- * django 1.1.1 (see http://www.djangoproject.com/download/)
- 
- * boto (for Mechanical Turk integration)
+
+ # django 1.1.1
 {{{
-wget http://boto.googlecode.com/files/boto-1.8d.tar.gz
-tar xvzf boto-1.8d.tar.gz
-cd boto-1.8d
+wget http://www.djangoproject.com/download/1.1.1/tarball/
+tar xzvf Django-1.1.1.tar.gz
+cd Django-1.1.1
 sudo python setup.py install
 }}}
 
- * django-tagging  (v.0.3.0 for django 1.0.2)
+ 
+ # Install boto (for Mechanical Turk integration) with a patch.
+{{{
+wget http://boto.googlecode.com/files/boto-1.8d.tar.gz
+tar xvzf boto-1.8d.tar.gz
+wget BOTO_PATCH_URL
+cd boto-1.8d
+patch -p1 <../boto-1.8d_patch
+sudo python setup.py install
+}}}
+
+ # django-tagging  (v.0.3.0 for django 1.0.2)
 {{{
 wget http://django-tagging.googlecode.com/files/django-tagging-0.3.tar.gz
 tar xvzf django-tagging-0.3.tar.gz
@@ -31,7 +72,7 @@ cd django-tagging-0.3
 sudo python setup.py install
 }}}
 
- * django-registration
+ # django-registration
 {{{
 wget http://bitbucket.org/ubernostrum/django-registration/get/v0.7.tar.gz
 tar xvzf v0.7.tar.gz
@@ -39,8 +80,19 @@ cd django-registration
 sudo python setup.py install
 }}}
 
+= Django code installation =
+
+ # Choose server code location
+{{{
+SRV_ROOT=/var/django
+sudo mkdir $SRV_ROOT
+sudo chown www-data $SRV_ROOT
+}}}
+ # 
 
 = Data locations = 
+
+Data locations should be configured in settings.py. 
 
 Create these folders:
 
