@@ -14,6 +14,8 @@ This installation guide guide walks through the installation of the common compo
 The installation assumes a bare Ubuntu linux 9.10 machine. It has been tested on
  * Karmik Ubuntu (9.10) in vmware player (Link to final image).
 
+These instructions assume no knowledge of django and the goal to install this server only. If you know, what's going on, feel free to skip steps and use other features. For example, you can use any database of your choice, change code and data locaitions, etc.
+
 
 = Prerequisites =
  # Install Ubuntu 9.10
@@ -60,7 +62,7 @@ sudo python setup.py install
 {{{
 wget http://boto.googlecode.com/files/boto-1.8d.tar.gz
 tar xvzf boto-1.8d.tar.gz
-wget BOTO_PATCH_URL
+wget http://cv-web-annotation-toolkit.googlecode.com/files/boto-1.8d_patch
 cd boto-1.8d
 patch -p1 <../boto-1.8d_patch
 sudo python setup.py install
@@ -84,6 +86,15 @@ sudo python setup.py install
 
 = Django code installation =
 
+ # Set up a mysql database
+   * Go to phpmyadmin at http://localhost/phpmyadmin
+   * Choose create database (e.g. *crowd*)
+   * Create a user for the database:
+     * Go to database, click Privileges
+     * Click create user (e.g. *crowd_django*), 
+     * Click generate password and save it somewhere
+     * Check "Grant all privileges"
+ 
  # Choose server code location
 {{{
 SRV_ROOT=/var/django
