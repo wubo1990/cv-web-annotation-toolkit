@@ -150,11 +150,11 @@ urlpatterns = patterns('',
 
 
     (r'^p/video_events/', include('mturk.protocols.video_events.urls')),
-    (r'^p/gxml/', include('mturk.protocols.gxml.urls')),
-    (r'^p/attributes/', include('mturk.protocols.attributes.urls')),
+    (r'^p/gxml/',         include('mturk.protocols.gxml.urls')),
+    (r'^p/attributes/',   include('mturk.protocols.attributes.urls')),
 
-    (r'^payments/', include('mturk.payments.urls')),
-    (r'^qualification/', include('mturk.qualifications.urls')),
+    (r'^payments/',       include('mturk.payments.urls')),
+    (r'^qualification/',  include('mturk.qualifications.urls')),
     (r'^qualifications/', include('mturk.qualifications.urls')),
 
 
