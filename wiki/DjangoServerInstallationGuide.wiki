@@ -101,8 +101,7 @@ python setup.py install
      * Go to database, click Privileges
      * Click create user (e.g. *crowd_django*), 
      * Click generate password and save it somewhere
-     * Check "Grant all privileges"
- 
+     * Check "Grant all privileges" 
  # Choose server code location and create server dir
 {{{
 SRV_ROOT=/var/django
@@ -112,7 +111,6 @@ cd $SRV_ROOT
 django-admin.py createproject crowd_server
 cd crowd_server
 }}}
-
  # Download the code components from the SVN. Replace syrnick with your google code account. Or remove the user and https to get read-only code.
 {{{
 svn checkout https://cv-web-annotation-toolkit.googlecode.com/svn/trunk/django/web_annotations_server/mturk/ mturk/ --username syrnick
@@ -127,7 +125,6 @@ svn checkout https://cv-web-annotation-toolkit.googlecode.com/svn/trunk/django/w
 
 svn checkout https://cv-web-annotation-toolkit.googlecode.com/svn/trunk/django/web_annotations_server/default_config/ default_config/ --username syrnick
 }}}
-
  # Copy default configuration over the initial project values.
 {{{
 cp default_config/*.py ./
@@ -136,6 +133,10 @@ cp default_config/*.py ./
  # Run syncdb to create the database tables:
 {{{
 python manage.py syncdb
+}}}
+ # Load initial configuration data
+{{{
+django-admin
 }}}
  # Run development server
 {{{
