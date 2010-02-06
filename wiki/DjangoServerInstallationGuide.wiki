@@ -56,8 +56,6 @@ tar xzvf Django-1.1.1.tar.gz
 cd Django-1.1.1
 sudo python setup.py install
 }}}
-
- 
  # Install boto (for Mechanical Turk integration) with a patch.
 {{{
 wget http://boto.googlecode.com/files/boto-1.8d.tar.gz
@@ -67,7 +65,6 @@ cd boto-1.8d
 patch -p1 <../boto-1.8d_patch
 sudo python setup.py install
 }}}
-
  # django-tagging  (v.0.3.0 for django 1.0.2)
 {{{
 wget http://django-tagging.googlecode.com/files/django-tagging-0.3.tar.gz
@@ -75,7 +72,6 @@ tar xvzf django-tagging-0.3.tar.gz
 cd django-tagging-0.3
 sudo python setup.py install
 }}}
-
  # django-registration
 {{{
 wget http://bitbucket.org/ubernostrum/django-registration/get/v0.7.tar.gz
@@ -83,7 +79,6 @@ tar xvzf v0.7.tar.gz
 cd django-registration
 sudo python setup.py install
 }}}
-
  # rpc4django
 {{{
 wget http://www.davidfischer.name/wp-content/uploads/2010/01/rpc4django-0.1.7.tar.gz
@@ -123,11 +118,11 @@ svn checkout https://cv-web-annotation-toolkit.googlecode.com/svn/trunk/django/w
 
 svn checkout https://cv-web-annotation-toolkit.googlecode.com/svn/trunk/django/web_annotations_server/datastore/ datastore/ --username syrnick
 
-svn checkout https://cv-web-annotation-toolkit.googlecode.com/svn/trunk/django/web_annotations_server/default_config/ default_config/ --username syrnick
+svn checkout https://cv-web-annotation-toolkit.googlecode.com/svn/trunk/django/web_annotations_server/default_project/ default_project/ --username syrnick
 }}}
  # Copy default configuration over the initial project values.
 {{{
-cp default_config/*.py ./
+cp default_project/*.py ./
 }}}
  # Edit settings.py to specify your database connection and other local settings
  # Run syncdb to create the database tables:
@@ -136,7 +131,16 @@ python manage.py syncdb
 }}}
  # Load initial configuration data
 {{{
-django-admin
+export PYTHONPATH=$PYTHONPATH:/var/django:/var/django/crowd_server
+export DJANGO_SETTINGS_MODULE=crowd_server.settings
+django-admin.py loaddata default_project/default.json
+}}}
+ # Create required data directories
+{{{
+sudo mkdir /var/datasets/
+sudo mkdir /var/datasets/tasks/
+sudo mkdir /var/datasets/segmentations/
+sudo chown -R www-data /var/datasets/
 }}}
  # Run development server
 {{{
@@ -145,7 +149,7 @@ python manage.py runserver localhost:8080
 
 = Data locations = 
 
-Data locations should be configured in settings.py. 
+Data locations should be configured in settings.py.
 
 Create these folders:
 
