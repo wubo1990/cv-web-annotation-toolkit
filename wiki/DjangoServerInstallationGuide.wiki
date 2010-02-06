@@ -95,13 +95,44 @@ sudo python setup.py install
      * Click generate password and save it somewhere
      * Check "Grant all privileges"
  
- # Choose server code location
+ # Choose server code location and create server dir
 {{{
 SRV_ROOT=/var/django
 sudo mkdir $SRV_ROOT
-sudo chown www-data $SRV_ROOT
+sudo chown -R <<MY_USER>> $SRV_ROOT
+cd $SRV_ROOT
+django-admin.py createproject crowd_server
+cd crowd_server
 }}}
- # 
+
+ # Download the code components from the SVN. Replace syrnick with your google code account. Or remove the user and https to get read-only code.
+
+{{{
+svn checkout https://cv-web-annotation-toolkit.googlecode.com/svn/trunk/django/web_anno\
+tations_server/mturk/ mturk/ --username syrnick
+
+svn checkout https://cv-web-annotation-toolkit.googlecode.com/svn/trunk/django/web_anno\
+tations_server/templates/ templates/ --username syrnick
+
+svn checkout https://cv-web-annotation-toolkit.googlecode.com/svn/trunk/django/web_anno\
+tations_server/packages/ packages/ --username syrnick
+
+svn checkout https://cv-web-annotation-toolkit.googlecode.com/svn/trunk/django/web_anno\
+tations_server/snippets/ snippets/ --username syrnick
+
+svn checkout https://cv-web-annotation-toolkit.googlecode.com/svn/trunk/django/web_anno\
+tations_server/datastore/ datastore/ --username syrnick
+
+svn checkout https://cv-web-annotation-toolkit.googlecode.com/svn/trunk/django/web_anno\
+tations_server/default_config/ default_config/ --username syrnick
+}}}
+
+ # Copy default configuration over the initial project values.
+{{{
+cp default_config/*.py ./
+}}}
+ # Edit settings.py to specify your database connection and other local settings
+
 
 = Data locations = 
 
