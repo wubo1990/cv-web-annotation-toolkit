@@ -115,23 +115,17 @@ cd crowd_server
 
  # Download the code components from the SVN. Replace syrnick with your google code account. Or remove the user and https to get read-only code.
 {{{
-svn checkout https://cv-web-annotation-toolkit.googlecode.com/svn/trunk/django/web_anno\
-tations_server/mturk/ mturk/ --username syrnick
+svn checkout https://cv-web-annotation-toolkit.googlecode.com/svn/trunk/django/web_annotations_server/mturk/ mturk/ --username syrnick
 
-svn checkout https://cv-web-annotation-toolkit.googlecode.com/svn/trunk/django/web_anno\
-tations_server/templates/ templates/ --username syrnick
+svn checkout https://cv-web-annotation-toolkit.googlecode.com/svn/trunk/django/web_annotations_server/templates/ templates/ --username syrnick
 
-svn checkout https://cv-web-annotation-toolkit.googlecode.com/svn/trunk/django/web_anno\
-tations_server/packages/ packages/ --username syrnick
+svn checkout https://cv-web-annotation-toolkit.googlecode.com/svn/trunk/django/web_annotations_server/packages/ packages/ --username syrnick
 
-svn checkout https://cv-web-annotation-toolkit.googlecode.com/svn/trunk/django/web_anno\
-tations_server/snippets/ snippets/ --username syrnick
+svn checkout https://cv-web-annotation-toolkit.googlecode.com/svn/trunk/django/web_annotations_server/snippets/ snippets/ --username syrnick
 
-svn checkout https://cv-web-annotation-toolkit.googlecode.com/svn/trunk/django/web_anno\
-tations_server/datastore/ datastore/ --username syrnick
+svn checkout https://cv-web-annotation-toolkit.googlecode.com/svn/trunk/django/web_annotations_server/datastore/ datastore/ --username syrnick
 
-svn checkout https://cv-web-annotation-toolkit.googlecode.com/svn/trunk/django/web_anno\
-tations_server/default_config/ default_config/ --username syrnick
+svn checkout https://cv-web-annotation-toolkit.googlecode.com/svn/trunk/django/web_annotations_server/default_config/ default_config/ --username syrnick
 }}}
 
  # Copy default configuration over the initial project values.
