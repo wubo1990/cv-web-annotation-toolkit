@@ -106,7 +106,6 @@ cd crowd_server
 }}}
 
  # Download the code components from the SVN. Replace syrnick with your google code account. Or remove the user and https to get read-only code.
-
 {{{
 svn checkout https://cv-web-annotation-toolkit.googlecode.com/svn/trunk/django/web_anno\
 tations_server/mturk/ mturk/ --username syrnick
@@ -132,7 +131,14 @@ tations_server/default_config/ default_config/ --username syrnick
 cp default_config/*.py ./
 }}}
  # Edit settings.py to specify your database connection and other local settings
-
+ # Run syncdb to create the database tables:
+{{{
+python manage.py syncdb
+}}}
+ # Run development server
+{{{
+python manage.py runserver localhost:8080
+}}}
 
 = Data locations = 
 
