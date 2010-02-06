@@ -43,7 +43,7 @@ sudo apt-get install build-essential python-yaml cmake subversion
 
 wget --no-check-certificate http://ros.org/rosinstall -O ~/rosinstall
 chmod 755 ~/rosinstall
-sudo ~/rosinstall /opt/ros http://ros.org/rosconfigs/ros.rosconfig 
+sudo ~/rosinstall /opt/ros http://ros.org/rosconfigs/all.rosconfig 
 }}}
 
 
@@ -167,4 +167,3 @@ sudo apache2ctl restart
 
 Notice: Django development server will immediately pick up all changes, but Apache will not.
 Notice2: This configuration serves many static files through django. This is a performance issue and those files should be served through another server.
-
