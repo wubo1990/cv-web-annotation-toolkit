@@ -1,0 +1,360 @@
+[
+  {
+    "pk": 1, 
+    "model": "auth.group", 
+    "fields": {
+      "name": "mt-api-users", 
+      "permissions": [
+        46
+      ]
+    }
+  }, 
+  {
+    "pk": 1, 
+    "model": "mturk.tasktype", 
+    "fields": {
+      "name": "gxml"
+    }
+  }, 
+  {
+    "pk": 2, 
+    "model": "mturk.tasktype", 
+    "fields": {
+      "name": "grading"
+    }
+  }, 
+  {
+    "pk": 3, 
+    "model": "mturk.tasktype", 
+    "fields": {
+      "name": "video_events"
+    }
+  }, 
+  {
+    "pk": 4, 
+    "model": "mturk.tasktype", 
+    "fields": {
+      "name": "grouping"
+    }
+  }, 
+  {
+    "pk": 5, 
+    "model": "mturk.tasktype", 
+    "fields": {
+      "name": "attributes"
+    }
+  }, 
+  {
+    "pk": 6, 
+    "model": "mturk.tasktype", 
+    "fields": {
+      "name": "anyhtml"
+    }
+  },
+  {
+    "pk": 1, 
+    "model": "mturk.task", 
+    "fields": {
+      "description": "Please label people for the robot. The robot wanders in the world looking for people. Teach the robot to understand the world. Label the people (if any) in the image.  Many images contain no people and take just seconds!", 
+      "title": "Label people for the robot", 
+      "instructions_url": "http://pr.willowgarage.com/wiki/ROS/mturk/instructions/personBoxAndOutline", 
+      "interface_xml": "<?xml version=\"1.0\"?>\n<task id=\"000010\" type=\"objects_of_interest\">\n\n   <targets>\n\n      <target name=\"personBox\"> <annotation type=\"bbox2\"/></target>\n      <target name=\"personOutline\"> <annotation type=\"outline\"/></target>\n\n   </targets>\n</task>", 
+      "approval_delay": 1209600, 
+      "duration": 1200, 
+      "max_assignments": 1, 
+      "keywords": "robot, image, annotation, people", 
+      "lifetime": 86400, 
+      "reward": "0.03", 
+      "type": 1, 
+      "name": "PersonBoxAndOutline-p"
+    }
+  },
+  {
+    "pk": 2, 
+    "model": "mturk.task", 
+    "fields": {
+      "description": "Draw a 7 point outline of any open hands in the image.", 
+      "title": "Label human hands", 
+      "instructions_url": "http://pr.willowgarage.com/wiki/ROS/mturk/instructions/flat_hands", 
+      "interface_xml": "<?xml version=\"1.0\"?>\r\n<task id=\"000010\" type=\"objects_of_interest\">\r\n   <parameters>\r\n   <group ns=\"polygonal_display\">\r\n     <param name=\"number_control_points\" value=\"true\"/>\r\n     <param name=\"tag_font_size\" value=\"55\" />\r\n   </group>\r\n   </parameters>\r\n   <targets>\r\n      <target name=\"hand\"> <annotation type=\"2level\">\r\n<level1><annotation type=\"bbox2\"/> </level1>\r\n<level2>\r\n<targets>\r\n      <target name=\"hand\"> <annotation type=\"outline\"/></target>\r\n</targets>\r\n</level2>\r\n  </annotation>\r\n\r\n      </target>\r\n\r\n   </targets>\r\n</task>", 
+      "approval_delay": 1209600, 
+      "duration": 1800, 
+      "max_assignments": 1, 
+      "keywords": "hands, robot, vision, open source", 
+      "lifetime": 86400, 
+      "reward": "0.03", 
+      "type": 1, 
+      "name": "hands-1"
+    }
+  },
+  {
+    "pk": 3, 
+    "model": "mturk.task", 
+    "fields": {
+      "description": "Grade annotations of hands", 
+      "title": "Grade annotations of hands", 
+      "instructions_url": "http://pr.willowgarage.com/wiki/ROS/mturk/instructions/flat_hands", 
+      "interface_xml": "<?xml version=\"1.0\"?>\r\n<grading>\r\n<sampling overlap=\"0.1\"/>\r\n<layout mode=\"full\" num_per_task=\"10\"/>\r\n</grading>", 
+      "approval_delay": 1209600, 
+      "duration": 300, 
+      "max_assignments": 1, 
+      "keywords": "grading,hand, annotation, robots", 
+      "lifetime": 86400, 
+      "reward": "0.03", 
+      "type": 2, 
+      "name": "hands-1-grading"
+    }
+  }, 
+  {
+    "pk": 4, 
+    "model": "mturk.task", 
+    "fields": {
+      "description": "Help a robot learn to tell different people apart.  Click and drag each image into bins so all images in a bin are images of the same person.", 
+      "title": "Group images of people by person", 
+      "instructions_url": "http://pr.willowgarage.com/wiki/ROS/mturk/instructions/GroupPeople", 
+      "interface_xml": "<?xml version=\"1.0\"?>\r\n<grouping>\r\n<full_max_height>600</full_max_height>\r\n<full_max_width>600</full_max_width>\r\n<thumbnail_max_height>100</thumbnail_max_height>\r\n<thumbnail_max_width>100</thumbnail_max_width>\r\n</grouping>\r\n", 
+      "approval_delay": 1209600, 
+      "duration": 300, 
+      "max_assignments": 1, 
+      "keywords": "people, grouping, robot", 
+      "lifetime": 86400, 
+      "reward": "0.03", 
+      "type": 4, 
+      "name": "group-by-person"
+    }
+  }, 
+  {
+    "pk": 5, 
+    "model": "mturk.task", 
+    "fields": {
+      "description": "Grading", 
+      "title": "Grade grouping of people.", 
+      "instructions_url": "http://pr.willowgarage.com/wiki/ROS/mturk/instructions/GroupPeople", 
+      "interface_xml": "<?xml version=\"1.0\"?>\r\n<grading>\r\n<sampling overlap=\"0.1\"/>\r\n<layout mode=\"full\" num_per_task=\"10\"/>\r\n</grading>", 
+      "approval_delay": 1209600, 
+      "duration": 300, 
+      "max_assignments": 1, 
+      "keywords": "grading", 
+      "lifetime": 86400, 
+      "reward": "0.05", 
+      "type": 2, 
+      "name": "group-by-person-grading"
+    }
+  },
+  {
+    "pk": 6, 
+    "model": "mturk.task", 
+    "fields": {
+      "description": "Draw an accurate outline of the cup or cups on a table.  Cups may be white or transparent.", 
+      "title": "Outline cups in an image (easy)", 
+      "instructions_url": "http://pr.willowgarage.com/wiki/ROS/mturk/instructions/cups", 
+      "interface_xml": "<?xml version=\"1.0\"?>\n<task id=\"000005\" type=\"objects_of_interest\">\n\n   <targets>\n      <target name=\"Object\"> <annotation type=\"outline\"/></target>\n\n   </targets>\n</task>", 
+      "approval_delay": 1209600, 
+      "duration": 1300, 
+      "max_assignments": 1, 
+      "keywords": "image, object, outline, annotation, robot, computer vision", 
+      "lifetime": 86400, 
+      "reward": "0.02", 
+      "type": 1, 
+      "name": "cups-sandbox"
+    }
+  },
+  {
+    "pk": 7, 
+    "model": "mturk.task", 
+    "fields": {
+      "description": "A robot has been driving around and is learning about people.  Review ten images and flag any that do not have the people correctly labeled.", 
+      "title": "Review Labelings of People", 
+      "instructions_url": "http://pr.willowgarage.com/wiki/ROS/mturk/instructions/personBoxGrading", 
+      "interface_xml": "<?xml version=\"1.0\"?>\r\n<grading>\r\n<sampling overlap=\"0.1\"/>\r\n<layout mode=\"full\" num_per_task=\"10\"/>\r\n</grading>", 
+      "approval_delay": 1209600, 
+      "duration": 1800, 
+      "max_assignments": 1, 
+      "keywords": "grading, people, robots, labeling, annotation", 
+      "lifetime": 86400, 
+      "reward": "0.01", 
+      "type": 2, 
+      "name": "personBoxOnlyGrading"
+    }
+  },
+  {
+    "pk": 8, 
+    "model": "mturk.task", 
+    "fields": {
+      "description": "The robot has found things it thinks are people. Teach the robot exactly where a person is by carefully tracing an outline around the visible parts of the person. ", 
+      "title": "Outline people for the robot", 
+      "instructions_url": "http://pr.willowgarage.com/wiki/ROS/mturk/instructions/personOutlineOnly", 
+      "interface_xml": "<?xml version=\"1.0\"?>\r\n<task id=\"000010\" type=\"objects_of_interest\">\r\n\r\n   <targets>\r\n\r\n      <target name=\"personOutline\"> <annotation type=\"outline\"/></target>\r\n\r\n   </targets>\r\n\r\n   <parameters>\r\n   <group ns=\"polygonal_display\">\r\n      <param name=\"show_object_tag\" value=\"false\"/>\r\n   </group>\r\n   <group ns=\"outline_display\">\r\n      <param name=\"show_object_tag\" value=\"false\"/>\r\n   </group>\r\n   </parameters>\r\n\r\n</task>", 
+      "approval_delay": 1209600, 
+      "duration": 1800, 
+      "max_assignments": 1, 
+      "keywords": "robot, image, annotation, people", 
+      "lifetime": 86400, 
+      "reward": "0.02", 
+      "type": 1, 
+      "name": "PersonOutlineOnly"
+    }
+  }, 
+  {
+    "pk": 9, 
+    "model": "mturk.task", 
+    "fields": {
+      "description": "Click on joint locations.", 
+      "title": "Label joint locations of the person in the picture", 
+      "instructions_url": "http://pr.willowgarage.com/wiki/mturk/instructions/PersonSkeleton", 
+      "interface_xml": "<?xml version=\"1.0\"?>\r\n<task id=\"000001\" type=\"objects_of_interest\">\r\n   <required_version release=\"0\" major=\"1\" minor=\"9\"/>\r\n\r\n   <targets>\r\n    <target name=\"person-skeleton\">\r\n       <annotation type=\"graph\">\r\n         <nodes>\r\n           <node name=\"left-wrist\" label=\"left wrist\" tag=\"lW\" />\r\n           <node name=\"left-elbow\" label=\"left elbow\" tag=\"lE\" />\r\n           <node name=\"left-shoulder\" label=\"left shoulder\" tag=\"lS\" />\r\n           <node name=\"right-shoulder\" label=\"right shoulder\" tag=\"rS\" />\r\n           <node name=\"right-elbow\" label=\"right elbow\" tag=\"rE\" />\r\n           <node name=\"right-wrist\" label=\"right wrist\" tag=\"rW\" />\r\n\r\n           <node name=\"left-ankle\" label=\"left ankle\" tag=\"lA\" />\r\n           <node name=\"left-knee\" label=\"left knee\" tag=\"lKn\" />\r\n           <node name=\"left-hip\" label=\"left hip\" tag=\"lH\" />\r\n           <node name=\"right-hip\" label=\"right hip\" tag=\"rH\" />\r\n           <node name=\"right-knee\" label=\"right knee\" tag=\"rKn\" />\r\n           <node name=\"right-ankle\" label=\"right ankle\" tag=\"rA\" />\r\n\r\n           <node name=\"neck\" label=\"neck\" tag=\"N\"  color=\"0xFFFF00\"/>\r\n           <node name=\"top-of-the-head\" label=\"top of the head\" tag=\"HD\" color=\"0xFFFF00\"/>\r\n         </nodes>\r\n\r\n         <links>\r\n           <link from=\"left-wrist\" to=\"left-elbow\" color=\"0x0000FF\"/>\r\n           <link from=\"left-elbow\" to=\"left-shoulder\" color=\"0x0000FF\"/>\r\n\r\n           <link from=\"right-shoulder\" to=\"right-elbow\" color=\"0x00AF00\"/>\r\n           <link from=\"right-elbow\" to=\"right-wrist\" color=\"0x00AF00\"/>\r\n\r\n           <link from=\"left-shoulder\" to=\"neck\" color=\"0xFFFF00\"/>\r\n           <link from=\"right-shoulder\" to=\"neck\" color=\"0xFFFF00\"/>\r\n           <link from=\"neck\" to=\"top-of-the-head\" color=\"0xFFFF00\"/>\r\n\r\n           <link from=\"left-ankle\" to=\"left-knee\" color=\"0x0000FF\"/>\r\n           <link from=\"left-knee\" to=\"left-hip\" color=\"0x0000FF\"/>\r\n           <link from=\"right-ankle\" to=\"right-knee\" color=\"0x00AF00\"/>\r\n           <link from=\"right-knee\" to=\"right-hip\" color=\"0x00AF00\"/>\r\n\r\n           <link from=\"left-shoulder\" to=\"right-shoulder\" color=\"0xFF0000\"/>\r\n           <link from=\"left-shoulder\" to=\"left-hip\" color=\"0xFF0000\"/>\r\n           <link from=\"left-hip\" to=\"right-hip\" color=\"0xFF0000\"/>\r\n           <link from=\"right-shoulder\" to=\"right-hip\" color=\"0xFF0000\"/>\r\n\r\n         </links>\r\n       </annotation>\r\n     </target>\r\n\r\n   </targets>\r\n</task>", 
+      "approval_delay": 1209600, 
+      "duration": 1800, 
+      "max_assignments": 1, 
+      "keywords": "person,joints, robots, people, image", 
+      "lifetime": 86400, 
+      "reward": "0.03", 
+      "type": 1, 
+      "name": "human-stick-figure"
+    }
+  }, 
+  {
+    "pk": 10, 
+    "model": "mturk.task", 
+    "fields": {
+      "description": "Click on the outside corners of the checkerboard. See instructions for an examples. In chess notations, the corner is between A1 and B2; between H1 and G2; between H8 and G7; between A8 and G7. If the corners are numbered, you need to follow the numbers on them", 
+      "title": "Locate calibration chart corners", 
+      "instructions_url": "http://pr.willowgarage.com/wiki/ROS/mturk/instructions/calibration_chart", 
+      "interface_xml": "<?xml version=\"1.0\"?>\r\n<task id=\"000076\" type=\"image\">\r\n<required_version release=\"0\" major=\"1\" minor=\"14\"/>\r\n  <targets>\r\n      <target name=\"calibration-chart\">\r\n       <annotation type=\"graph\">\r\n         <nodes>\r\n           <node name=\"corner-1\" label=\"corner 1\" tag=\"C1\" />\r\n           <node name=\"corner-2\" label=\"corner 2\" tag=\"C2\" />\r\n           <node name=\"corner-3\" label=\"corner 3\" tag=\"C3\" />\r\n           <node name=\"corner-4\" label=\"corner 4\" tag=\"C4\" />\r\n         </nodes>\r\n\r\n         <links>\r\n           <link from=\"corner-1\" to=\"corner-2\" color=\"0xFFFF00\"/>\r\n           <link from=\"corner-2\" to=\"corner-3\" color=\"0x0000FF\"/>\r\n           <link from=\"corner-3\" to=\"corner-4\" color=\"0x0000FF\"/>\r\n           <link from=\"corner-4\" to=\"corner-1\" color=\"0x00FF00\"/>\r\n\r\n         </links>\r\n       </annotation>\r\n     </target>\r\n  </targets>\r\n</task>", 
+      "approval_delay": 1209600, 
+      "duration": 1800, 
+      "max_assignments": 1, 
+      "keywords": "image, robot, calibration", 
+      "lifetime": 86400, 
+      "reward": "0.02", 
+      "type": 1, 
+      "name": "calibration-chart"
+    }
+  }, 
+  {
+    "pk": 11, 
+    "model": "mturk.task", 
+    "fields": {
+      "description": "You will need to evaluate 10 image annotations of the calibration chart. ", 
+      "title": "Grading of calibration chart labeling", 
+      "instructions_url": "http://pr.willowgarage.com/wiki/ROS/mturk/instructions/calibration_chart_grading", 
+      "interface_xml": "<?xml version=\"1.0\"?>\r\n<grading>\r\n<sampling overlap=\"0.5\"/>\r\n<layout mode=\"full\" num_per_task=\"10\"/>\r\n</grading>", 
+      "approval_delay": 1209600, 
+      "duration": 1800, 
+      "max_assignments": 1, 
+      "keywords": "grading, image, robot. calibration", 
+      "lifetime": 86400, 
+      "reward": "0.03", 
+      "type": 2, 
+      "name": "calibration-chart-grading"
+    }
+  }, 
+  {
+    "pk": 12, 
+    "model": "mturk.task", 
+    "fields": {
+      "description": "Answer Questions about People for the Robot", 
+      "title": "Answer Questions about People for the Robot", 
+      "instructions_url": "http://pr.willowgarage.com/wiki/ROS/mturk/instructions/personQuestions", 
+      "interface_xml": "<?xml version=\"1.0\"?>\r\n<task id=\"000010\" type=\"objects_of_interest\">\r\n <targets>     \r\n<target name=\"highlevel-instructions\"><annotation type=\"instructions\" height=\"60\">\r\n<html>Check the boxes if the following statements \r\nabout the *outlined* person are *true*.</html>\r\n</annotation></target>\r\n\r\n      <target name=\"The person is fully visible\">\r\n           <annotation type=\"presence\"/>\r\n      </target>\r\n\r\n     <target name=\"person-fully-visible-instructions\" > <annotation type=\"instructions\" height=\"60\">\r\n<html>(check if there is *no* part of the person\r\nthat is blocked by a table/chair/wall/etc)</html>  \r\n</annotation>\r\n</target>\r\n\r\n      <target name=\"The person is standing\"> \r\n           <annotation type=\"presence\"/>\r\n      </target>\r\n\r\n      <target name=\"person-standing-instructions\"> <annotation type=\"instructions\" height=\"60\">\r\n<html>(check if the person is standing/walking/\r\nupright, but *not* sitting/squatting/etc)</html>\r\n           </annotation>\r\n      </target>\r\n\r\n\r\n      <target name=\"Fully inside the image\">\r\n         <annotation type=\"presence\" />\r\n      </target>\r\n\r\n      <target name=\"inside-image-instructions\"><annotation type=\"instructions\" height=\"60\">\r\n      <html>(check if *no* part of the person \r\nextends beyond the image boundaries)</html>\r\n</annotation>\r\n</target>\r\n\r\n      <target name=\"The person is in focus.\">\r\n          <annotation type=\"presence\"/>\r\n     </target>\r\n\r\n    <target name=\"focused-person-instructions\"><annotation type=\"instructions\" height=\"30\">\r\n    <html>(check if the person is *not* blurry)</html>\r\n</annotation>\r\n</target>\r\n\r\n     <target name=\"The person is stationary\">\r\n          <annotation type=\"presence\"/>\r\n     </target>\r\n\r\n    <target name=\"stationary-person-instructions\"><annotation type=\"instructions\" height=\"30\">\r\n    <html>(check if the person is *not* moving)</html>\r\n</annotation>\r\n</target>\r\n\r\n      <target name=\"The camera is stationary\">\r\n          <annotation type=\"presence\"/>\r\n     </target>\r\n\r\n    <target name=\"stationary-camera-instructions\"><annotation type=\"instructions\" height=\"30\">\r\n    <html>(check if the *camera* is *not* moving)</html>\r\n\r\n</annotation>\r\n</target>\r\n\r\n </targets>\r\n</task>", 
+      "approval_delay": 1209600, 
+      "duration": 1800, 
+      "max_assignments": 1, 
+      "keywords": "people robot questions", 
+      "lifetime": 86400, 
+      "reward": "0.01", 
+      "type": 1, 
+      "name": "personQuestions"
+    }
+  }, 
+  {
+    "pk": 13, 
+    "model": "mturk.task", 
+    "fields": {
+      "description": "A robot has been driving around and is learning about people.   Review ten outlines of people and flag any that are not correct.", 
+      "title": "Review Outlines of People", 
+      "instructions_url": "http://pr.willowgarage.com/wiki/ROS/mturk/instructions/personOutlineGrading", 
+      "interface_xml": "<?xml version=\"1.0\"?>\r\n<grading>\r\n<sampling overlap=\"0.1\"/>\r\n<layout mode=\"full\" num_per_task=\"10\"/>\r\n</grading>", 
+      "approval_delay": 1209600, 
+      "duration": 1800, 
+      "max_assignments": 1, 
+      "keywords": "grading, people, robots, labeling, annotation", 
+      "lifetime": 86400, 
+      "reward": "0.01", 
+      "type": 2, 
+      "name": "PersonOutlineOnly-grading"
+    }
+  }, 
+  {
+    "pk": 14, 
+    "model": "mturk.task", 
+    "fields": {
+      "description": "Any HTML task", 
+      "title": "Test ANY HTML", 
+      "instructions_url": "http://google.com/", 
+      "interface_xml": "<?xml version=\"1.0\"?>\r\n<parameters>\r\n <page src=\"/code/any.html\"/>\r\n <param name=\"qwerty\" value=\"ABC\"/>\r\n\r\n</parameters>", 
+      "approval_delay": 1209600, 
+      "duration": 1800, 
+      "max_assignments": 1, 
+      "keywords": "generic, any, html", 
+      "lifetime": 86400, 
+      "reward": "0.01", 
+      "type": 6, 
+      "name": "test-any-html"
+    }
+  }, 
+  {
+    "pk": 15, 
+    "model": "mturk.task", 
+    "fields": {
+      "description": "Drag images of the same object into the same bin.", 
+      "title": "Group objects", 
+      "instructions_url": "http://pr.willowgarage.com/wiki/ROS/mturk/instructions/GroupObjects", 
+      "interface_xml": "<?xml version=\"1.0\"?>\r\n<grouping>\r\n<full_max_height>200</full_max_height>\r\n<full_max_width>200</full_max_width>\r\n<thumbnail_max_height>50</thumbnail_max_height>\r\n<thumbnail_max_width>50</thumbnail_max_width>\r\n</grouping>\r\n", 
+      "approval_delay": 1209600, 
+      "duration": 1800, 
+      "max_assignments": 1, 
+      "keywords": "grouping, image, robot", 
+      "lifetime": 86400, 
+      "reward": "0.03", 
+      "type": 4, 
+      "name": "group-by-object"
+    }
+  }, 
+  {
+    "pk": 16, 
+    "model": "mturk.task", 
+    "fields": {
+      "description": "Help our robot answer some questions about people in its environment.  Answer some quick yes/no questions.", 
+      "title": "Answer Questions about People for the Robot", 
+      "instructions_url": "http://pr.willowgarage.com/wiki/ROS/mturk/instructions/personQuestions", 
+      "interface_xml": "<?xml version=\"1.0\"?>\r\n<task id=\"000001\" type=\"attributes\">\r\n<attributes>\r\n\r\n<attribute id=\"fully_visible\"/> <attribute id=\"standing\"/> <attribute id=\"fully_inside_image\"/> <attribute id=\"in_focus\"/> <attribute id=\"stationary_person\"/> <attribute id=\"stationary_camera\"/>\r\n\r\n</attributes>\r\n\r\n\r\n<header_html>\r\n\r\n<th>Image</th> \r\n<th>Fully Visible</th> \r\n<th>Standing</th> \r\n<th>Fully Inside Image</th> \r\n<th>In Focus</th>\r\n<th>Stationary Person</th>\r\n<th>Stationary Camera</th>\r\n\r\n</header_html>\r\n\r\n<display_html>\r\n\r\n<td><select name=\"ATTR_fully_visible\">\r\n<option value=\"bad\" selected=\"1\">(please select:)</option>\r\n<option value=\"yes\">yes</option>\r\n<option value=\"no\">no</option>\r\n</select>\r\n</td>\r\n\r\n<td><select name=\"ATTR_standing\">\r\n<option value=\"bad\" selected=\"1\">(please select:)</option>\r\n<option value=\"yes\">yes</option>\r\n<option value=\"no\">no</option>\r\n</select>\r\n</td>\r\n\r\n<td><select name=\"ATTR_fully_inside_image\">\r\n<option value=\"bad\" selected=\"1\">(please select:)</option>\r\n<option value=\"yes\">yes</option>\r\n<option value=\"no\">no</option>\r\n</select>\r\n</td>\r\n\r\n<td><select name=\"ATTR_in_focus\">\r\n<option value=\"bad\" selected=\"1\">(please select:)</option>\r\n<option value=\"yes\">yes</option>\r\n<option value=\"no\">no</option>\r\n</select>\r\n</td>\r\n\r\n<td><select name=\"ATTR_stationary_person\">\r\n<option value=\"bad\" selected=\"1\">(please select:)</option>\r\n<option value=\"yes\">yes</option>\r\n<option value=\"no\">no</option>\r\n</select>\r\n</td>\r\n\r\n<td><select name=\"ATTR_stationary_camera\">\r\n<option value=\"bad\" selected=\"1\">(please select:)</option>\r\n<option value=\"yes\">yes</option>\r\n<option value=\"no\">no</option>\r\n</select>\r\n</td>\r\n\r\n\r\n</display_html>\r\n\r\n</task>", 
+      "approval_delay": 1209600, 
+      "duration": 1800, 
+      "max_assignments": 1, 
+      "keywords": "robot questions people person", 
+      "lifetime": 86400, 
+      "reward": "0.01", 
+      "type": 5, 
+      "name": "personAttributes"
+    }
+  }, 
+  {
+    "pk": 17, 
+    "model": "mturk.task", 
+    "fields": {
+      "description": "Grade 5 submissions of grouping different objects.", 
+      "title": "Grading of grouping by object type", 
+      "instructions_url": "http://pr.willowgarage.com/wiki/ROS/mturk/instructions/GroupObjectsGrading", 
+      "interface_xml": "<?xml version=\"1.0\"?>\r\n<grading>\r\n<sampling overlap=\"0.0\"/>\r\n<layout mode=\"full\" num_per_task=\"5\" frame_h=\"1200\" frame_w=\"900\"/>\r\n</grading>", 
+      "approval_delay": 1209600, 
+      "duration": 1800, 
+      "max_assignments": 1, 
+      "keywords": "grading,image, grouping, robot", 
+      "lifetime": 86400, 
+      "reward": "0.03", 
+      "type": 2, 
+      "name": "group-by-object-grading"
+    }
+  }
+]

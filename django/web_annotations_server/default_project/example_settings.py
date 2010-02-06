@@ -94,7 +94,7 @@ ROOT_URLCONF = 'crowd_server.urls'
 DATASETS_ROOT = '/var/datasets/'
 SEGMENTATION_ROOT = DATASETS_ROOT+'segmentations/'
 
-DJ_CODE_RT='/var/django/web_annotations_server/'
+DJ_CODE_RT='/var/django/crowd_server/'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
