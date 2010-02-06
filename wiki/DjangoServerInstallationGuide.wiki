@@ -84,6 +84,14 @@ cd django-registration
 sudo python setup.py install
 }}}
 
+ # rpc4django
+{{{
+wget http://www.davidfischer.name/wp-content/uploads/2010/01/rpc4django-0.1.7.tar.gz
+tar xvfz rpc4django-0.1.7.tar.gz
+cd rpc4django-0.1.7
+python setup.py install
+}}}
+
 = Django code installation =
 
  # Set up a mysql database
