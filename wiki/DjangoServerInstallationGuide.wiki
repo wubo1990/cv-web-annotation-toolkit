@@ -110,15 +110,10 @@ cd crowd_server
 {{{
 export GCUSER=syrnick
 svn checkout https://cv-web-annotation-toolkit.googlecode.com/svn/trunk/django/web_annotations_server/mturk/ mturk/ --username $GCUSER
-
 svn checkout https://cv-web-annotation-toolkit.googlecode.com/svn/trunk/django/web_annotations_server/templates/ templates/ --username $GCUSER
-
 svn checkout https://cv-web-annotation-toolkit.googlecode.com/svn/trunk/django/web_annotations_server/packages/ packages/ --username $GCUSER
-
 svn checkout https://cv-web-annotation-toolkit.googlecode.com/svn/trunk/django/web_annotations_server/snippets/ snippets/ --username $GCUSER
-
 svn checkout https://cv-web-annotation-toolkit.googlecode.com/svn/trunk/django/web_annotations_server/datastore/ datastore/ --username $GCUSER
-
 svn checkout https://cv-web-annotation-toolkit.googlecode.com/svn/trunk/django/web_annotations_server/default_project/ default_project/ --username $GCUSER
 }}}
  # Copy default configuration over the initial project values.
@@ -142,6 +137,7 @@ sudo mkdir /var/datasets/
 sudo mkdir /var/datasets/tasks/
 sudo mkdir /var/datasets/segmentations/
 sudo chown -R www-data /var/datasets/
+sudo chown -R www-data /var/django
 }}}
  # Run development server
 {{{
