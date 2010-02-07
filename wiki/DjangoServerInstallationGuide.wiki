@@ -46,6 +46,12 @@ chmod 755 ~/rosinstall
 sudo ~/rosinstall /opt/ros http://ros.org/rosconfigs/all.rosconfig 
 }}}
 
+Now we need to compile packages used by the server
+{{{
+sudo bash
+source /opt/ros/setup.sh
+rosmake --rosdep-install cv_mech_turk2 mech_turk_ros
+}}}
 
 = Libraries and packages =
 
@@ -165,5 +171,28 @@ sudo apache2ctl restart
 }}}
  # Compare the [http://localhost/ apache site] with the [http://localhost:8080/ development server]. They should be identical.
 
-Notice: Django development server will immediately pick up all changes, but Apache will not.
-Notice2: This configuration serves many static files through django. This is a performance issue and those files should be served through another server.
+Note:  Django development server will immediately pick up all changes, but Apache will not.
+Note2: This configuration serves many static files through django. This is a performance issue and those files should be served through another server.
+Note3: If apache is configured to works through https, we can use https in HOST_NAME_FOR_MTURK in settings.py. This way Mechanical Turk will use a secure connection to the server. 
+
+== Installing Unit Test server ==
+
+Unit test server assumes specific configuration of tasks and sessions on the server. 
+
+To install test server fixtures:
+ # Start with a blank database or create a new database and change settings.py. Be careful!!
+ # Download and extract the test fixture data:
+{{{
+wget http://cv-web-annotation-toolkit.googlecode.com/files/django_crowd_test_fixture_0.1.0.tgz
+tar xvzf django_crowd_test_fixture_0.1.0.tgz
+}}}
+ # Load the test fixtures into the database
+{{{
+wget http://cv-web-annotation-toolkit.googlecode.com/files/django_crowd_test_fixture_0.1.0.tgz
+django-admin.py loaddata django_crowd_test_fixture_0.1.0/test_fixture.json
+}}}
+ # Copy the session images to /var/datasets
+{{{
+sudo cp -r django_crowd_test_fixture_0.1.0/test-bbox-data-1 /var/datasets/
+sudo chown -R www-data /var/datasets/test-bbox-data-1
+}}}
