@@ -1,5 +1,5 @@
 #summary An overview of the annotation tool
-#labels Doc-Userguide
+#labels Doc-Userguide,Doc-TaskTypes
 
 = Introduction =
 
