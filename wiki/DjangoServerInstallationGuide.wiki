@@ -99,10 +99,10 @@ python setup.py install
    * Go to phpmyadmin at http://localhost/phpmyadmin
    * Choose create database (e.g. *crowd*)
    * Create a user for the database:
-     * Go to database, click Privileges
+     * Go to database crowd, click Privileges
      * Click create user (e.g. *crowd_django*), 
      * Click generate password and save it somewhere
-     * Check "Grant all privileges" 
+     * Check "Grant all privileges on database *crowd*" 
  # Choose server code location and create server dir
 {{{
 SRV_ROOT=/var/django
