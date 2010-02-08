@@ -158,8 +158,10 @@ We shall repeat the wait/grade/resubmit cycle until we get enough annotations. W
 
 == Download the results ==
 
-The results are generally downloaded through {{{session_results*}}} programs in [http://www.ros.org/wiki/cv_mech_turk cv_mech_turk] package of [ros.org ROS]. The results can be in custom XML format, as object masks or in a format similar to a [http://pascallin.ecs.soton.ac.uk/challenges/VOC/voc2009/ VOC] dataset. 
+The results are generally downloaded through {{{session_results*}}} programs in [http://www.ros.org/wiki/cv_mech_turk2 cv_mech_turk2] package of [ros.org ROS]. The results can be in custom XML format or as object masks. A format similar to a [http://pascallin.ecs.soton.ac.uk/challenges/VOC/voc2009/ VOC] dataset will be available in the future (see cv_mech_turk_experimental package). 
 
 The server can generate and store the results for you. Simply go to the *Download* section and click one of the "create ...." link. The server will create a tar file and it should start the download right away. After you refresh the dashboard, you will also see the URL to the generated file.
 
 What happens if you generate the results before any grading? They will be empty. The results generated here include only *good* results. I.e. the results with only *good* grades. Before we do grading, none of the submissions will qualify. 
+
+
