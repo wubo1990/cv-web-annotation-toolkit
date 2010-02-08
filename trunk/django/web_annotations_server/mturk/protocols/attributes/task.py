@@ -111,6 +111,7 @@ class AttributesTaskEngine(TaskEngine):
     
         session_code=submission.hit.session.code;
 	GET,POST=submission.get_response();
+        print GET,POST
 
         valid_attributes={};
         for i in items:
