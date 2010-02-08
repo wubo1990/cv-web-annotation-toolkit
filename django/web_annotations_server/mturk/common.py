@@ -215,6 +215,9 @@ def activate_hit(session,hit):
     else:
         num_active_assignments=hit.submittedtask_set.filter(state__in=SUBMISSION_STATE_CAN_BE_VALID).count()
         num_assignments_to_activate=t.max_assignments - num_active_assignments;
+        if num_assignments_to_activate==0:
+            return (True,"+ %s" %hit.ext_hitid)
+
         create_hit_rs = conn.create_hit(question=q, hit_type=session.hit_type, max_assignments=num_assignments_to_activate)
 
     try:

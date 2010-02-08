@@ -48,7 +48,7 @@ def get_work_unit_state(work_unit):
         num_new_submissions=0;
         num_graded_submissions=0;
         num_good_submissions=0;
-        for s in work_unit.submittedtask_set().filter(valid=True):
+        for s in work_unit.submittedtask_set.filter(valid=True):
             num_valid_submissions += 1;
             if s.state==1: #New
                 num_new_submissions +=1;
