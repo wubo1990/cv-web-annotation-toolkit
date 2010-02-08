@@ -1,5 +1,5 @@
 #summary How to set up grading tasks.
-#labels Doc-Userguide,Component-MturkBase
+#labels Doc-Userguide,Component-MturkBase,Doc-TaskTypes
 
 = Introduction =
 
