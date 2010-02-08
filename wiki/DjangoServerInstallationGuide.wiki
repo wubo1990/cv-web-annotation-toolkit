@@ -109,7 +109,7 @@ SRV_ROOT=/var/django
 sudo mkdir $SRV_ROOT
 sudo chown -R <<MY_USER>> $SRV_ROOT
 cd $SRV_ROOT
-django-admin.py createproject crowd_server
+django-admin.py startproject crowd_server
 cd crowd_server
 }}}
  # Download the code components from the SVN. Replace syrnick with your google code account. Or remove the user and https to get read-only code.
