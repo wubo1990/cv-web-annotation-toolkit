@@ -1,5 +1,5 @@
 #summary This page documents the specification of attributes task.
-#labels Doc-Userguide,Component-MturkBase
+#labels Doc-Userguide,Component-MturkBase,Doc-TaskTypes
 
 = Introduction =
 
