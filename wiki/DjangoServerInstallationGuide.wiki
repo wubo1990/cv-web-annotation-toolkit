@@ -124,7 +124,8 @@ svn checkout https://cv-web-annotation-toolkit.googlecode.com/svn/trunk/django/w
 }}}
  # Copy default configuration over the initial project values.
 {{{
-cp default_project/*.py ./
+cp default_project/example_settings.py ./settings.py
+cp default_project/example_urls.py ./urls.py
 }}}
  # Edit settings.py to specify your database connection and other local settings
  # Run syncdb to create the database tables:
