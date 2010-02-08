@@ -1,5 +1,5 @@
 #summary Description of the grouping task
-#labels TaskTypes
+#labels Doc-TaskTypes,Doc-Userguide
 
 = Introduction =
 
