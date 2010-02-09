@@ -9,9 +9,59 @@ from common import *
 
 from rpc4django import rpcmethod
 
+"""RPC (XML/JSON) API for the django_crowd server.
 
+All objects are represented in JSON (i.e. via dictionary of fields)
+
+Session representation:
+  id               (string)
+  task             (name)
+  hit_limit        (number)
+  owner            (username)
+  funding          (funding account name)
+  qualifications   (list of qualification names)
+
+  work_engine      (processing engine name)
+
+
+Work unit states:
+  'Idle'     - can be submitted to the processing system
+  'Active'   - has been submitted to the processing system (somebody could be working on it)
+  'Submitted'- the processing system returned it to us
+  'Reviewed' - We have reviewed it 
+  'Finalized'- Done. 
+
+Work Unit data structure:
+   id           - Unique ID
+   session      - The session ID
+   state        - State as defined above
+   assignments  - reserved
+   submissions  - submission IDs
+   data         - raw work unit parameters
+
+
+Submission data structure:
+   id           - Unique submission ID
+   session      - Session ID 
+   work_unit    - Work unit ID
+   worker       - Worker ID
+   data         - Raw submission data
+   start_time   - When the work started
+   end_time     - When the work ended
+   grades       - List of grades (inline structures,  not IDs)
+
+Grade data structure:
+   id           - Unique grade ID
+   quality      - Quality number (10 - good, 7 - approve/redo, 3 -reject)
+   feedback     - (ptional) feedback
+   worker       - The grader
+   reference    - Grading reference (e.g. source algorithm or system tags)
+
+"""
 
 def format_session(session):
+    """Formats the session as a dictionary object"""
+
     qualifications=[]
     for q in session.mturk_qualification.all():
         qualifications.append(q.name);
@@ -42,6 +92,8 @@ work_unit_state_map =  {1:'Idle',     # 'New'
                         7:'Idle'}     #, 'Rejected'),
 
 def get_work_unit_state(work_unit):
+    """Returns the current work unit state."""
+
     work_unit_state = work_unit_state_map[work_unit.state];
     if work_unit_state=='Active':
         num_valid_submissions=0;
@@ -61,6 +113,8 @@ def get_work_unit_state(work_unit):
     return work_unit_state
 
 def format_work_unit(work_unit):
+    """Returns formatted Work Unit representation."""
+
     work_unit_state=get_work_unit_state(work_unit);
 
     submission_ids=[];
@@ -78,6 +132,8 @@ def format_work_unit(work_unit):
 
 
 def format_submission(submission):
+    """Returns formatted Submission representation."""
+
     submission_dict= {'id':submission.id,
                       'session':submission.session.code,
                       'work_unit':submission.hit.ext_hitid,
@@ -98,6 +154,7 @@ def format_submission(submission):
     return submission_dict
 
 def format_grade(grade):
+    """Returns formatted Grade representation."""
     grade_dict= {'id':grade.id,    
                  'quality':grade.quality,
                  'feedback':grade.feedback,
@@ -109,6 +166,8 @@ def format_grade(grade):
 #permission='rpc-access')
 @rpcmethod(name='mt.list_sessions',permission='mturk.add_session')
 def list_sessions(**kwargs):
+    """Returns a list of sessions owned by the authenticated user . """
+
     request=kwargs['request'];
     print request
     sessions=[];
@@ -121,6 +180,11 @@ def list_sessions(**kwargs):
 
 @rpcmethod(name='mt.list_session_work_units')
 def list_session_work_units(session_id):
+    """Lists all work units in the session. Only work unit IDs are returned.
+    @param  session_id: The unique session code.
+    @return [work_unit_id]: The list of work unit IDs.
+    """
+    
     session=Session.objects.get(code=session_id);
     work_units=[];
     for w in session.mthit_set.all():
@@ -131,6 +195,11 @@ def list_session_work_units(session_id):
 
 @rpcmethod(name='mt.list_work_unit_submissions')
 def list_work_unit_submissions(work_unit_extid):
+    """Lists all work units in the session. Only work unit IDs are returned.
+    @param  session_id: The unique session code.
+    @return: [work_unit_id] - The list of work unit IDs.
+    """
+
     wu=WorkUnit.objects.get(ext_hitid=work_unit_extid);
 
     submissions=[];
@@ -143,6 +212,10 @@ def list_work_unit_submissions(work_unit_extid):
 
 @rpcmethod(name='mt.get_session')
 def get_session(session_id):
+    """Return session information by session code
+    @param session_id
+    @return: Session"""
+    
     session=Session.objects.get(code=session_id);
     
     return format_session(session)
@@ -150,6 +223,10 @@ def get_session(session_id):
 
 @rpcmethod(name='mt.get_session_work_units')
 def get_session_work_units(session_id):
+    """Return all work units within session
+    @param session_id
+    @return: [work_units] - list of work units elements. """
+
     session=Session.objects.get(code=session_id);
     work_units=[];
     for w in session.mthit_set.all():
@@ -161,6 +238,10 @@ def get_session_work_units(session_id):
 
 @rpcmethod(name='mt.get_work_unit_submissions')
 def get_work_unit_submissions(work_unit_extid):
+    """Return all submissions for a work unit
+    @param work_unit_id
+    @return: [submissions] - list of work units submissions. """
+
     wu=WorkUnit.objects.get(ext_hitid=work_unit_extid);
 
     submissions=[];
@@ -171,7 +252,7 @@ def get_work_unit_submissions(work_unit_extid):
 
 
 
-def get_submission_grade_optimistic(st):
+def get_submission_grade_pessimistic(st):
     grade=None
     feedback="";
     for g in st.manualgraderecord_set.filter(valid=True):
@@ -190,11 +271,14 @@ def get_submission_grade_optimistic(st):
 
 @rpcmethod(name='mt.get_work_unit_submissions_filtered')
 def get_work_unit_submissions_filtered(work_unit_extid,filter):
+    """Return all submissions for a work unit
+    @param work_unit_id
+    @return: [submissions] - list of work units submissions. """
     wu=WorkUnit.objects.get(ext_hitid=work_unit_extid);
 
     submissions=[];
     for s in wu.submittedtask_set.all():
-        (grade,feedback) = get_submission_grade_optimistic(s)
+        (grade,feedback) = get_submission_grade_pessimistic(s)
         if grade is not None and grade>7:
             submissions.append(format_submission(s));
     
@@ -207,6 +291,16 @@ def get_work_unit_submissions_filtered(work_unit_extid,filter):
 
 @rpcmethod(name='mt.create_session', permission='mturk.add_session')
 def create_session(code,task_id,crowd_engine,funding,work_unit_limit,qualifications,**kwargs):
+    """Create session on the server.
+    @param code: New session ID (must be unique)
+    @param task_id: The ID of existing task
+    @param crowd_engine: Which engine to use: "Internal", "MT_sandbox","MT_production"
+    @param funding: Funding account ID.
+    @param work_unit_limit: Max number of work units in the session
+    @param qualifications: List of qualification IDs for the session.
+
+    @return: Code of the created session
+    """
     task=get_object_or_404(Task,name=task_id);
     funding=get_object_or_404(FundingAccount,name=funding);
     if crowd_engine=='Internal':
@@ -229,6 +323,12 @@ def create_session(code,task_id,crowd_engine,funding,work_unit_limit,qualificati
 
 @rpcmethod(name='mt.copy_session', permission='mturk.add_session')
 def copy_session(prototype_session_code,new_session_code,**kwargs):
+    """Duplicate a session. Create a new session with the same parameters as a source session.
+    @param prototype_session_id: The ID of the source session
+    @param new_session_code: The ID of the new session
+
+    @return: New session ID or error.
+    """
     session = get_object_or_404(Session,code=prototype_session_code);
     try:
         new_session = Session.objects.get(code=new_session_code)
@@ -247,6 +347,13 @@ def copy_session(prototype_session_code,new_session_code,**kwargs):
 
 @rpcmethod(name='mt.create_work_unit', permission='mturk.add_mthit')
 def create_work_unit(session_id,parameters,shall_activate,**kwargs):
+    """Create work unit
+    @param session_id: ID of the session
+    @param parameters: Raw parameter values
+    @param shall_activate: Whether the task should be activated
+
+    @return: HIT ID - unique ID of the task.
+    """
     session=get_object_or_404(Session,code=session_id)
 
     if session.mthit_set.count()>=session.HITlimit:
@@ -276,6 +383,15 @@ def generate_image_id(self,prefix=None):
 
 @rpcmethod(name='mt.post_image')
 def post_image(session_id,img,image_name,reduce_jpeg_resolution=None,web_jpeg_quality=None,**kwargs):
+    """Post an image to the server
+    @param session_id: The session for the image
+    @param img: raw image data
+    @param image_name: The name for the image on the server
+    @param reduce_jpeg_resolution: (optional,future) Reduce the resolution of the image on the server
+    @param web_jpeg_quality: (optional,future) change image quality.
+
+    @return: server image name
+    """
     session=get_object_or_404(Session,code=session_id)
 
     if image_name is None or image_name=='' or image_name=='*AUTO':
@@ -295,6 +411,18 @@ def post_image(session_id,img,image_name,reduce_jpeg_resolution=None,web_jpeg_qu
 
 @rpcmethod(name='mt.submit_work',permission='mturk.can_submit_work') #This is weaker than "add_submission"
 def submit_work(work_unit_id,worker,assignment_id,data,**kwargs):
+    """Submit work for a particular task.  
+
+    This method allows for unit testing of the annotation handling and for
+    automated task processing.
+    
+    @param work_unit_id: The work unit for which we submit work
+    @param worker: worker ID
+    @param assignment_id: Unique ID for the assignment (e.g. MechTurk AssignmentID)
+    @param data: Submission data.
+
+    @return: submission id
+    """
     work_unit=get_object_or_404(WorkUnit,ext_hitid=work_unit_id);
 
     session=work_unit.session;
@@ -315,6 +443,10 @@ def submit_work(work_unit_id,worker,assignment_id,data,**kwargs):
 
 @rpcmethod(name='mt.submit_grade',permission='mturk.add_manualgraderecord')
 def submit_grade(submission_id,worker,assignment_id,data,**kwargs):
+    """Submit grade.  
+
+    Allows the authenticated user to submit a grade. This API provides for integrated grading and faster grading or for automated external grading tools.
+    """
     request=kwargs['request'];
 
     submission = get_object_or_404(SubmittedTask,id=submission_id)

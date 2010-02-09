@@ -2,15 +2,9 @@
 \mainpage
 \htmlinclude manifest.html
 
-\b mech_turk_server is ... 
+\b django_crowd_server is a django application for crowd-sourcing
 
-<!-- 
-In addition to providing an overview of your package,
-this is the section where the specification and design/architecture 
-should be detailed. While the original specification may be done on the
-wiki, it should be transferred here once your package starts to take shape.
-You can then link to this documentation page from the Wiki. 
--->
+
 
 
 \section codeapi Code API
