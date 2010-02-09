@@ -1,15 +1,18 @@
 <package>
-  <description brief="mech_turk_server">
-
-     mech_turk_server
-
+  <description brief="django_crowd_server">
+    The package for django crowd server
   </description>
   <author>Alexander Sorokin</author>
   <license>BSD</license>
+
   <review status="unreviewed" notes=""/>
-  <url>http://pr.willowgarage.com/wiki/mech_turk_server</url>
+  <url>http://code.google.com/p/cv-web-annotation-toolkit/</url>
 
   <rosdep name="scipy"/>
+
+  <export>
+    <rosdoc config="${prefix}/rosdoc.yaml" />
+  </export>
 </package>
 
 
