@@ -1,8 +1,11 @@
 #!/usr/bin/python
-from django.core.management import execute_manager
 
-from web_menu.temp_rosnode import TmpNode
-ros_sender=TmpNode();
+from mturk import ros_integration
+#ros_connector = ros_integration.RosConnector.connect()
+#ros_sender=ros_integration.get_annotations_sender()
+#ros_connector.rospy.spin()
+
+from django.core.management import execute_manager
 
 try:
     import settings # Assumed to be in the same directory.

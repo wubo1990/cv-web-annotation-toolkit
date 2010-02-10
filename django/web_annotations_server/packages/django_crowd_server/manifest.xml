@@ -8,7 +8,11 @@
   <review status="unreviewed" notes=""/>
   <url>http://code.google.com/p/cv-web-annotation-toolkit/</url>
 
+  <rosdep name="rospy"/>
   <rosdep name="scipy"/>
+  <rosdep name="mech_turk_ros"/>
+  <rosdep name="mech_turk_ros_msgs"/>
+  <rosdep name="cv_mech_turk2"/>
 
   <export>
     <rosdoc config="${prefix}/rosdoc.yaml" />
