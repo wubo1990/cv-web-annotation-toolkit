@@ -318,7 +318,6 @@ class SubmittedTask(models.Model):
 
 	def get_xml_str(self):
 		te=self.session.task_def.type.get_engine()
-		print self
 		return te.get_submission_xml(self)
 
 	def get_timing(self):

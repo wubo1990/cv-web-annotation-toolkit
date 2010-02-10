@@ -39,16 +39,6 @@ from models_stats import *
 
 from common import *
 
-try:
-    from mturk.temp_rosnode import TmpNode
-
-    ros_sender=TmpNode();
-except:
-    #print e.what()
-    ros_sender=None
-
-
-
 
 def index(request):
     return HttpResponse("Mechanical turk server.")
@@ -256,25 +246,7 @@ def submit_result(request):
     task.save()
 
 
-    if ros_sender:
-        print "Sending results"
-
-        try:
-            xml_str=submission.get_parsed().shapes;
-            params=hit.parse_parameters();
-
-            img_size = params['image_size']
-            img_name  = params['original_name']
-            task_name = hit.session.task_def.name
-            ref_frame = params['frame_id']
-            ref_time = params['ref_time']
-            ref_topic = params['topic_in']
-            (secs,nsecs)=ref_time.split('.')
-
-            img_size=[int(x) for x in img_size.split(',')]
-            ros_sender.send(xml_str,img_size,secs,nsecs,task_name,ref_frame,ref_topic);
-        except Exception:
-            print "Failed to send the anntoation message. "
+    ros_integration.on_submission(submission)
 
     if session.standalone_mode:
         return HttpResponseRedirect("/mt/get_task/"+session.code+"/" );
@@ -1739,11 +1711,11 @@ def expire_session_hits_by_type(request,session_code):
 
 
 def get_ros_publishers(request):
-    if not ros_sender:
-        return HttpResponse("none")
-    else:
-        s=ros_sender.get_pub_string();
-        return HttpResponse(s)
+    pub_list=ros_integration.get_publishers()
+    resp=HttpResponse()
+    resp.write(yaml.dump(stats));
+    return resp;
+
 
 
 
