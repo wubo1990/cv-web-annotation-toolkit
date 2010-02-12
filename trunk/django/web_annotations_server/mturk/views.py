@@ -17,6 +17,7 @@ from subprocess import *
 import yaml
 import xml.sax.saxutils
 
+import ros_integration
 
 try:
     from boto.mturk.connection import MTurkConnection
@@ -245,7 +246,7 @@ def submit_result(request):
     task.state=2; #Submitted
     task.save()
 
-
+    print "ROS ON SUBMISSION"
     ros_integration.on_submission(submission)
 
     if session.standalone_mode:
@@ -813,13 +814,15 @@ def newHIT(request):
         ref_time = request.POST.get('ref_time','0.0')
         ref_topic = request.POST.get('topic_in','image_to_annotate')
         topic_out = request.POST.get('topic_out','annotation')
+        ref_uid = request.POST.get('ref_uid','')
 
 	params="frame="+frame+"&original_name="+original_name + \
             "&image_size=" + img_size + \
             "&frame_id=" + ref_frame + \
             "&ref_time=" + ref_time + \
             "&topic_in=" + ref_topic + \
-            "&topic_out=" + topic_out 
+            "&topic_out=" + topic_out +\
+            "&ref_uid=" + ref_uid
         print params
 
 
@@ -1712,8 +1715,7 @@ def expire_session_hits_by_type(request,session_code):
 
 def get_ros_publishers(request):
     pub_list=ros_integration.get_publishers()
-    resp=HttpResponse()
-    resp.write(yaml.dump(stats));
+    resp=HttpResponse(yaml.dump(pub_list));
     return resp;
 
 

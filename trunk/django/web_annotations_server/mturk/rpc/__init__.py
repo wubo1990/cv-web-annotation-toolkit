@@ -61,6 +61,8 @@ from rpc4django import rpcmethod
 
 from formatting import *
 
+from mturk import ros_integration
+
 #permission='rpc-access')
 @rpcmethod(name='mt.list_sessions',permission='mturk.add_session')
 def list_sessions(**kwargs):
@@ -325,6 +327,9 @@ def submit_work(work_unit_id,worker,assignment_id,data,**kwargs):
 
     work_unit.state=2; #Submitted
     work_unit.save();
+
+    print "ROS ON SUBMISSION"
+    ros_integration.on_submission(submission)
 
     return submission.id;
 
