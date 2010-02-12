@@ -1,48 +1,21 @@
 
-import roslib; roslib.load_manifest('mech_turk_ros') #django_crowd_server
-import rospy
-
-print "init"
-rospy.init_node("django_crowd_server",disable_signals=True,anonymous=True);
-print "init done"
-
-"""
-class RosConnector:
-    __instance = None
-
-    def __init__(self,name):
-        self.sub_nodes={};
-
-        self.rospy=rospy
-        print "INIT NODE",name
-
-        self.rospy.init_node(name,disable_signals=True,anonymous=True);
-
-
-    def connect(name="crowd_django"):
-        if RosConnector.__instance is None:
-            RosConnector.__instance=RosConnector(name)
-        return RosConnector.__instance
-    connect=staticmethod(connect)
-"""
 try:
-    #c=RosConnector.connect(name="annotation_sender")
+    import roslib; roslib.load_manifest('mech_turk_ros') #django_crowd_server
+    import rospy
+
+    rospy.init_node("django_crowd_server",disable_signals=True,anonymous=True);
+
     from annotation_publisher import PublishAnnotationNode
-    ros_sender=PublishAnnotationNode(name);
-except:
+    ros_sender=PublishAnnotationNode("annotation_publisher");
+
+except Exception,e:
+    print "Got exception:",e
     ros_sender=None
 
 
 def get_annotations_sender():
     return ros_sender;
-    ros_connection = RosConnector.connect()
-    name="annotation_sender"
-    if name in ros_connection.sub_nodes:
-        return ros_connection.sub_nodes[name]
 
-
-    ros_connection.sub_nodes[name]=annotation_sender
-    return annotation_sender
 
 
 def get_publishers():
@@ -55,14 +28,19 @@ def on_submission(submission):
     if ros_sender:
         try:
             print "Sending results"
-            sender=get_annotation_sender()
+            sender=get_annotations_sender()
+            print "get xml"
             xml_str=submission.get_xml_str();
+            print "get params"
             params=submission.hit.parse_parameters();
+            print params
             if "ref_uid" in params:
-                uid = params['ref_time']
+                image_uid =str(params['ref_uid'])
             else:
-                uid = "submittedtask-%d" % submission.id;
-                sender.send_annotation(xml_str,uid)
+                image_uid =str(params['frame'])
 
-        except Exception:
-            print "Failed to send the anntoation message. "
+            uid = "submittedtask-%d" % submission.id;
+            sender.send_annotation(xml_str,image_uid,submission.session.task_def.name,submission.session.code,uid)
+
+        except Exception,e:
+            print "Failed to send the anntoation message. ",e

@@ -44,6 +44,7 @@ import sys,pickle
 from std_msgs.msg import String
 from mech_turk_ros_msgs.msg import ExternalAnnotation
 
+from mech_turk_ros import session_2_messages
 
 class PublishAnnotationNode:
     def __init__(self,node_name):
@@ -54,13 +55,14 @@ class PublishAnnotationNode:
         self.annotation_pub=rospy.Publisher(self.annotation_topic,ExternalAnnotation)
         self.annotation_topic_type='mech_turk_ros_msgs/ExternalAnnotation'
 
-    def send_annotation(self,annotation_xml,uid):
+    def send_annotation(self,annotation_xml,image_uid,task_name,session,uid):
+        print "Create annotation"
 
-        anntoation_msg = ExternalAnnotation();
-        anntoation_msg.uid = uid;
-        anntoation_msg.image_reference.uid = uid;
+        anntoation_msg = session_2_messages.convert_gxml_2_message(annotation_xml,str(image_uid),str(task_name),str(session),str(uid))
+
+        print "Send annotation"
         self.annotation_pub.publish(anntoation_msg)
-
+        print "Send annotation: done"
 
     def get_publishers_info(self):
       s1= {"node":self.node_name,"topic":self.annotation_topic,"topic_type":self.annotation_topic_type,"publisher_url":rospy.get_node_uri()}
