@@ -6,8 +6,8 @@
 The annotation tool makes it easy to annotate image over Web. This is useful for Mechanical Turk and other uses. The tool takes an XML description of the user interface and produces required buttons for user interaction. When the input is finished, the tool generates the XML with the annotation.
 
 = Examples by task =
- * [http://vm7.willowgarage.com:8080/code/task.html?swf=label_generic&extid=eb50ffb3-2ba7-4a84-8bee-bcdf4087fe0f-2285&session=person-dataset-session-4&task=PersonBoxOnly&video=person-dataset-session-4&frame=f1f924e9-2328-4181-aae8-837078bd2096&img_base=http://vm7.willowgarage.com/&mode=demo&swf_w=700&swf_h=700&instructions=http%3A//pr.willowgarage.com/wiki/ROS/mturk/instructions/personBox Putting a box around person]
- * [http://vm7.willowgarage.com:8080/code/task.html?swf=label_generic&extid=8a587c6b-d533-48f0-8919-9a7f402dd73c-1&session=person-14-s&task=human-stick-figure&video=person-14-s&frame=eb1992ae-7792-4e79-bfb3-b6c787a4ba0d&img_base=http://vm7.willowgarage.com/&mode=MT2&swf_w=700&swf_h=700&instructions=http%3A//pr.willowgarage.com/wiki/mturk/instructions/PersonSkeleton&ExtID=8a587c6b-d533-48f0-8919-9a7f402dd73c-1&ExtID=8a587c6b-d533-48f0-8919-9a7f402dd73c-1 Person skeleton]
+ * [http://vm7.willowgarage.com/code/task.html?swf=label_generic&extid=eb50ffb3-2ba7-4a84-8bee-bcdf4087fe0f-2285&session=person-dataset-session-4&task=PersonBoxOnly&video=person-dataset-session-4&frame=f1f924e9-2328-4181-aae8-837078bd2096&img_base=http://vm7.willowgarage.com/&mode=demo&swf_w=700&swf_h=700&instructions=http%3A//pr.willowgarage.com/wiki/ROS/mturk/instructions/personBox Putting a box around person]
+ * [http://vm7.willowgarage.com/code/task.html?swf=label_generic&extid=8a587c6b-d533-48f0-8919-9a7f402dd73c-1&session=person-14-s&task=human-stick-figure&video=person-14-s&frame=eb1992ae-7792-4e79-bfb3-b6c787a4ba0d&img_base=http://vm7.willowgarage.com/&mode=MT2&swf_w=700&swf_h=700&instructions=http%3A//pr.willowgarage.com/wiki/mturk/instructions/PersonSkeleton&ExtID=8a587c6b-d533-48f0-8919-9a7f402dd73c-1&ExtID=8a587c6b-d533-48f0-8919-9a7f402dd73c-1 Person skeleton]
 
 
 
