@@ -1,0 +1,1 @@
+﻿/* BSDA Sorokin*/package vision.data{	public class BoundingBox {		public var name:String;					}}
