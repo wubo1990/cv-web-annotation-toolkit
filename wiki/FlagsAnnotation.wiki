@@ -1,9 +1,0 @@
-#summary Description of Flag annotation
-
-Flags are a simple way to report a problem with the annotaitons. Only 1 click is required.
-
-There are 3 flags:
-
- * *red* something is really wrong here
- * *blue* there are some minor issues with the image
- * *white* I give up on this image. We shouldn't be looking at it.
