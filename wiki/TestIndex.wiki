@@ -1,5 +1,5 @@
 #summary List of available tests for the system
-#labels Test-manual,Test-automatic,Doc-Userguide
+#labels Test-manual,Test-automatic
 
 == Work management system ==
 
