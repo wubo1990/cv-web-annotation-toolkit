@@ -5,6 +5,7 @@ import views
 urlpatterns = patterns('',
 
     (r'^session/(?P<session_code>[\w\-]+)/$', 'mturk.dashboard.views.session_dashboard'),
+    (r'^session/(?P<session_code>[\w\-]+)/experimental/$', 'mturk.dashboard.views.session_experimental_dashboard'),
 
     (r'^worker_internal/(?P<worker_id>[\w\-]+)/$', 'mturk.dashboard.views.worker_internal_dashboard'),
     (r'^workers_overview/$', 'mturk.dashboard.views.workers_overview_dashboard'),

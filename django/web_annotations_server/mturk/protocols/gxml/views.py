@@ -32,7 +32,9 @@ def upload_image(request,session_code):
 			return do_upload_image(request,session,form,uploaded_file);
 	else:
 		form = UploadImageForm()
-	return render_to_response('protocols/gxml/upload_image.html', {'form': form,'user':request.user})
+
+	nav={'session':session};
+	return render_to_response('protocols/gxml/upload_image.html', {'form': form,'user':request.user,'nav':nav})
 
 
 
@@ -83,7 +85,8 @@ def upload_image_tgz(request,session_code):
 			return do_upload_image_tgz(request,session,form,uploaded_file);
 	else:
 		form = UploadImageTGZForm()
-	return render_to_response('protocols/gxml/upload_image_tgz.html', {'form': form,'user':request.user})
+	nav={'session':session};
+	return render_to_response('protocols/gxml/upload_image_tgz.html', {'form': form,'user':request.user,'nav':nav})
 
 
 

@@ -11,7 +11,13 @@ from mturk.views import get_mt_connection
 def session_dashboard(request,session_code):
     session = get_object_or_404(Session,code=session_code);	
     stats = models_stats.session_stats(session)
-    return render_to_response('mturk/dashboard/session_dashboard.html', {'session':session,'stats':stats})
+    return render_to_response('mturk/dashboard/session_dashboard.html', {'session':session,'stats':stats,'user':request.user})
+
+@login_required
+def session_experimental_dashboard(request,session_code):
+    session = get_object_or_404(Session,code=session_code);	
+    stats = models_stats.session_stats(session)
+    return render_to_response('mturk/dashboard/session_experimental_dashboard.html', {'session':session,'stats':stats,'user':request.user})
 
 @login_required
 def worker_internal_dashboard(request,worker_id):
@@ -19,14 +25,7 @@ def worker_internal_dashboard(request,worker_id):
     stats = models_stats.worker_stats(worker)
     worker_contibutions=models_stats.worker_to_session_contributions(worker_id);
 
-    #session_code='eval-2-qual-box3'
-    #session = get_object_or_404(Session,code=session_code);	
-    #conn = get_mt_connection(session);
-    #qual_id = 'XT12VW0JGX16PY8FAAAZ';
-    #params = {'QualificationTypeId' : qual_id,'SubjectId':worker_id}
-    #qual_rs = conn._process_request('GetQualificationScore', params)
-    #print qual_rs
-    return render_to_response('mturk/dashboard/worker_internal_dashboard.html', {'worker':worker,'stats':stats,'contributions':worker_contibutions})
+    return render_to_response('mturk/dashboard/worker_internal_dashboard.html', {'worker':worker,'stats':stats,'contributions':worker_contibutions,'user':request.user})
 
 @login_required
 def workers_overview_dashboard(request):

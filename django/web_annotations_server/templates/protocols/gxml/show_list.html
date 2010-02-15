@@ -1,14 +1,8 @@
+{% extends 'mturk/base_app.html' %}
 {% load time_extras %}
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-<title>prototype</title>
-<script language="javascript">AC_FL_RunContent = 0;</script>
-<script src="/code/js/AC_RunActiveContent.js" language="javascript"></script>
-<script language="javascript" src="/code/js/prototype.js" > </script>
-</head>
 
-<body bgcolor="#ffffff">
+{% block content %}
+
 page number:
 {% if has_previous %}
 <a href="../p{{previous}}/">{{previous}}</a>
@@ -67,6 +61,5 @@ setTimeout("document.location.reload(true)",{{refresh_rate}});
 </script>
 {% endif %}
 
+{% endblock %}
 
-</body>
-</html>

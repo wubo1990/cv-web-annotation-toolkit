@@ -1,0 +1,30 @@
+{% extends "mturk/base_app.html" %}
+{% load time_extras %}
+{% load switchcase %}
+
+
+{% block subtitle %}Session dashboard:{{session.code}}{% endblock %}
+
+{%block subbranding %}Session dashboard: {{session.code}} | {% endblock %}
+
+{%block app-breadcrumbs %}{%if nav.session%} | <a href="/mt/dashboard/session/{{nav.session.code}}/">Session {{nav.session.code}}</a>{%endif%}{%endblock%}
+
+
+{% block content %}
+<table>
+<tr><td>Approved</td><td>{{report.num_approved}}</td></tr>
+<tr><td>Rejected</td><td>{{report.num_rejected}}</td></tr>
+<tr><td>Skipped</td><td>{{report.num_skipped}}</td></tr>
+<tr><td>Undecided</td><td>{{report.num_undecided}}</td></tr>
+<tr><td>Errors</td><td>{{report.num_errors}}</td></tr>
+</table>
+
+{% if report.errors %}
+<hr/>
+<b>Errors:</b><br/>
+{% for e in report.errors %}
+{{e}}<br/>
+{% endfor %}
+{% endif %}
+{% endblock %}
+
