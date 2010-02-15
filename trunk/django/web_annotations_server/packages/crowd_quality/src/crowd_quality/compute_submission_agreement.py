@@ -42,7 +42,7 @@ usage: %(progname)s --annotations=<data_annotations_dir> --saveto=<save_problem_
   *       "group" or 
   *       "bbox"[future] or 
   *       "outline"[future] or
-  *       "attribute-rank".
+  *       "rank".
   
 """
 
@@ -52,7 +52,9 @@ import rospy
 
 import os, sys, getopt
 
+from mech_turk.tasks import *
 from mech_turk.tasks import group_images
+from mech_turk.tasks import attributes
 
 
 
@@ -97,7 +99,8 @@ def compute_task_agreements(all_submissions,saveto_dir,agreement_function):
   agreement_fn=os.path.join(saveto_dir,'agreement.txt')
   fAgreement=open(agreement_fn,'w');
   for sA,sB,agreement in submission_agreements:
-    print >>fAgreement, sA.id,sB.id,agreement
+    if agreement != 0:
+      print >>fAgreement, sA.id,sB.id,agreement
   fAgreement.close()
 
   submission_ids_fn=os.path.join(saveto_dir,'submission_ids.txt')
@@ -133,9 +136,13 @@ def main(argv, stdout, environ):
 
   if task_type=="group":
     all_submissions = group_images.read_submissions(annotations_dir,True)
-    submission_2_id=group_images.assign_sequential_ids(all_submissions)
     agreement_function=group_images.compute_agreement;
 
+  elif task_type=="rank":
+    all_submissions = attributes.read_submissions(annotations_dir,True)
+    agreement_function=lambda sA,sB:attributes.compute_ordering_agreement(sA,sB,'grade');
+  
+  submission_2_id=assign_sequential_ids(all_submissions)
   compute_task_agreements(all_submissions,saveto_dir,agreement_function)
 
     

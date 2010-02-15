@@ -19,9 +19,7 @@ c=c_initial;
 qc_prev=-1;
 
 debug=1;
-if debug
-  answer=read_QA_problem_answer(task_root);
-end
+
 
 dampened_agreement=(agreement-0.5).*(agreement>0);
 
@@ -72,6 +70,13 @@ plot(x,sigmoid(x))
 
 
 task_root='/var/django/web_annotations_server/packages/crowd_quality/test_data/grouping_run1/problem1'
+
+
+estimate_submission_quality(task_root)
+evaluate_quality_estimate(task_root)
+
+
+task_root='/var/django/web_annotations_server/packages/crowd_quality/test_data/model_evaluation_run1/problem1'
 
 
 estimate_submission_quality(task_root)

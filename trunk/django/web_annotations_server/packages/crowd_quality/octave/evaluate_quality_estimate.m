@@ -4,7 +4,7 @@ function quality_report=evaluate_quality_estimate(task_root)
 problem=read_QA_problem(task_root);
 
 cut1=0.6;
-cut2=0.6;
+cut2=0.5;
 
 cut1b=0.8;
 cut2b=0.8;
@@ -29,11 +29,11 @@ err=bad/(good+bad)
 
 results=evaluate_predictions_v2(answer.quality'-cut2,sign(problem.grades-cut1))
 
-results=evaluate_predictions_v2(answer.quality'-cut2b,sign(problem.grades-cut1b))
+%results=evaluate_predictions_v2(answer.quality'-cut2b,sign(problem.grades-cut1b))
 
 h=hist(problem.grades)
 
 roc=get_AP_from_ranking(answer.quality,sign(problem.grades-cut1))
 roc2=get_AP_from_ranking(answer.quality,sign(problem.grades-0.9))
 
-quality_report
+quality_report=results;
