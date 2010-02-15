@@ -1,0 +1,253 @@
+{% extends "mturk/base_app.html" %}
+{% load time_extras %}
+{% load switchcase %}
+
+{% block extrahead %}
+<script src="/code/js/prototype.js" language="javascript"></script>
+{% endblock %}
+
+{% block subtitle %}Session dashboard:{{session.code}}{% endblock %}
+
+{%block subbranding %}Session dashboard: {{session.code}} | {% endblock %}
+
+
+
+
+{% block content %}
+
+<script>
+var run_search=function(session_code,search_inp)
+{
+ loc="/mt/good_results_w_filter/"+session_code+"/p1/"+search_inp+"/";
+ window.location=loc;
+}
+
+
+
+</script>
+
+<table><tr><td>
+Session {{session.code}} [{% if session.sandbox %}
+SANDBOX
+{% else %}
+PRODUCTION
+{% endif %}].<br/>
+
+HITs {{stats.hits.count}} of {{session.HITlimit}}. <b>Idle {{stats.hits.num_idle}}, Active {{stats.hits.num_active}}, Finalized {{stats.hits.num_finalized}}</b><br/>
+Submissions: Total {{session.submittedtask_set.count}}. Approved {{stats.submissions.approved}}. Rejected {{stats.submissions.rejected}}. <b>Open {{stats.submissions.open}}.</b><br/>
+
+<hr/>
+<h2>Common actions</h2>
+<ul>
+<li><a href="/mt/grading/{{session.code}}/">Grading paged</a></li>
+<li><a href="/mt/process_graded_submissions/{{session.code}}/">Process graded submissions</a></li>
+<li><a href="#downloads">Downloads</a></li>
+</ul>
+
+<hr/>
+
+<h2>Grading</h2>
+
+Local:<br/>
+<ul>
+<li><a href="/mt/grading/{{session.code}}/">Grading paged</a></li>
+<li><a href="/mt/result_stats/{{session.code}}/by_worker/">Grading by worker</a></li>
+<li><a href="/mt/grading/thumbnails_random/{{session.code}}/">Random grading in thumbnails</a></li>
+</ul>
+
+<br/>
+<hr/>
+Mech Turk:<br/>
+<a href="/mt/grading/submit/session/{{session.code}}/{{session.code}}-grading/">Submit all for grading</a><br/><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="/mt/dashboard/session/{{session.code}}-grading/">dashboard: grading session</a>
+<br/>
+<br/>
+<a href="/mt/grading/submit/session/{{session.code}}/{{session.code}}-grading-2/">Submit all for grading to session2</a><br/><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="/mt/dashboard/session/{{session.code}}-grading-2/">dashboard: grading session2</a>
+
+<br/>
+<br/>
+<hr/>
+Automatic (<a href="/autograding/">info</a>) - very very very experimental (use port 8080):<br/>
+<ul>
+<li>
+<a href="/autograding/apply_auto_grades/{{session.code}}/">Grade automatically</a></li>
+
+<li>
+(<a href="/autograding/deactivate_auto_grades/{{session.code}}/">Deactivate </a> | <a href="/autograding/activate_auto_grades/{{session.code}}/">Activate </a> ) automatic grades <br/><br/></li>
+<li>
+<a href="/autograding/build_model_from_session/{{session.code}}/">Build</a> model from this session</li>
+</ul>
+
+
+<h2>Tasks</h2>
+{% if session.sandbox %}
+<a href="https://workersandbox.mturk.com/mturk/preview?groupId={{session.hit_type}}">On MechTurk (sandbox)</a>
+{% else %}
+<a href="https://www.mturk.com/mturk/preview?groupId={{session.hit_type}}">On MechTurk (production)</a>
+{% endif %}<br/>
+Internally: <a href="/mt/session_hits/{{session.code}}/0/">All</a> || 
+<a href="/mt/session_hits/{{session.code}}/1/">New</a> | <a href="/mt/session_hits/{{session.code}}/2/">Submitted</a>
+<br/>
+<br/>
+<a href="/mt/expire_session_hits/{{session.code}}/">Expire all outstanding hits from this session</a>.<br/>
+<br/>
+<a href="/mt/expire_session_hits_by_type/{{session.code}}/">Expire <b>all</b> hits with the same <b>task</b> as this session</a>.
+
+<hr/>
+
+
+<h2>Grade statistics</h2>
+(contains multiple counts per submission)<br/>
+Good :{{stats.total_grades.num_good}}<br/>
+With errors: {{stats.total_grades.num_ok}}<br/>
+Bad :{{stats.total_grades.num_bad}}<br/>
+<hr/>
+<b>Ungraded: {{stats.total_grades.num_ungraded}}</b><br/>
+<hr/>
+<b>Conflicts:</b> {{stats.conflicts.stats.num_conflicts}}
+<hr/>
+<b>Conflict distribution:</b> 
+<table><tr><td> </td>
+{% for c in stats.session_grades.conflict_distribution_tbl.columns %}
+<td>{{c}}</td>
+{% endfor %}
+</tr>
+{% for r in stats.session_grades.conflict_distribution_tbl.rows %}
+<td>{{r.label}}</td>
+{% for v in r.row %}
+<td><a href="/mt/grading/conflict/show/{{session.code}}/{{v.i}}/{{v.j}}/">{{v.v}}</a></td>
+{% endfor %}
+</tr>
+
+{% endfor %}
+</table>
+
+<hr/>
+<h2>Approval</h2>
+WARNING: no questions asked<br/>
+<a href="/mt/approve_good_results/{{session.code}}/">Approve good results</a><br/>
+<a href="/mt/reject_poor_results/{{session.code}}/">Reject bad results</a><br/>
+<br/>
+<a href="/mt/approve_all_results/{{session.code}}/">Approve all results (regardless if they were graded)</a><br/>
+<hr/>
+<br/>
+<a href="/mt/resubmit_bad_results/{{session.code}}/"><b>Resubmit</b> the HITs that don't have a good result yet.</a><br/>
+<hr/>
+<h2>Results</h2>
+Browse:<br/>
+<ul>
+<li><a href="/mt/results/{{session.code}}/">All results</a><br/></li>
+<li><a href="/mt/good_results/{{session.code}}/">Good results</a><br/></li>
+<li> Filter by: <input id="search_inp" name="search_inp"> <a href="#" onclick="run_search('{{session.code}}',$F('search_inp'));return false;">search</a>. Try image name or timestamp.
+</ul>
+
+Convert good anntoations to messages:<br/>
+<code>
+rosrun cv_mech_turk session_2_messages.py --session={{session.code}}
+</code><br/>
+<br/>
+Download annotations and images:<br/>
+<code>
+rosrun cv_mech_turk session_results.py --session={{session.code}}
+</code><br/>
+
+
+<hr/>
+<h2>Submission statistics</h2>
+Hits:
+<table>
+{% for rcd in stats.hits.counts_by_state %}
+<tr><td>{{rcd.state}}</td><td>{{rcd.state_name}}</td><td>{{rcd.count}}</td></tr>
+{% endfor %}
+</table>
+Submissions:
+<table>
+{% for rcd in stats.submissions.counts_by_state %}
+<tr><td>{{rcd.state}}</td><td>{{rcd.state_name}}</td><td>{{rcd.count}}</td></tr>
+{% endfor %}
+</table>
+<hr/>
+<h2>Timing statistics</h2>
+<ul>
+<li><a href="/mt/stats/session_details/{{session.code}}/">Details</a></li>
+</ul>
+<br/>
+{% comment %}
+Min time :{{stats.timing.min}}<br/>
+Max time :{{stats.timing.max}}<br/>
+Avg time :{{stats.timing.avg}}<br/>
+Std time :{{stats.timing.std}}<br/>
+{% endcomment %}
+
+
+<hr/>
+
+<h2>Upload</h2>
+{% switch session.task_def.type.name %}
+    {% case "video_events" %} <a href="/mt/p/video_events/upload/{{session.code}}/video/">Single video</a> {% endcase %}
+    {% case "gxml" %}
+<a href="/mt/p/gxml/upload/{{session.code}}/image/">Single image</a><br/>
+<a href="/mt/p/gxml/upload/{{session.code}}/image_tgz/">Single folder with jpeg images</a>. (smth.tgz with my_folder/abc*.jpg)
+    {% endcase %}
+    {% case "attributes" %}
+<a href="/mt/project/submit_boxes_to_attributes/">From boxes sessions</a>
+    {% endcase %}
+{% endswitch %}
+
+
+
+<h2><a id="downloads">Download</a></h2>
+
+{% switch session.task_def.type.name %}
+    {% case "video_events" %} {% endcase %}
+    {% case "gxml" %}
+<a href="/mt/p/gxml/create_download/{{session.code}}/pack/">Create standard pack (images,xml,png masks).</a><br/>
+<ul>
+{% for fn in session.list_downloads.pack %}
+<li><a href="/mt/download/{{session.code}}/pack/{{fn}}">{{fn}}</a></li>
+{% endfor %}
+</ul>
+
+<a href="/mt/p/gxml/create_download/{{session.code}}/xml_masks/">Create xml+masks (no images).</a><br/>
+<ul>
+{% for fn in session.list_downloads.xml_and_masks %}
+<li><a href="/mt/download/{{session.code}}/xml_and_masks/{{fn}}">{{fn}}</a></li>
+{% endfor %}
+</ul>
+
+    {% endcase %}
+
+
+    {% case "attributes" %}
+<a href="/mt/p/attributes/create_download/{{session.code}}/raw_xml/">Create raw XML (work units, work submissions).</a><br/>
+<ul>
+{% for fn in session.list_downloads.raw_xml %}
+<li><a href="/mt/download/{{session.code}}/raw_xml/{{fn}}">{{fn}}</a></li>
+{% endfor %}
+</ul>
+    {% endcase %}
+{% endswitch %}
+
+<br/>
+<br/>
+<br/>
+<br/>
+
+{% comment  %}
+
+Started: {{s.hit.submitted|human_date}}  {{s.hit.submitted|relative_using_date}}
+<br>
+Finished: {{s.submitted|human_date}}  {{s.submitted|relative_using_date}}
+<br>
+Delay: {{ s.get_delay }}
+<br>
+
+Filename: {{ s.hit.get_filename }}
+<br>
+{% endcomment %}
+
+</td><td>
+<iframe src="http://www.google.com/friendconnect/discuss?scope=web&topic={{session.task_def.name}}%3A%20clarifications%3A(MechTurk)" style="width:250px;height:440px;" scrolling="no" allowtransparency="true" border="0" frameborder="0" ></iframe>
+</td></tr></table>
+{% endblock %}

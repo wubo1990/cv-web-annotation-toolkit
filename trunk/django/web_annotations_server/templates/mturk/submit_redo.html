@@ -1,0 +1,26 @@
+{% extends "mturk/base_app.html" %}
+{% load time_extras %}
+{% load switchcase %}
+
+
+{% block subtitle %}Submitted redo HITs for:{{session.code}}{% endblock %}
+
+{%block subbranding %}Submitted redo HITs for {{session.code}} | {% endblock %}
+
+{%block app-breadcrumbs %}{%if nav.session%} | <a href="/mt/dashboard/session/{{nav.session.code}}/">Session {{nav.session.code}}</a>{%endif%}{%endblock%}
+
+
+{% block content %}
+<table>
+<tr><td>Submitted</td><td>{{num_submitted}}</td></tr>
+</table>
+
+{% if errors %}
+<hr/>
+<b>Errors:</b><br/>
+{% for e in errors %}
+{{e}}<br/>
+{% endfor %}
+{% endif %}
+{% endblock %}
+

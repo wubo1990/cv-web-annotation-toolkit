@@ -1,10 +1,10 @@
 {% extends "base_site.html" %}
 {% load i18n %}
 
-{% block title %}{{ title }} | {% trans 'Mechanical Turk task manager' %}{% endblock %}
+{% block title %}{% block subtitle %}{{ title }}{%endblock%} | {% trans 'Mechanical Turk task manager' %}{% endblock %}
 
 {% block branding %}
-<h1 id="site-name">{% trans 'Mechanical Turk task manager' %}</h1>
+<h1 id="site-name">{%block subbranding %}{% endblock %}{% trans 'Mechanical Turk task manager' %}</h1>
 {% endblock %}
 
 {% block nav-global %}
@@ -28,3 +28,4 @@ Welcome, {{user.username}} :
 {% endif %}
 {% endblock %}
 
+{% block breadcrumbs %}<div class="breadcrumbs"><a href="/mt/">{% trans 'Home' %}</a>{%block app-breadcrumbs %}{%if nav.session%} | <a href="/mt/dashboard/session/{{nav.session.code}}/">Session {{nav.session.code}}</a>{%endif%}{%endblock %}{% if title %} &rsaquo; {{ title }}{% endif %}</div>{% endblock %}

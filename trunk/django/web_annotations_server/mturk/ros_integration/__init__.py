@@ -1,5 +1,6 @@
 
 try:
+    raise Exception("NO ROS") 
     import roslib; roslib.load_manifest('mech_turk_ros') #django_crowd_server
     import rospy
 

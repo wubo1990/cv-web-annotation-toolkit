@@ -114,7 +114,6 @@ urlpatterns = patterns('',
     (r'^good_hit_results_xml/(?P<ext_id>[\w\-]+)/', 'mturk.views.get_good_hit_results_xml'),
 
     (r'^session_images/(?P<session_code>[\w\-]+)/$', 'mturk.views.get_session_images'),
-    (r'^session_images/(?P<session_code>[\w\-]+)/wget/$', 'mturk.views.get_session_images_wget'),
     (r'^session_images2/(?P<session_code>[\w\-]+)/$', 'mturk.views.get_session_images2'),
     (r'^session_images3/(?P<session_code>[\w\-]+)/$', 'mturk.views.get_session_images3'),
     (r'^session/(?P<session_code>[\w\-]+)/work_units/$', 'mturk.views.get_session_work_units'),
@@ -128,8 +127,6 @@ urlpatterns = patterns('',
     (r'^reject_poor_results/(?P<session_code>[\w\-]+)/$', 'mturk.views.reject_poor_results'),
     (r'^approve_good_results/(?P<session_code>[\w\-]+)/$', 'mturk.views.approve_good_results'),
     (r'^approve_all_results/(?P<session_code>[\w\-]+)/$', 'mturk.views.approve_all_results'),
-
-    (r'^approve_absoltely_all_results/(?P<magic_code>[\w\-]+)/$', 'mturk.views.approve_absolutely_all_results'),
 
 
     (r'^grading/submit/session/(?P<session_code>[\w\-]+)/(?P<grading_session_code>[\w-]+)/$', 'mturk.views.grading_submit_session'),
