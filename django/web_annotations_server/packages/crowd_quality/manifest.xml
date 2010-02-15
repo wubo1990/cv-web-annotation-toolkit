@@ -8,6 +8,7 @@
   <url>http://ros.org/wiki/crowd_quality</url>
   <depend package="rospy"/>
   <depend package="mech_turk"/>
+  <depend package="cv_mech_turk2"/>
   <depend package="rosoct"/>
 
 </package>
