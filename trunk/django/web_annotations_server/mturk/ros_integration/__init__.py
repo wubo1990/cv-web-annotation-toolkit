@@ -1,6 +1,8 @@
 
-try:
-    raise Exception("NO ROS") 
+from django.conf import settings
+
+if settings.ROS_INTEGRATION:
+    print "ROS init start"
     import roslib; roslib.load_manifest('mech_turk_ros') #django_crowd_server
     import rospy
 
@@ -8,11 +10,9 @@ try:
 
     from annotation_publisher import PublishAnnotationNode
     ros_sender=PublishAnnotationNode("annotation_publisher");
-
-except Exception,e:
-    print "Got exception:",e
+    print "ROS init done"
+else:
     ros_sender=None
-
 
 def get_annotations_sender():
     return ros_sender;

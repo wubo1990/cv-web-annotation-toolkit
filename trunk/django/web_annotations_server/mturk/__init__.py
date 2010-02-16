@@ -1,5 +1,7 @@
 
-try:
+import models
+
+if 1==1:
     from rpc import list_sessions
     from rpc import list_session_work_units
     from rpc import list_work_unit_submissions
@@ -17,7 +19,3 @@ try:
     from rpc import submit_grade
     from rpc import post_image
 
-
-except Exception,e:
-    print "Failed to load RPC methods: ", repr(e)
-    raise

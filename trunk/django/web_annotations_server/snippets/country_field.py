@@ -1,4 +1,6 @@
-from django.utils.translation import ugettext as _
+#from django.utils.translation import ugettext as _
+def _(s):
+    return s;
 
 from django.db import models
 

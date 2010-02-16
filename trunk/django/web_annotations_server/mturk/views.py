@@ -30,7 +30,7 @@ def index(request):
 
 @login_required
 def main(request):
-    "List of user sessions"
+    """List of user sessions"""
     if not request.user.is_anonymous():
         sessions=request.user.session_set.all().order_by('-id');
     else:
@@ -39,9 +39,9 @@ def main(request):
 
 @login_required
 def main_all(request):
-    "List of all sessions
+    """List of all sessions
     @todo: Create a permission to see other users' sessions
-    "
+    """
     sessions=Session.objects.all().order_by('-id');
     return render_to_response('mturk/main.html',{'user':request.user,'sessions':sessions});
 
