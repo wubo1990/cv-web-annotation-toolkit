@@ -1,30 +1,26 @@
 {% extends "mturk/base_app.html" %}
-{% load time_extras %}
 {% load switchcase %}
+
+{% block subtitle %}Session dashboard: {{session.code}} | {% endblock %}
+
+{% block subbranding %}Session dashboard: {{session.code}} | {% endblock %}
 
 {% block extrahead %}
 <script src="/code/js/prototype.js" language="javascript"></script>
-{% endblock %}
-
-{% block subtitle %}Session dashboard:{{session.code}}{% endblock %}
-
-{%block subbranding %}Session dashboard: {{session.code}} | {% endblock %}
-
-{%block app-breadcrumbs %}{%endblock%}
-
-
-{% block content %}
 
 <script>
 var run_search=function(session_code,search_inp)
 {
- loc="/mt/good_results_w_filter/"+session_code+"/p1/"+search_inp+"/";
- window.location=loc;
+    loc="/mt/good_results_w_filter/"+session_code+"/p1/"+search_inp+"/";
+    window.location=loc;
 }
-
-
-
 </script>
+{% endblock %}
+
+
+
+{% block content %}
+
 
 <table><tr><td>
 Session {{session.code}} [{% if session.sandbox %}

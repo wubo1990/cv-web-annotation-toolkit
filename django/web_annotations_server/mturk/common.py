@@ -9,8 +9,10 @@ try:
     from boto.mturk.qualification_type import *
     import qualifications.views as qual_views
     hasBoto=True
-except:
+except Exception,e:
+    print "Could not import BOTO. This application will be pretty useless. Reason:",e
     hasBoto=False
+    raise
 
 from django.conf import settings
 from mturk.models import *

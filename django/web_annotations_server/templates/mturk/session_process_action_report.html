@@ -1,6 +1,8 @@
 {% extends "mturk/base_app.html" %}
 
-{%block app-breadcrumbs %}{%if nav.session%} | <a href="/mt/dashboard/session/{{nav.session.code}}/">Session {{nav.session.code}}</a>{%endif%}{%endblock%}
+{% block subtitle %}Run default actions: {{session.code}} | {% endblock %}
+
+{% block subbranding %}Run default actions: {{session.code}} | {% endblock %}
 
 {% block content %}
 

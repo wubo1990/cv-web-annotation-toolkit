@@ -1,11 +1,17 @@
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-<title>Statistics</title>
-<script language="javascript" src="/code/js/prototype.js" > </script>
-</head>
+{% extends "mturk/base_app.html" %}
 
-<body bgcolor="#ffffff">
+{% block subtitle %}Worker grading report | {% endblock %}
+
+{% block subbranding %}Worker grading report | {% endblock %}
+
+{% block extrahead %}
+
+<script src="/code/js/prototype.js"></script>
+
+{% endblock %}
+
+
+{% block content %}
 
 <hr/>
 <table><tr><td>Grade</td><td>Worker</td><td>Submission ID</td><td>HIT extID</td></tr>
@@ -20,6 +26,4 @@
 {% endfor %}
 </table>
 
-</body>
-
-</html>
+{% endblock %}

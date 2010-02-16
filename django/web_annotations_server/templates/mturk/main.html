@@ -1,13 +1,11 @@
 {% extends "mturk/base_app.html" %}
 
+{% block subtitle %}Mechanical Turk task manager | {% endblock %}
+
+{% block subbranding %}Mechanical Turk task manager | {% endblock %}
+
+
 {% block content %}
-
-{% if user.is_anonymous %}
-<p>
-Please <a href="/accounts/login/?next=/"> login</a> or <a href="/accounts/register/">register</a>.
-{% else %}
-
-{% endif %}
 
 My sessions:<br/>
 <table>

@@ -1,7 +1,14 @@
-{% extends "admin/base.html" %}
-{% load time_extras %}
+{% extends "mturk/base_app.html" %}
 
-{% block extrahead %}<script src="/code/js/prototype.js"></script>
+{% block subtitle %}Worker dashboard ({{worker.worker}}) | {% endblock %}
+
+{% block subbranding %}Worker dashboard ({{worker.worker}}) | {% endblock %}
+
+
+
+{% block extrahead %}
+
+<script src="/code/js/prototype.js"></script>
 
 <script>
 var run_block=function( worker )
@@ -21,15 +28,9 @@ var run_reject=function( worker ,reason)
 
 {% endblock %}
 
-{% block title %}{{worker.worker}}:worker internal dashboard{% endblock %}
-
-{% block branding %}
-<h1 id="site-name">Worker internal dashboard: {{worker.worker}} </h1>
-{% endblock %}
-
-
 
 {% block content %}
+
 Worker {{worker.worker}}<br/>
 
 Total submissions: {{stats.num_submissions}}<br/>

@@ -1,11 +1,10 @@
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-<title>Statistics</title>
-<script language="javascript" src="/code/js/prototype.js" > </script>
-</head>
+{% extends "mturk/base_app.html" %}
 
-<body bgcolor="#ffffff">
+{% block subtitle %}Statistics | {% endblock %}
+
+{% block subbranding %}Statistics | {% endblock %}
+
+{% block content %}
 
 <hr/>
 <table><tr><td>Session code</td><td>Session id</td><td>Num submissions</td></tr>
@@ -20,6 +19,5 @@
 {% endfor %}
 </table>
 
-</body>
+{% endblock %}
 
-</html>

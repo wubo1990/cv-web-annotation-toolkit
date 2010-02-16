@@ -5,21 +5,21 @@
 All objects are represented in JSON (i.e. via dictionary of fields)
 
 Session representation:
-   id               (string)
-   task             (name)
-   hit_limit        (number)
-   owner            (username)
-   funding          (funding account name)
-   qualifications   (list of qualification names)
-   work_engine      (processing engine name)
+   id             - Session ID  (string)
+   task           - Task definition name  (string)
+   hit_limit      - Maximum number of work units  (number)
+   owner          - User name of the session owner (string)
+   funding        - The name of the funding account  (string)
+   qualifications - The list of qualification names  (list of strings)
+   work_engine    - The name of the processing engine  ('Internal','MT_production','MT_sandbox')
 
 
 Work unit states:
-  'Idle'     - can be submitted to the processing system
-  'Active'   - has been submitted to the processing system (somebody could be working on it)
-  'Submitted'- the processing system returned it to us
-  'Reviewed' - We have reviewed it 
-  'Finalized'- Done. 
+  'Idle'        - can be submitted to the processing system
+  'Active'      - has been submitted to the processing system (somebody could be working on it)
+  'Submitted'   - the processing system returned it to us
+  'Reviewed'    - We have reviewed it 
+  'Finalized'   - Done. 
 
 Work Unit data structure:
    id           - Unique ID
@@ -28,7 +28,6 @@ Work Unit data structure:
    assignments  - reserved
    submissions  - submission IDs
    data         - raw work unit parameters
-
 
 Submission data structure:
    id           - Unique submission ID

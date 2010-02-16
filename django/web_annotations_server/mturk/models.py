@@ -207,8 +207,11 @@ class MTHit(models.Model):
 		else:
 			return None
 
+
+
 	def parse_parameters(self):
 		params={};
+		print "P:",self.parameters
 		for parm in self.parameters.split("&"):
 			(k,x,v)=parm.partition("=");
 			params[k.strip()]=v.strip();

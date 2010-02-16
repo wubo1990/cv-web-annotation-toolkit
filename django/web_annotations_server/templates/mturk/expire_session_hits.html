@@ -1,16 +1,12 @@
 {% extends "mturk/base_app.html" %}
-{% load time_extras %}
-{% load switchcase %}
 
+{% block subtitle %}Expire HITs for:{{session.code}} | {% endblock %}
 
-{% block subtitle %}Expire HITs for:{{session.code}}{% endblock %}
-
-{%block subbranding %}Expire HITs for {{session.code}} | {% endblock %}
-
-{%block app-breadcrumbs %}{%if nav.session%} | <a href="/mt/dashboard/session/{{nav.session.code}}/">Session {{nav.session.code}}</a>{%endif%}{%endblock%}
+{% block subbranding %}Expire HITs for {{session.code}} | {% endblock %}
 
 
 {% block content %}
+
 <table>
 <tr><td>Affected</td><td>{{report.num_affected}}</td></tr>
 <tr><td>Skipped</td><td>{{report.num_skipped}}</td></tr>
@@ -23,5 +19,6 @@
 {{e}}<br/>
 {% endfor %}
 {% endif %}
+
 {% endblock %}
 

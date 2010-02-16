@@ -7,10 +7,21 @@
 {% block extrastyle %}{% endblock %}
 {% block extrahead %}{% endblock %}
 {% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE" />{% endblock %}
+{% block onload_default %}
+<script>
+  function on_document_load()
+  {
+  {% block onload_app %}
+  {% block onload_feature %}
+  {% endblock %}
+  {% endblock %}
+  }
+</script>
+{% endblock %}
 </head>
 {% load i18n %}
 
-<body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}">
+<body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}" onload="on_document_load();">
 
 <!-- Container -->
 <div id="container">

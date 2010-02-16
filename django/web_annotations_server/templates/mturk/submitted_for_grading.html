@@ -2,13 +2,6 @@
 
 {% block content %}
 
-{% if user.is_anonymous %}
-<p>
-Please <a href="/accounts/login/?next=/"> login</a> or <a href="/accounts/register/">register</a>.
-{% else %}
-
-{% endif %}
-
 Grading for session {{session}} submitted into session {{grading_session}}.<br/>
 Number of submissions to grade: {{stats.num_to_grade}}. <br/>
 Submitted: {{ stats.num_submitted }} <br/>
