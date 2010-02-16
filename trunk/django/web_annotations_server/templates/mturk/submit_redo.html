@@ -1,14 +1,11 @@
 {% extends "mturk/base_app.html" %}
-{% load time_extras %}
 {% load switchcase %}
 
+{% block subtitle %}Submitted HITs that don't have enough results for session {{session.code}} | {% endblock %}
 
-{% block subtitle %}Submitted redo HITs for:{{session.code}}{% endblock %}
+{% block subbranding %}Submitted HITs that don't have enough results for session {{session.code}} | {% endblock %}
 
-{%block subbranding %}Submitted redo HITs for {{session.code}} | {% endblock %}
-
-{%block app-breadcrumbs %}{%if nav.session%} | <a href="/mt/dashboard/session/{{nav.session.code}}/">Session {{nav.session.code}}</a>{%endif%}{%endblock%}
-
+{% block app-breadcrumbs %}{% if nav.session %} | <a href="/mt/dashboard/session/{{nav.session.code}}/">Session {{nav.session.code}}</a>{% endif %}{% endblock %}
 
 {% block content %}
 <table>

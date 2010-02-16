@@ -1,13 +1,8 @@
 {% extends "mturk/base_app.html" %}
-{% load time_extras %}
-{% load switchcase %}
 
+{% block subtitle %}Work approval report: {{session.code}} | {% endblock %}
 
-{% block subtitle %}Session dashboard:{{session.code}}{% endblock %}
-
-{%block subbranding %}Session dashboard: {{session.code}} | {% endblock %}
-
-{%block app-breadcrumbs %}{%if nav.session%} | <a href="/mt/dashboard/session/{{nav.session.code}}/">Session {{nav.session.code}}</a>{%endif%}{%endblock%}
+{%block subbranding %}Work approval report: {{session.code}} | {% endblock %}
 
 
 {% block content %}

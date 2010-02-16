@@ -1,5 +1,9 @@
 {% extends "mturk/base_app.html" %}
 
+{% block subtitle %}Worker dashboard ({{worker.worker}}) | {% endblock %}
+
+{% block subbranding %}Worker dashboard ({{worker.worker}}) | {% endblock %}
+
 {% block extrahead %}
     <script language="javascript" src="/code/js/bluff/js-class.js" type="text/javascript"></script>
     <script language="javascript" src="/code/js/bluff/bluff.js" type="text/javascript"></script>
@@ -7,15 +11,8 @@
 
 {% endblock %}
 
-{% block content %}
+{% block onload_feature %}
 
-{{session.code}}<br/>
-Average time per submission: {{average_time}} seconds<br/>
-<hr/>
-
-<canvas id='times_graph'>
-
-<script>
    var g = new Bluff.Line('times_graph', 400);
 
   // Set theme and options
@@ -27,33 +24,18 @@ Average time per submission: {{average_time}} seconds<br/>
 {% for t in times %}{{t}}, {% endfor %}
   ];
   g.data('Time per submission',subm); 
-  //g.labels = {0: '2003',10:'213'};
 
   // Render the graph
   g.draw();
-</script>
 
+{% endblock %}
+
+{% block content %}
+
+{{session.code}}<br/>
+Average time per submission: {{average_time}} seconds<br/>
 <hr/>
-{% comment %}
-<canvas id='submission_graph'>
 
-<script>
-   var g = new Bluff.Line('submission_graph', 400);
+<canvas id='times_graph'>
 
-  // Set theme and options
-  g.theme_keynote();
-  g.title = 'My Graph';
-
-  // Add data and labels
-  var subm=[
-{% for s in submissions %}{{s.diff}}, {% endfor %}
-  ];
-  g.data('Submission time from start',subm); 
-  g.labels = {0: '2003',10:'213'};
-
-  // Render the graph
-  g.draw();
-</script>
-
-{% endcomment %}
 {% endblock %}

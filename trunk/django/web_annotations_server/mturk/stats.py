@@ -35,8 +35,13 @@ def session_stats_by_worker(request,session_code):
 
 
 
+@login_required
+def session_stats(request,session_code):
+    session = get_object_or_404(Session,code=session_code);
+    stats = hit_counts_by_state(session)
 
-
-
+    resp=HttpResponse()
+    resp.write(yaml.dump(stats));
+    return resp;
 
 

@@ -1,23 +1,12 @@
-{% extends "admin/base.html" %}
-{% load time_extras %}
+{% extends "mturk/base_app.html" %}
 
-{% block extrahead %}<script src="/code/js/prototype.js"></script>
+{% block subtitle %}Worker dashboard ({{worker.worker}}) | {% endblock %}
 
-<script>
-
-</script>
-
-{% endblock %}
-
-{% block title %}{{worker.worker}}:worker dashboard{% endblock %}
-
-{% block branding %}
-<h1 id="site-name">Worker dashboard: {{worker.worker}} </h1>
-{% endblock %}
-
+{% block subbranding %}Worker dashboard ({{worker.worker}}) | {% endblock %}
 
 
 {% block content %}
+
 Worker {{worker.worker}}<br/>
 
 Total submissions: {{stats.num_submissions}}<br/>
@@ -41,9 +30,6 @@ Grading results:<br/>
 </tr>
 {% endfor %}
 </table>
-
-
-
 
 
 {% endblock %}

@@ -4,6 +4,15 @@
 
 {% block extrahead %}
 <script src="/code/js/prototype.js" language="javascript"></script>
+
+<script>
+var run_search=function(session_code,search_inp)
+{
+ loc="/mt/good_results_w_filter/"+session_code+"/p1/"+search_inp+"/";
+ window.location=loc;
+}
+</script>
+
 {% endblock %}
 
 {% block subtitle %}Session dashboard:{{session.code}}{% endblock %}
@@ -14,17 +23,6 @@
 
 
 {% block content %}
-
-<script>
-var run_search=function(session_code,search_inp)
-{
- loc="/mt/good_results_w_filter/"+session_code+"/p1/"+search_inp+"/";
- window.location=loc;
-}
-
-
-
-</script>
 
 <table><tr><td>
 Session {{session.code}} [{% if session.sandbox %}

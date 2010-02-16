@@ -1,39 +1,22 @@
-# Create your views here.
-
-import urllib,uuid,os,sys,shutil,subprocess,copy
-from PIL import Image
+# Python imports
+import urllib,uuid,os,shutil,copy, math
 import cPickle as pickler
 
+# Library imports
+from PIL import Image
+import yaml
+
+# Django imports
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
-
 from django.http import HttpResponse,Http404,HttpResponseRedirect
 from django.shortcuts import render_to_response,get_object_or_404 
 from django.views.generic.list_detail import object_list
-
 from django.contrib.auth.decorators import login_required
-from subprocess import *
+from django.views.static import serve as static_serve
 
-import yaml
-import xml.sax.saxutils
-
+# Project imports
 import ros_integration
-
-try:
-    from boto.mturk.connection import MTurkConnection
-    from boto.mturk.question import ExternalQuestion
-    from boto.mturk.qualification import Qualifications, PercentAssignmentsApprovedRequirement,Requirement
-    from boto.mturk.qualification_type import *
-    import qualifications.views as qual_views
-    hasBoto=True
-except Exception,e:
-    print e
-    
-    hasBoto=False
-
-from django.views.static import serve
-import django
-
 
 from models import *
 from models_stats import *
@@ -45,7 +28,9 @@ def index(request):
     return HttpResponse("Mechanical turk server.")
 
 
+@login_required
 def main(request):
+    "List of user sessions"
     if not request.user.is_anonymous():
         sessions=request.user.session_set.all().order_by('-id');
     else:
@@ -54,10 +39,14 @@ def main(request):
 
 @login_required
 def main_all(request):
+    "List of all sessions
+    @todo: Create a permission to see other users' sessions
+    "
     sessions=Session.objects.all().order_by('-id');
     return render_to_response('mturk/main.html',{'user':request.user,'sessions':sessions});
 
 	
+
 def get_task_parameters(request,task_name):
     task = get_object_or_404(Task,name=task_name)
     return HttpResponse(task.interface_xml,mimetype="text/xml");
@@ -69,14 +58,13 @@ def send_hit_parameters(request,ext_id):
     else:
         return HttpResponse(hit.parameters,mimetype="text/plain");
 
+
 def show_session_hits(request,session_code,hit_state,page=1):
     session = get_object_or_404(Session,code=session_code)
     if int(hit_state)>0:
         hits=session.mthit_set.filter(state=int(hit_state))
     else:
         hits=session.mthit_set.all();
-    print session
-    print hits
     
     num_per_page=session.task_def.type.get_engine().get_internal_params().get('list_num_per_page',settings.NUM_HITS_PER_PAGE)
 
@@ -264,28 +252,28 @@ def submit_result(request):
 
 
 def get_submission_data_xml(request,id=None,ext_hitid=None):
-	submission = get_object_or_404(SubmittedTask,id=int(id))
+    submission = get_object_or_404(SubmittedTask,id=int(id))
 	
-	str_response=submission.get_xml_str();
+    str_response=submission.get_xml_str();
 
-    	return HttpResponse(str_response,mimetype="text/xml");
+    return HttpResponse(str_response,mimetype="text/xml");
 
 
 
 def get_rendered_submission(request,id=None,ext_hitid=None):
-	submission = get_object_or_404(SubmittedTask,id=int(id))
+    submission = get_object_or_404(SubmittedTask,id=int(id))
 
-	img_file = submission.hit.parse_parameters()["frame"];
-	dataset_path=os.path.join(settings.DATASETS_ROOT,submission.session.code);
-	image_filename=os.path.join(dataset_path,img_file+".jpg");
-	im = Image.open(image_filename);	
+    img_file = submission.hit.parse_parameters()["frame"];
+    dataset_path=os.path.join(settings.DATASETS_ROOT,submission.session.code);
+    image_filename=os.path.join(dataset_path,img_file+".jpg");
+    im = Image.open(image_filename);	
 
-	str_response=submission.get_xml_str();
+    str_response=submission.get_xml_str();
 
-	response = HttpResponse(mimetype="image/jpeg")
-	im.save(response, "JPEG")
+    response = HttpResponse(mimetype="image/jpeg")
+    im.save(response, "JPEG")
 
-    	return response
+    return response
 
 
 
@@ -307,8 +295,8 @@ def show_random_results(request,session_code):
 def show_paged_results_base(request,session_code):
     return HttpResponseRedirect("p1/");
 
-import math
 
+@login_required
 def show_sessions(request):
 	sessions = Session.objects.all()
 	return render_to_response('show_sessions.html', {'sessions':sessions})
@@ -331,7 +319,7 @@ def show_paged_results(request,session_code,page=1,order_by=None):
 	return object_list(request,queryset=results, paginate_by=num_per_page, page=page,
 			template_name='protocols/' +protocol+'/show_list.html',extra_context={'page_range':page_range,'nav':nav});
 
-
+@login_required
 def show_all_results(request,session_code):
         session = get_object_or_404(Session,code=session_code)
         protocol=session.task_def.type.name
@@ -339,9 +327,11 @@ def show_all_results(request,session_code):
         extra_context={'nav':{'session':session}}
         return object_list(request,queryset=results,template_name='protocols/'+protocol+'/grading_list.html',extra_context=extra_context);
 
+@login_required
 def show_bad_results_paged_base(request,session_code):
     return HttpResponseRedirect("p1/");
 
+@login_required
 def show_bad_results_paged(request,session_code,page=1,order_by=None,num_per_page=None,template_name=None):
     session = get_object_or_404(Session,code=session_code)
 
@@ -429,7 +419,7 @@ def show_good_results_paged(request,session_code,page=1,filter=None,order_by=Non
 
 
 
-
+@login_required
 def show_good_results_w_filter_paged(request,session_code,page=1,filter=None,order_by=None,num_per_page=None,template_name=None):
         session = get_object_or_404(Session,code=session_code)
 
@@ -457,7 +447,6 @@ def show_good_results_w_filter_paged(request,session_code,page=1,filter=None,ord
 
 
 
-import math
 
 
 
@@ -477,13 +466,16 @@ def show_most_recent_result(request,session_code,page=1):
 	return object_list(request,queryset=results, paginate_by=num_per_page, page=page,
 			template_name='protocols/' +protocol+'/show_list.html',extra_context={'refresh_rate':10000,'nav':nav});
 
+@login_required
 def show_sessions(request):
 	sessions = Session.objects.all()
 	return render_to_response('show_sessions.html', {'sessions':sessions})
 
+@login_required
 def grading_paged_base(request,session_code):
     return HttpResponseRedirect("p1/");
 
+@login_required
 def grading_paged(request,session_code,page=1):
 	session = get_object_or_404(Session,code=session_code)
 	protocol=session.task_def.type.name;
@@ -494,6 +486,7 @@ def grading_paged(request,session_code,page=1):
 	return object_list(request,queryset=results, paginate_by=10, page=page,
 			template_name='protocols/' +protocol+'/grading_list.html',extra_context={'nav':nav});
 
+@login_required
 def grading_thumbnail_random(request,session_code):
 	session = get_object_or_404(Session,code=session_code)
 	protocol=session.task_def.type.name;
@@ -504,13 +497,12 @@ def grading_thumbnail_random(request,session_code):
 	return object_list(request,queryset=results, paginate_by=9, page=1,
                            template_name='protocols/' +protocol+'/grading_thumbnail.html',extra_context={'nav':nav});
 
-
+@login_required
 def grading_by_worker_paged_base(request,session_code,worker_code):
     return HttpResponseRedirect("p1/");
 
-def grading_by_worker_no_session_paged_base(request,session_code,worker_code):
-    return HttpResponseRedirect("p1/");
 
+@login_required
 def grading_by_worker_paged(request,session_code,worker_code,page=1):
 	session = get_object_or_404(Session,code=session_code)
 	protocol=session.task_def.type.name;
@@ -524,34 +516,42 @@ def grading_by_worker_paged(request,session_code,worker_code,page=1):
                            template_name='protocols/' +protocol+'/grading_list.html',extra_context={'nav':nav});
 
 @login_required
-def grading_submit(request,submissionID):
-	submission = get_object_or_404(SubmittedTask,id=submissionID)
+def grading_by_worker_no_session_paged_base(request,session_code,worker_code):
+    raise NotImplemented();
 
-        (worker,created)=Worker.objects.get_or_create(worker=request.user.username)
-        if created and request.user.is_superuser:
-            worker.utility = 100;
-            worker.save()
-
-	gr=ManualGradeRecord(submission=submission,
-		quality=int(request.REQUEST['quality']),
-		feedback=request.REQUEST['feedback'],
-                       worker=worker);      
-	gr.save();
-	return HttpResponse("+")
-
-
+@login_required
 def grading_by_worker_no_session_paged(request,worker_code,page=1):
-	session = get_object_or_404(Session,code=session_code)
-	protocol=session.task_def.type.name;
+    raise NotImplemented();
 
-        num_per_page=10
+@login_required
+def grading_by_submission_id(request,session_code,submission_id):
+    session = get_object_or_404(Session,code=session_code)
+    results = session.submittedtask_set.filter(id=submission_id)
+    print results,session,submission_id
+    protocol=session.task_def.type.name;
 
-    	results=Submittedtask.objects.filter(worker=worker_code);
-        protocol="gxml"
+    return object_list(request,queryset=results, paginate_by=1, page=1,
+                       template_name='protocols/' +protocol+'/grading_list.html');
 
-        nav={'session':session}
-	return object_list(request,queryset=results, paginate_by=num_per_page, page=page,
-			template_name='protocols/' +protocol+'/grading_list.html',extra_context={'nav':nav});
+
+@login_required
+def grading_submit(request,submissionID):
+    submission = get_object_or_404(SubmittedTask,id=submissionID)
+
+    (worker,created)=Worker.objects.get_or_create(worker=request.user.username)
+    if created and request.user.is_superuser:
+        worker.utility = 100;
+        worker.save()
+
+    gr=ManualGradeRecord(submission=submission,
+                         quality=int(request.REQUEST['quality']),
+                         feedback=request.REQUEST['feedback'],
+                         worker=worker);      
+    gr.save();
+    return HttpResponse("+")
+
+
+
 
 
 
@@ -584,57 +584,51 @@ def adjudicate_by_conflict_type(request,session_code,grade_A,grade_B,page=1):
 
 @login_required
 def adjudicate_submit(request,submissionID):
-	submission = get_object_or_404(SubmittedTask,id=submissionID)
+    submission = get_object_or_404(SubmittedTask,id=submissionID)
 
-        (worker,created)=Worker.objects.get_or_create(worker=request.user.username)
-        if created and request.user.is_superuser:
-            worker.utility = 100;
-            worker.save()
+    (worker,created)=Worker.objects.get_or_create(worker=request.user.username)
+    if created and request.user.is_superuser:
+        worker.utility = 100;
+        worker.save()
 
-	gr=ManualGradeRecord(submission=submission,
-		quality=int(request.REQUEST['quality']),
-		feedback=request.REQUEST['feedback'],
-                       worker=worker);      
-	gr.save();
-        nChanged=0;
-        for grade in submission.manualgraderecord_set.all():
-            if grade.quality <> gr.quality:
-                grade.valid = False;
-                grade.save();
-                nChanged += 1;
+    gr=ManualGradeRecord(submission=submission,
+                         quality=int(request.REQUEST['quality']),
+                         feedback=request.REQUEST['feedback'],
+                         worker=worker);      
+    gr.save();
+    nChanged=0;
+    for grade in submission.manualgraderecord_set.all():
+        if grade.quality <> gr.quality:
+            grade.valid = False;
+            grade.save();
+            nChanged += 1;
 
-	return HttpResponse("+ %d" % nChanged)
+    return HttpResponse("+ %d" % nChanged)
 
 
-
+@login_required
 def show_grading_conflict_details(request,session_code,grade_1_id,grade_2_id):
-	session = get_object_or_404(Session,code=session_code)
+    session = get_object_or_404(Session,code=session_code)
 
-    	results=get_grade_conflict_details(session,grade_1_id,grade_2_id)
-        nav={'session':session}
-	return render_to_response('mturk/conflict_details_list.html',
-				{'session':session,'g1':grade_1_id,'g2':grade_2_id,'conflicts':results,'nav':nav})
+    results=get_grade_conflict_details(session,grade_1_id,grade_2_id)
+    nav={'session':session}
+    return render_to_response('mturk/conflict_details_list.html',
+                              {'session':session,'g1':grade_1_id,'g2':grade_2_id,'conflicts':results,'nav':nav})
 
+"""@login_required
 def grade_the_grading_by_worker_object(request,session_code,worker_code,task_id,grade):
-	session = get_object_or_404(Session,code=session_code)
-	grading_session = get_object_or_404(Session,code=session_code+"-grading")
+    session = get_object_or_404(Session,code=session_code)
+    grading_session = get_object_or_404(Session,code=session_code+"-grading")
 
-    	results=get_grading_tasks_for_grading_submission(session,grading_session,worker_code,task_id)
+    results=get_grading_tasks_for_grading_submission(session,grading_session,worker_code,task_id)
 
-	protocol=grading_session.task_def.type.name;
+    protocol=grading_session.task_def.type.name;
 
-        nav={'session':session}
-	return object_list(request,queryset=results, paginate_by=1, page=page,
-                           template_name='protocols/' +protocol+'/grading_list.html',extra_context={'nav':nav});
+    nav={'session':session}
+    return object_list(request,queryset=results, paginate_by=1, page=page,
+                       template_name='protocols/' +protocol+'/grading_list.html',extra_context={'nav':nav});
+"""
 
-def grading_by_submission_id(request,session_code,submission_id):
-	session = get_object_or_404(Session,code=session_code)
-	results = session.submittedtask_set.filter(id=submission_id)
-        print results,session,submission_id
-	protocol=session.task_def.type.name;
-
-	return object_list(request,queryset=results, paginate_by=1, page=1,
-                           template_name='protocols/' +protocol+'/grading_list.html');
 
 def grading_report_reject(request,session_code):
 	session = get_object_or_404(Session,code=session_code);
@@ -741,12 +735,11 @@ def get_non_perfect_results(request,session_code):
 	
 	return response;
 
-
+@login_required
 def stats_all(request):
 	
 	worker_contributions= stats_worker_contributions_perfect();
 	submissions_per_session=stats_submissions_per_session();
-
 
 	return render_to_response('mturk/stats_all.html',
 				{'worker_contributions':worker_contributions,
@@ -767,7 +760,7 @@ def unban_worker(request,worker_id):
 
     return HttpResponse("unbanned");
 
-
+@login_required
 def grading_report_for_worker(request,worker_id):
 	
 	report= worker_grading_report_complete(worker_id)
@@ -860,36 +853,34 @@ def newHIT(request):
 
 
 def new_HIT_generic(request):
-	session_code = request.REQUEST['session']
+    """ 
+    @param session: Session code
+    @param parameters: Raw work unit parameters
+    @return: Magic ID of the work unite or "- {{error message}}" if it failed to create it.
+    """
+    session_code = request.REQUEST['session']
 
-	session = get_object_or_404(Session,code=session_code)
+    session = get_object_or_404(Session,code=session_code)
 
+    if session.mthit_set.count()>=session.HITlimit:
+            return HttpResponse("- HIT creation failed: maximum HIT count (%d) reached" % session.HITlimit)
 
-	if session.mthit_set.count()>=session.HITlimit:
-		return HttpResponse("HIT creation failed: maximum HIT count (%d) reached" % session.HITlimit)
+    id = session.mthit_set.count()+1;
+    rand_id=str(uuid.uuid4())+"-"+str(id)
 
-        id = session.mthit_set.count()+1;
+    params = request.REQUEST['parameters']
 
-	rand_id=str(uuid.uuid4())+"-"+str(id)
+    hit=MTHit(session=session,ext_hitid=rand_id,int_hitid=id,parameters=params);
+    hit.save();
 
-	
-        params = request.REQUEST['parameters']
+    if session.standalone_mode:
+        return HttpResponse("%s" % hit.ext_hitid)
 
-        hit=MTHit(session=session,ext_hitid=rand_id,int_hitid=id,parameters=params);
-	hit.save();
+    created,ext_id = activate_hit(session,hit)
+    if not created:
+        return HttpResponse("- %s" % ext_id)
 
-	if session.standalone_mode:
-            return HttpResponse("%s" % hit.ext_hitid)
-
-        created,ext_id = activate_hit(session,hit)
-        if not created:
-            return HttpResponse("- %s" % ext_id)
-
-	return HttpResponse("%s" % ext_id)
-
-
-
-
+    return HttpResponse("%s" % ext_id)
 
 
 
@@ -1207,7 +1198,7 @@ def dynamic_task(request,path):
     print path[0:-4]
     objects=Task.objects.filter(name=path[0:-4])
     if len(objects)==0:
-        return django.views.static.serve( request,path=path,document_root='/var/datasets/tasks/')
+        return static_serve( request,path=path,document_root='/var/datasets/tasks/')
     else:
         return HttpResponse(str(objects[0].interface_xml), mimetype="text/xml");
 
@@ -1294,15 +1285,24 @@ def get_session_work_units(request,session_code):
         return resp;
 
 
+
+
+
+
+
+
+
+
+
 def get_session_good_results(request,session_code):
-	session = get_object_or_404(Session,code=session_code)
+    session = get_object_or_404(Session,code=session_code)
 
-        response = HttpResponse();
+    response = HttpResponse();
 
-	for hit in session.mthit_set.all():            
-            response.write("%s /mt/good_hit_results_xml/%s/ /mt/hit_parameters/%s/\n" % (hit.ext_hitid,hit.ext_hitid,hit.ext_hitid));
+    for hit in session.mthit_set.all():            
+        response.write("%s /mt/good_hit_results_xml/%s/ /mt/hit_parameters/%s/\n" % (hit.ext_hitid,hit.ext_hitid,hit.ext_hitid));
 
-        return response
+    return response
 
 
 
@@ -1489,8 +1489,7 @@ def reject_poor_results(request,session_code):
                         print resp
                         approval_results.append( {'result':'rejected','assignment_id':r.assignment_id,'feedback':feedback})
                         num_rejected += 1
-                    except:
-                        e = sys.exc_info()[1]
+                    except Exception,e:
                         errors.append('Reject FAILED: %s\t"%s" : %s <br/>'% (r.assignment_id,feedback,str(e)))
                         num_errors += 1;
 
@@ -1565,8 +1564,7 @@ def approve_good_results(request,session_code):
                         r.hit.save();
 
                         approval_results.append( {'result':'approved','assignment_id':r.assignment_id,'feedback':feedback})
-                    except:
-                        e = sys.exc_info()[1]
+                    except Exception,e:
                         errors.append('Approve FAILED: %s\t"%s" : %s <br/>'% (r.assignment_id,feedback,str(e)))
 
         report={'num_approved':num_approved,
@@ -1605,8 +1603,7 @@ def approve_all_results(request,session_code):
                 r.hit.save();
                 num_approved += 1
                 approval_results.append( {'result':'approved','assignment_id':r.assignment_id,'feedback':feedback})
-            except:
-                e = sys.exc_info()[1]
+            except Exception,e:
                 errors.append('Approve FAILED: %s\t"%s" : %s <br/>'% (r.assignment_id,feedback,str(e)))
                 num_errors+=1
 
@@ -1642,8 +1639,7 @@ def approve_all_results_str(request,session):
             resp = conn.approve_assignment(r.assignment_id,feedback)
             num_approved += 1
             approval_results.append( {'result':'approved','assignment_id':r.assignment_id,'feedback':feedback})
-        except:
-            e = sys.exc_info()[1]
+        except Exception,e:
             errors.append('Approve FAILED: %s\t"%s" : %s <br/>'% (r.assignment_id,feedback,str(e)))
             num_errors += 1
         
@@ -1658,6 +1654,7 @@ def approve_all_results_str(request,session):
     return render_to_response("mturk/approval_report.html",{'report':report,'nav':nav});
 
 
+
 @login_required
 def deactivate_grade_record(request,grade_id):
     print grade_id
@@ -1665,7 +1662,6 @@ def deactivate_grade_record(request,grade_id):
     grade_record.valid=False;
     grade_record.save()
     return HttpResponse("done")
-
 
 
 def get_submission_valid_grades(request,id):
@@ -1680,13 +1676,6 @@ def get_submission_valid_grades(request,id):
         resp.write(yaml.dump(results));
         return resp;
 
-def session_stats(request,session_code):
-    session = get_object_or_404(Session,code=session_code);
-    stats = hit_counts_by_state(session)
-
-    resp=HttpResponse()
-    resp.write(yaml.dump(stats));
-    return resp;
 
 
 
@@ -1796,7 +1785,7 @@ def get_ros_publishers(request):
 
 
 
-
+@login_required
 def stats_session_detail(request,session_code):
     session = get_object_or_404(Session,code=session_code)
     nav={'session':session};

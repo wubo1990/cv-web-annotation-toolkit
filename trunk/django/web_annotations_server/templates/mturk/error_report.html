@@ -1,7 +1,12 @@
 {% extends "mturk/base_app.html" %}
 
+{% block subtitle %}Error report | {% endblock %}
+
+{% block subbranding %}Error report | {% endblock %}
+
 {% block content %}
-Encountered an error while communicating with Amazon Web Services using session <b>{{session.code}}</b> and account <b>{{session.funding.name}}</b>.
+
+Encountered an error while using session <b>{{session.code}}</b> and account <b>{{session.funding.name}}</b>.
 <hr/>
 <table>
 <tr><th>Error:</th><td>{{error}}</td></tr>

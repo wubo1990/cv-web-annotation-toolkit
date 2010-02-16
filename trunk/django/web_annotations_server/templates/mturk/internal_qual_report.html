@@ -1,15 +1,8 @@
-{% extends "admin/base.html" %}
-{% load time_extras %}
+{% extends "mturk/base_app.html" %}
 
-{% block extrahead %}<script src="/code/js/prototype.js"></script>{% endblock %}
+{% block subtitle %}Internal qualification report | {% endblock %}
 
-
-{% block title %}{{session.code}}:session dashboard{% endblock %}
-
-{% block branding %}
-<h1 id="site-name">Session dashboard: {{session.code}} </h1>
-{% endblock %}
-
+{% block subbranding %}Internal qualification report | {% endblock %}
 
 
 {% block content %}
