@@ -1,5 +1,11 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
+import roslib; roslib.load_manifest('mech_turk_ros') #django_crowd_server
+import rospy
+
+rospy.init_node("django_crowd_server",disable_signals=True,anonymous=True);
+
+from mturk.models import *
 from mturk import ros_integration
 #ros_connector = ros_integration.RosConnector.connect()
 #ros_sender=ros_integration.get_annotations_sender()

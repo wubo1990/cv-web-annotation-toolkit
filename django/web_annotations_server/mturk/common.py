@@ -1,20 +1,19 @@
 
 """ All functions directly connected to MTurk communication """
 
+from django.conf import settings
 
-try:
+if settings.MTURK_INTEGRATION:
     from boto.mturk.connection import MTurkConnection
     from boto.mturk.question import ExternalQuestion
     from boto.mturk.qualification import Qualifications, PercentAssignmentsApprovedRequirement,Requirement
     from boto.mturk.qualification_type import *
     import qualifications.views as qual_views
     hasBoto=True
-except Exception,e:
-    print "Could not import BOTO. This application will be pretty useless. Reason:",e
+else:
+    print "MTURK integration is disabled. This application will be pretty useless."
     hasBoto=False
-    raise
 
-from django.conf import settings
 from mturk.models import *
 
 class MTurkException(Exception):
