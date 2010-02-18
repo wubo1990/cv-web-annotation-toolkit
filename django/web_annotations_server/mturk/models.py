@@ -526,7 +526,11 @@ class Payment(models.Model):
 	def __str__(self):
 		return str(self.amount)+" to "+ self.worker.worker + " [" +self.get_state_display() +"]";
 
-
+	class Meta:
+		permissions = (
+			("pay bonus", "Can pay bonus"),
+			#("confirm", "Can confirm payments"),
+			)
 
 
 
