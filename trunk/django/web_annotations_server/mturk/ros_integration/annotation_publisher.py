@@ -42,7 +42,7 @@ import rospy
 import sys,pickle
 
 from std_msgs.msg import String
-from mech_turk_ros_msgs.msg import ExternalAnnotation
+from mech_turk_ros_msgs.msg import ExternalImageAnnotation
 
 from mech_turk_ros import session_2_messages
 
@@ -52,8 +52,8 @@ class PublishAnnotationNode:
 
 
         self.annotation_topic="/django_crowd_server/annotation"
-        self.annotation_pub=rospy.Publisher(self.annotation_topic,ExternalAnnotation)
-        self.annotation_topic_type='mech_turk_ros_msgs/ExternalAnnotation'
+        self.annotation_pub=rospy.Publisher(self.annotation_topic,ExternalImageAnnotation)
+        self.annotation_topic_type='mech_turk_ros_msgs/ExternalImageAnnotation'
 
     def send_annotation(self,annotation_xml,image_uid,task_name,session,uid):
         print "Create annotation"
