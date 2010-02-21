@@ -1,3 +1,38 @@
+#***********************************************************
+#* Software License Agreement (BSD License)
+#*
+#*  Copyright (c) 2008, Willow Garage, Inc.
+#*  All rights reserved.
+#*
+#*  Redistribution and use in source and binary forms, with or without
+#*  modification, are permitted provided that the following conditions
+#*  are met:
+#*
+#*   * Redistributions of source code must retain the above copyright
+#*     notice, this list of conditions and the following disclaimer.
+#*   * Redistributions in binary form must reproduce the above
+#*     copyright notice, this list of conditions and the following
+#*     disclaimer in the documentation and/or other materials provided
+#*     with the distribution.
+#*   * Neither the name of the Willow Garage nor the names of its
+#*     contributors may be used to endorse or promote products derived
+#*     from this software without specific prior written permission.
+#*
+#*  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#*  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#*  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+#*  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+#*  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+#*  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+#*  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+#*  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+#*  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+#*  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+#*  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#*  POSSIBILITY OF SUCH DAMAGE.
+#***********************************************************
+
+
 # Python imports
 import urllib,uuid,os,shutil,copy, math
 import cPickle as pickler
@@ -47,17 +82,8 @@ def main_all(request):
 
 	
 
-def get_task_parameters(request,task_name):
-    task = get_object_or_404(Task,name=task_name)
-    return HttpResponse(task.interface_xml,mimetype="text/xml");
-	
-def send_hit_parameters(request,ext_id):
-    hit = get_object_or_404(MTHit,ext_hitid=ext_id)
-    if hit.parameters.startswith("<?xml"):
-        return HttpResponse(hit.parameters,mimetype="text/xml");
-    else:
-        return HttpResponse(hit.parameters,mimetype="text/plain");
 
+	
 
 def show_session_hits(request,session_code,hit_state,page=1):
     session = get_object_or_404(Session,code=session_code)
@@ -132,131 +158,8 @@ def post_video(request,session_code=None,video_file=None):
 
 
 
-def showtask(request,session_code):
-    session = get_object_or_404(Session,code=session_code)
-
-    task_id=None
-    try:
-        if 'ExtID' in request.REQUEST:
-            task_id=request.REQUEST['ExtID']
-        else:
-            task_id=request.REQUEST['extid']
-    except:
-        if 'extid' in request.REQUEST:
-            task_id=request.REQUEST['extid']
-
-    if task_id:
-        task = get_object_or_404(MTHit,ext_hitid=task_id)
-    else:
-        id=random_task_i_havent_done(session,request.user)
-        if id is None:
-            return render_to_response('mturk/not_available.html');
-        task = get_object_or_404(MTHit,id=id)
-    
-    if "workerId" in request.REQUEST:
-        worker_id=request.REQUEST["workerId"]
-        print worker_id
-        (worker,created)=Worker.objects.get_or_create(session=None,worker=worker_id)
-        if created:
-            worker.save();
-        if worker.utility<settings.MTURK_BLOCK_WORKER_MIN_UTILITY:
-            return render_to_response('mturk/not_available.html');
-
-        exclusions=check_session_exclusions(worker,session);
-        if len(exclusions)>0:
-            reasons="";
-            for e in exclusions:
-                reasons += e[1];
-                break;
-            return render_to_response('mturk/not_available_excluded.html',{'reason':reasons} );
-
-    if task is None:
-    	return render_to_response('mturk/not_available.html');
-
-    te=task.session.task_def.type.get_engine();
-    url=te.get_task_page_url(task,request);
-
-    for k,v in request.GET.items():	
-        url=url+"&"+k+"="+v
-
-    final_url=url;
-    return HttpResponseRedirect(final_url)	
 
 
-
-
-def submit_result(request):
-
-    try:
-        task_id=""
-        if 'ExtID' in request.REQUEST:
-            task_id=request.REQUEST['ExtID']
-        if task_id=="" and 'extid' in request.REQUEST:
-            task_id=request.REQUEST['extid']
-    except:
-        if 'extid' in request.REQUEST:
-            task_id=request.REQUEST['extid']
-
-    task = get_object_or_404(MTHit,ext_hitid=task_id)
-
-    #The HIT can belong to some other session
-    session = task.session;
-    session_code=session.code;
-
-
-    workerId=request.REQUEST['workerId'];
-    if workerId=="":
-        workerId=request.user.username;
-    assignmentId=request.REQUEST['assignmentId'];
-
-
-    if session.sandbox:
-	submit_target="http://workersandbox.mturk.com/mturk/externalSubmit"
-    else:
-	submit_target="http://www.mturk.com/mturk/externalSubmit"
-
-    hit = task;
-    postS=pickler.dumps((request.GET,request.POST))    
-    submission=SubmittedTask(hit=hit,session_id=session.id,worker=workerId,assignment_id=assignmentId, response=postS);
-    submission.save();
-
-
-    if 'hitId' in request.REQUEST:
-        mturk_hit_id=request.REQUEST['hitId']
-        try:
-            mthit=MechTurkHit.object.get(mechturk_hit_id=mturk_hit_id);
-        except:
-            mthit=None;
-        if mthit:
-            mthit.state=2; #Review
-            mthit.save();
-
-    session.task_def.type.get_engine().on_submit(submission);
-    task.state=2; #Submitted
-    task.save()
-
-    print "ROS ON SUBMISSION"
-    ros_integration.on_submission(submission)
-
-    if session.standalone_mode:
-        return HttpResponseRedirect("/mt/get_task/"+session.code+"/" );
-	
-
-
-    return render_to_response('mturk/after_submit.html',
-	{'submit_target':submit_target,
-  	'extid': hit.ext_hitid, 'workerId':workerId,
-	'assignmentId':assignmentId});
-
-
-
-
-def get_submission_data_xml(request,id=None,ext_hitid=None):
-    submission = get_object_or_404(SubmittedTask,id=int(id))
-	
-    str_response=submission.get_xml_str();
-
-    return HttpResponse(str_response,mimetype="text/xml");
 
 
 
@@ -614,20 +517,6 @@ def show_grading_conflict_details(request,session_code,grade_1_id,grade_2_id):
     nav={'session':session}
     return render_to_response('mturk/conflict_details_list.html',
                               {'session':session,'g1':grade_1_id,'g2':grade_2_id,'conflicts':results,'nav':nav})
-
-"""@login_required
-def grade_the_grading_by_worker_object(request,session_code,worker_code,task_id,grade):
-    session = get_object_or_404(Session,code=session_code)
-    grading_session = get_object_or_404(Session,code=session_code+"-grading")
-
-    results=get_grading_tasks_for_grading_submission(session,grading_session,worker_code,task_id)
-
-    protocol=grading_session.task_def.type.name;
-
-    nav={'session':session}
-    return object_list(request,queryset=results, paginate_by=1, page=page,
-                       template_name='protocols/' +protocol+'/grading_list.html',extra_context={'nav':nav});
-"""
 
 
 def grading_report_reject(request,session_code):

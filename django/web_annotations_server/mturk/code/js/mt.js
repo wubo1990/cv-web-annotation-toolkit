@@ -92,37 +92,6 @@ var MT_setup_instructions=function()
   $('a_instructions').href=instructions_URL;
 }
 
-function create_flash_interface(swf,swf_w,swf_h,query_args){
-  if (AC_FL_RunContent == 0) {
-    alert("This page requires AC_RunActiveContent.js.");
-  } else {
-    $('flash_div').innerHTML=
-      AC_FL_RunContent2(
-	'codebase', 'http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0',
-	'width', swf_w,
-	'height', swf_h,
-	'src', swf,
-	'quality', 'high',
-	'pluginspage', 'http://www.macromedia.com/go/getflashplayer',
-	'align', 'middle',
-	'play', 'true',
-	'loop', 'true',
-	'scale', 'showall',
-	'wmode', 'window',
-	'devicefont', 'false',
-	'id', 'annotation_gui',
-	'bgcolor', '#ffffff',
-	'name', 'annotation_gui',
-	'menu', 'true',
-	'allowFullScreen', 'false',
-	'allowScriptAccess','always',
-	'movie', swf,
-	'salign', '',
-	'FlashVars', query_args
-      ); //end AC code
-
-  }
-}
 
 
 
@@ -261,39 +230,33 @@ var mt_submit_handler=function (){
 }
 
 
-var create_video_flash=function(id,src,w,h,play)
-{
-    swf='/code/video_display';
-    swf_w=w;
-    swf_h=h;
-    query_args='video_url='+src;
-    if(play=="play"){
-	query_args+="&video_mode=play";
-    }
 
-    return AC_FL_RunContent2(
-			     'codebase', 'http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0',
-			     'width', swf_w,
-			     'height', swf_h,
-			     'src', swf,
-			     'quality', 'high',
-			     'pluginspage', 'http://www.macromedia.com/go/getflashplayer',
-			     'align', 'middle',
-			     'play', 'true"',
-			     'loop', 'true',
-			     'scale', 'showall',
-			     'wmode', 'window',
-			     'devicefont', 'false',
-			     'id', 'annotation_gui',
-			     'bgcolor', '#ffffff',
-			     'name', 'annotation_gui',
-			     'menu', 'true',
-			     'allowFullScreen', 'false',
-			     'allowScriptAccess','always',
-			     'movie', swf,
-			     'salign', '',
-			     'FlashVars', query_args
-			     ); //end AC code
+var get_persistent_value=function (var_name,default_value){
+    var Cookies = new CookieHandler();
+    var stored_cookie = Cookies.getCookie('persistent_var__'+var_name); // get cookie
+    if (typeof(stored_cookie) == 'undefined' || stored_cookie==null) 
+    {
+	stored_cookie=default_value;
+    }
+    return stored_cookie;
 }
 
+var set_persistent_value=function (var_name,value){
+    var Cookies = new CookieHandler();
+    Cookies.setCookie('persistent_var__'+var_name,value, 30*24*3600); // set cookie for 1 month
+}
 
+var disableEnterKey=function(e)
+{
+     var key;
+
+     if(window.event)
+          key = window.event.keyCode;     //IE
+     else
+          key = e.which;     //firefox
+
+     if(key == 13)
+          return false;
+     else
+          return true;
+}

@@ -8,6 +8,13 @@ from datastore import xmlmisc
 import xml.dom.minidom
 from xml.dom.minidom import Node
 
+if settings.ROS_INTEGRATION:
+    import roslib; roslib.load_manifest('crowd_quality') 
+    from crowd_quality.bbox import compute_agreement as bbox__compute_agreement
+else:
+    def bbox__compute_agreement(x_submission,x_gold):
+        return 1;
+
 
 class GXmlTaskEngine(TaskEngine):
     def get_internal_params(self):
@@ -165,6 +172,9 @@ class GXmlTaskEngine(TaskEngine):
             return "&image_url="+params["image_url"]
 
     def get_submission_xml(self,submission):
+        return self.get_submission_xml_doc(submission).toxml()
+
+    def get_submission_xml_doc(self,submission):
 	GET,POST=submission.get_response()
 
 	shapes_xml=urllib.unquote_plus(POST['sites']);
@@ -187,7 +197,7 @@ class GXmlTaskEngine(TaskEngine):
         x_ref.setAttribute("worker",str(submission.worker));
         x_ref.setAttribute("url",submission.get_persistent_url());
 
-	return x_doc.toxml()
+	return x_doc
 
 
     def estimate_time_spent(self,submission):
@@ -211,3 +221,15 @@ class GXmlTaskEngine(TaskEngine):
             except:
                 return 0
 
+    def grade(self,submission,gold_session):
+        x_submission=self.get_submission_xml_doc(submission)
+
+        workitem=submission.hit;
+        gold_submissions=GoldSubmission.objcets.filter(workitem=workitem);
+        all_agreement_scored=[];
+        for gold in gold_submissions:
+            x_gold=self.get_submission_xml_doc(gold)
+            agreement=crowd_quality.bbox.compute_agreement(x_submission,x_gold)
+            all_agreement_scores.append(agreement)
+
+        return mean(all_agreement_scored)*100

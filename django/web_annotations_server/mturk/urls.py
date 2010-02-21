@@ -22,13 +22,14 @@ urlpatterns = patterns('',
 
     #External interface exposed to Mechanical Turk:
     #  Show the work unit corresponding to the HIT/Assignment
-    (r'^get_task/(?P<session_code>[\w\-]+)/', 'mturk.views.showtask'),
+    (r'^get_task/(?P<session_code>[\w\-]+)/', 'mturk.worker_views.get_task_page'),
     #  Submit work results
-    (r'^submit/', 'mturk.views.submit_result'),
+    (r'^submit/', 'mturk.worker_views.submit_result'),
 
 
     #Get submission data as an XML document. It's necessary to render the submission in the browser
-    (r'^submission_data_xml/(?P<id>\d+)/(?P<ext_hitid>[\w\-]+)/$', 'mturk.views.get_submission_data_xml'),
+    (r'^submission_data_xml/(?P<id>\d+)/(?P<ext_hitid>[\w\-]+)/$', 'mturk.worker_views.get_submission_data_xml'),
+
 
 
     #Browse submissions online:                       
@@ -61,8 +62,8 @@ urlpatterns = patterns('',
     #Public(require "magic ID"):
     (r'^hit_results_xml/(?P<ext_id>[\w\-]+)/', 'mturk.views.get_hit_results_xml'),
     (r'^work_unit/(?P<ext_id>[\w\-]+)/submission/all/xml/', 'mturk.views.get_hit_results_xml'),
-    (r'^hit_parameters/(?P<ext_id>[\w\-]+)/', 'mturk.views.send_hit_parameters'),
-    (r'^task_parameters/(?P<task_name>[\w\-]+)/', 'mturk.views.get_task_parameters'),
+    (r'^hit_parameters/(?P<ext_id>[\w\-]+)/', 'mturk.worker_views.send_hit_parameters'),
+    (r'^task_parameters/(?P<task_name>[\w\-]+)/', 'mturk.worker_views.get_task_parameters'),
     #END public                       
 
 
@@ -148,7 +149,7 @@ urlpatterns = patterns('',
     #EXPERIMENTAL:                       
 
     #Work unit                
-    (r'^(?P<protocol>[\w-]+)/(?P<session_code>[\w\-]+)/task.html', 'mturk.views.showtask'),
+    (r'^(?P<protocol>[\w-]+)/(?P<session_code>[\w\-]+)/task.html', 'mturk.views.get_task_page'),
 
 
     (r'^post_image/(?P<session_code>\d+)/(?P<frame>[\w\-]+)/$', 'mturk.views.post_image'),

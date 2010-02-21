@@ -523,3 +523,93 @@ ORDER by c DESC
         raise
 
     return contributions
+
+
+def stats_worker_contributions_perfect():
+    from django.db import connection
+    cursor = connection.cursor()
+    cursor.execute("""
+SELECT worker, count( sid ) num_sessions, sum( contribution ) total_contribution
+FROM (
+
+SELECT st.worker worker, st.session_id sid, count( st.hit_id ) contribution
+FROM `mturk_submittedtask` st, mturk_manualgraderecord mgr
+WHERE mgr.submission_id = st.id
+AND mgr.quality >9
+GROUP BY worker, st.session_id
+)tmp
+GROUP BY worker
+ORDER BY total_contribution DESC 
+""")
+    results=[];
+    try:
+	for r in cursor.fetchall():
+		res={'worker':r[0],
+			'num_sessions':r[1],
+			'contribution':r[2]};
+		results.append(res);
+	cursor.close();
+	return results
+    except:
+	return None
+
+    return None
+
+
+
+def stats_worker_contributions_any():
+    from django.db import connection
+    cursor = connection.cursor()
+    cursor.execute("""
+SELECT worker, count( sid ) num_sessions, sum( contribution ) total_contribution
+FROM (
+
+SELECT st.worker worker, st.session_id sid, count( st.hit_id ) contribution
+FROM `mturk_submittedtask` st
+GROUP BY worker, st.session_id
+)tmp
+GROUP BY worker
+ORDER BY total_contribution DESC 
+""")
+    results=[];
+    try:
+	for r in cursor.fetchall():
+		res={'worker':r[0],
+		     'num_sessions':r[1],
+		     'contribution':r[2]};
+		results.append(res);
+	cursor.close();
+	return results
+    except:
+	return None
+
+    return None
+
+
+
+
+
+def stats_submissions_per_session():
+    from django.db import connection
+    cursor = connection.cursor()
+    cursor.execute("""
+SELECT s.code, session_id, count( * )
+FROM `mturk_submittedtask`
+LEFT JOIN mturk_session s ON s.id = session_id
+GROUP BY session_id
+ORDER BY session_id DESC
+""")
+    results=[];
+    try:
+	for r in cursor.fetchall():
+		res={'session_code':r[0],
+			'session_id':r[1],
+			'submissions':r[2]};
+		results.append(res);
+	cursor.close();
+	return results
+    except:
+	return None
+
+    return None
+
