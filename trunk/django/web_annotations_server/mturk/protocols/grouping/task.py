@@ -7,6 +7,8 @@ from xml.dom import minidom
 from mturk.protocols.task import TaskEngine
 import cPickle as pickler
 
+
+
 class GroupingTaskEngine(TaskEngine):
     def get_internal_params(self):
         return {'list_num_per_page':10,
@@ -117,3 +119,4 @@ class GroupingTaskEngine(TaskEngine):
 
         
         return x_doc
+

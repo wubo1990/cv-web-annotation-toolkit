@@ -47,3 +47,8 @@ class TaskEngine:
     def get_models(self):
         """ To avoid recursive dependencies, this is the only way tasks are allowed to access mturk.models"""
         return sys.modules["web_annotations_server.mturk.models"]
+
+
+
+    def grade(self,submission,gold_session):
+        raise "Not implemented" 

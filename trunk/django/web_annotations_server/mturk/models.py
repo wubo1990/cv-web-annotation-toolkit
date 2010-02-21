@@ -129,6 +129,7 @@ class Session(models.Model):
 
 	standalone_mode = models.BooleanField(default=False);
 	sandbox         = models.BooleanField(default=True);
+	is_gold         = models.BooleanField(default=False);
 	HITlimit        = models.IntegerField(default=100);
 
 	parameters=models.TextField(null=True, blank=True); #depreciated
@@ -187,7 +188,6 @@ HIT_STATE = (
 class MTHit(models.Model):
 	session=models.ForeignKey(Session);
 
-	#mt_hitid=models.TextField(null=True,defalut=null);
 	ext_hitid=models.TextField();
 	int_hitid=models.TextField();
 	parameters=models.TextField();
@@ -226,6 +226,7 @@ class MTHit(models.Model):
 		return te.get_thumbnail_url(self)
 
 WorkUnit=MTHit
+WorkItem=MTHit
 
 
 MT_HIT_STATE = (
@@ -443,15 +444,6 @@ class WorkerMetricsQualifications(models.Model):
 		return self.account.name+"-"+self.get_metric_type_display() +"-"+self.get_engine_display()+"["+self.external_id+"]";					   
 
 
-class GoldStandardQualification(models.Model):
-	gold_session = models.ForeignKey(Session);
-
-	num_tasks              = models.IntegerField(default=3);
-	random_check_frequency = models.DecimalField(max_digits=7,decimal_places=4);
-	min_score              = models.DecimalField(max_digits=7,decimal_places=4,
-                                 default="100.0",
-                                 help_text="The minimum score required to pass.");
-
 
 class MTurkQualification(models.Model):
 
@@ -473,20 +465,6 @@ class MTurkQualificationDefinition(models.Model):
         def __str__(self):
           return self.name;
 
-class GoldStandardGradeRecord(models.Model):
-	session = models.ForeignKey(Session);
-	worker 	= models.ForeignKey(Worker);
-	hit 	= models.ForeignKey(MTHit);
-
-	performance = models.TextField()
-	grade 	= models.TextField()
-	submitted = models.DateTimeField(auto_now_add=True);
-
-	class Admin:
-		pass
-
-
-
 class ManualGradeRecord(models.Model):
 	submission=models.ForeignKey(SubmittedTask);
 	quality=models.IntegerField(default=10);
@@ -500,6 +478,77 @@ class ManualGradeRecord(models.Model):
 			'valid':str(self.valid),
 			'quality':str(self.quality),
 			'feedback':str(self.feedback)};
+
+
+
+
+class GoldStandardQualification(models.Model):
+	"""We will allow N random practice assignments, M initial gold
+	checking assignments and the rest of the gold standard
+	assignments will be used at random with frequency R.
+	
+	@TODO: This will create potential problem for really high performance users
+	"""
+	gold_session           = models.ForeignKey(Session);
+
+	num_gold_practice      = models.IntegerField(default=3);
+	num_gold_initial       = models.IntegerField(default=3);
+	random_check_frequency = models.DecimalField(max_digits=7,decimal_places=4);
+	min_gpa                = models.DecimalField(max_digits=7,decimal_places=4,
+                                 default="90.0",
+                                 help_text="The minimum score required to pass.");
+	passing_submission_grade = models.DecimalField(max_digits=7,decimal_places=4,
+						       default="90.0",
+						       help_text="The minimum grade for a single submission.");
+
+	min_passing_rate         = models.DecimalField(max_digits=7,decimal_places=4,
+						       default="90.0",
+						       help_text="The minimum 'approval' rate.");
+
+class WorkerTrainingProgress(models.Model):
+	worker 	               = models.ForeignKey(Worker);
+	gold_qual              = models.ForeignKey(GoldStandardQualification);
+	num_normal_submissions = models.IntegerField(default=0);
+	num_gold_submissions   = models.IntegerField(default=0);
+	num_passing_submissions= models.IntegerField(default=0);
+	next_check             = models.IntegerField(default=-1);
+	grade_total            = models.DecimalField(max_digits=15,decimal_places=5)
+	grade_average          = models.DecimalField(max_digits=15,decimal_places=5)
+
+
+class GoldSubmission(models.Model):
+	workitem    = models.ForeignKey(MTHit)
+	submission  = models.ForeignKey(SubmittedTask)
+	
+
+class GoldStandardGradeRecord(models.Model):
+	gold_session = models.ForeignKey(Session); #Gold session
+	worker 	     = models.ForeignKey(Worker);
+	workitem     = models.ForeignKey(MTHit);
+	submission   = models.ForeignKey(SubmittedTask)
+
+	performance   = models.TextField(blank=True)
+	grade         = models.DecimalField(max_digits=15,decimal_places=5)
+	submitted     = models.DateTimeField(auto_now_add=True);
+
+	class Admin:
+		pass
+
+ITEM_SUBSTITUTION_STATE = (
+            (1, 'Tentative'),
+            (2, 'Confirmed'),
+            (3, 'Cleared'),
+            (4, 'Cancelled'),
+)
+
+class ItemSubstitutions(models.Model):
+	worker 	       = models.ForeignKey(Worker);
+	requested_item = models.ForeignKey(WorkItem,related_name='substitutions_as_requested');
+	shown_item     = models.ForeignKey(WorkItem,related_name='substitutions_as_shown');
+	expires        = models.DateTimeField();
+	state = models.IntegerField(default=1,choices=ITEM_SUBSTITUTION_STATE);
+
+
 
 
 PAYMENT_STATE = (
@@ -535,651 +584,16 @@ class Payment(models.Model):
 
 
 
-def select_sample_task(session):
-	try:
-		sample=session.mthit_set.all()[0]
-		print sample
-	except IndexError:
-		return None;
 
-	return sample	
 
 
 
-
-def random_task_i_havent_done(session,workerId):
-    from django.db import connection
-    cursor = connection.cursor()
-    print  session, type(session.id), workerId
-    cursor.execute("""
- SELECT count( hid )
-FROM (
-
-SELECT hits.id hid, st.worker w
-FROM mturk_mthit hits
-LEFT OUTER JOIN mturk_submittedtask st ON hits.id = st.hit_id
-AND st.worker = %s
-WHERE hits.session_id =%s
-
-) tmp
-WHERE w IS NULL 
-""",[workerId,session.id])
-    try:
-    	row = cursor.fetchone()
-    	numAvailableTasks=row[0]
-	print numAvailableTasks
-	if  numAvailableTasks==0:
-		return None
-    except:
-	return None
-    print 'row',row
-    print 'numAvailableTasks',numAvailableTasks
-    	
-    selectedTask=random.randint(1,numAvailableTasks);
-    print 'selectedTask',selectedTask
-    cursor.execute("""
- SELECT  hid 
-FROM (
-
-SELECT hits.id hid, st.worker w
-FROM mturk_mthit hits
-LEFT OUTER JOIN mturk_submittedtask st ON hits.id = st.hit_id
-AND st.worker = %s
-WHERE hits.session_id =%s
-) tmp
-WHERE w IS NULL LIMIT 1 OFFSET %s
-""",[workerId,session.id,selectedTask-1])	#Stupid SQL. It sided with python in 0-based counting.
-
-    try:
-    	row = cursor.fetchone()
-    	taskID=row[0]
-	print taskID
-    	cursor.close();
-    except:
-	return None
-
-    return taskID
-
-
-def task_w_least_coverage(session,workerId):
-    from django.db import connection
-    cursor = connection.cursor()
-    print workerId, session.id
-    cursor.execute("""
- SELECT hid, count( stCounts.id ) totalCount
-FROM (
-
-SELECT hits.id hid, st.worker w
-FROM mturk_mthit hits
-LEFT OUTER JOIN mturk_submittedtask st ON hits.id = st.hit_id
-AND st.worker = %s
-WHERE hits.session_id = %s
-)tmp LEFT OUTER JOIN  mturk_submittedtask stCounts
-ON stCounts.hit_id = tmp.hid
-WHERE w IS NULL
-GROUP BY hid
-ORDER BY totalCount
-LIMIT 1
-""",[workerId,session.id])
-    try:
-	all_rows = cursor.fetchall();
-	print all_rows
-	if len(all_rows)==0:
-		taskID=None
-	else:
-	    	selectedTask=random.randint(0,len(all_rows)-1);	
-    		taskID=all_rows[selectedTask][0];
-	print "Selected task:",taskID
-    	cursor.close();
-    except:
-	return None
-
-    return taskID
-
-
-
-def random_task_nobody_have_done(session):
-    from django.db import connection
-    cursor = connection.cursor()
-    #DOES NOT WORK NOW
-    cursor.execute("""
- SELECT count( hid )
-FROM (
-
-SELECT hits.id hid, st.worker w
-FROM mturk_mthit hits
-LEFT OUTER JOIN mturk_submittedtask st ON hits.id = st.hit_id
-AND st.worker = %s
-WHERE hits.session_id =%s
-
-) tmp
-WHERE w IS NULL 
-""",[workerId,session.id])
-    try:
-    	row = cursor.fetchone()
-    	numAvailableTasks=row[0]
-	print numAvailableTasks
-	if  numAvailableTasks==0:
-		return None
-    except:
-	return None
-    print 'row',row
-    print 'numAvailableTasks',numAvailableTasks
-    	
-    selectedTask=random.randint(1,numAvailableTasks);
-    print 'selectedTask',selectedTask
-    cursor.execute("""
- SELECT  hid 
-FROM (
-
-SELECT hits.id hid, st.worker w
-FROM mturk_mthit hits
-LEFT OUTER JOIN mturk_submittedtask st ON hits.id = st.hit_id
-AND st.worker = %s
-WHERE hits.session_id =%s
-) tmp
-WHERE w IS NULL LIMIT 1 OFFSET %s
-""",[workerId,session.id,selectedTask-1])	#Stupid SQL. It sided with python in 0-based counting.
-
-    try:
-    	row = cursor.fetchone()
-    	taskID=row[0]
-	print taskID
-    	cursor.close();
-    except:
-	return None
-
-    return taskID
-
-
-
-def random_task_i_havent_done_w_powerlaw(session,workerId):
-    from django.db import connection
-    cursor = connection.cursor()
-    print  session, type(session.id), workerId
-    cursor.execute("""
-SELECT hits.id hid,count(st2.id)+1 as total FROM mturk_mthit hits LEFT OUTER JOIN mturk_submittedtask st 
-ON hits.id=st.hit_id and %s=st.worker LEFT OUTER JOIN mturk_submittedtask st2 
- ON hits.id=st2.hit_id
-WHERE hits.session_id = %s AND ( st.worker <> %s or st.worker is NULL) 
-GROUP BY hid
-""",[workerId,session.id,workerId])
-
-    try:
-	total=0;
-	counts=[];
-	for row in cursor.fetchall():
-		numResults=row[1];
-		total=total+numResults;
-		counts.append((row[0],row[1],total));
-	
-    	cursor.close()
-    except:
-	return None
-
-    if total==0:
-	return None;
-    print total
-    selectedCount=random.randint(1,total);
-    selectedTask=None
-    for iC,c in enumerate(counts):
-	if c[2]<=selectedCount:
-		selectedTask=c[0];
-		break
-
-    return selectedTask
-
-
-def random_task_from_gold_standard(session,GSsession,workerId):
-    from django.db import connection
-    cursor = connection.cursor()
-    print  session.id, GSsession.id, workerId
-
-	#Why do I need st2 here??
-    cursor.execute("""
-SELECT hits.id hid
-FROM mturk_mthit hits
-JOIN mturk_mthit GS_hits ON hits.int_hitid = GS_hits.int_hitid
-AND %s = GS_hits.session_id
-LEFT OUTER JOIN mturk_submittedtask st ON hits.id = st.hit_id
-AND %s = st.worker
-LEFT OUTER JOIN mturk_submittedtask st2 ON hits.id = st2.hit_id
-WHERE hits.session_id = %s
-AND (
-st.worker <> %s
-OR st.worker IS NULL
-)
-GROUP BY hid
-""",[GSsession.id,workerId,session.id,workerId])
-
-    try:
-	counts=[];
-	for row in cursor.fetchall():
-		counts.append(row[0]);
-    	if len(counts)==0:
-		return None;
-    	selectedTaskIdx=random.randint(0,len(counts)-1);	
-	selectedTask=counts[selectedTaskIdx];
-	
-    	cursor.close()
-    except:
-	return None
-
-    return selectedTask
-
-
-def select_next_task(session,workerId):
-	try:
-		sParm=session.parse_parameters();
-		bTaskSelected=False;
-		bFromGoldStandard=False;
-		if not bTaskSelected and 'P_gs' in sParm and 'GS_session' in sParm:
-			pGoldStandard=int(sParm['P_gs']);
-			decision=random.randint(1,100);
-			print "DDD",decision,pGoldStandard
-			if decision<=pGoldStandard:
-				GoldStandard_session_code=sParm['GS_session'];
-				print GoldStandard_session_code
-				GoldStandard_session = get_object_or_404(Session,code=GoldStandard_session_code)
-
-				task=random_task_from_gold_standard(session,GoldStandard_session,workerId);
-				print task
-				if task is not None:
-					bFromGoldStandard=True;
-					bTaskSelected=True;
-
-		if not bTaskSelected and 'P_powerlaw' in sParm:
-			pPowerLaw=int(sParm['P_powerlaw']);
-			decision=random.randint(1,100);
-			if decision<=pPowerLaw:
-				print "Pick task for powerlaw distribution"
-				task=random_task_i_havent_done_w_powerlaw(session,workerId);
-				bTaskSelected=True;
-
-
-
-		if not bTaskSelected and 'P_uniformly_at_random' in sParm:
-			print "Pick task uniformly at random"
-			pUniform=int(sParm['P_uniformly_at_random']);
-			pUniform=random.randint(1,100);
-			task=random_task_i_havent_done(session,workerId);
-			bTaskSelected=True;
-
-		if not bTaskSelected:
-			print "Pick task with least coverage."
-			task=task_w_least_coverage(session,workerId);
-			bTaskSelected=True;
-
-		if task is None:
-			return (None,False)
-		sample=MTHit.objects.get(id=task);
-		print sample
-		print sample.session.id
-	except IndexError:
-		raise
-		return (None,False)	
-
-
-	return (sample,bFromGoldStandard)
-		
-
-
-
-
-
-def score_worker(worker,gold_standard_hit,GoldStandard_session,task,session,submission):
-	sParm=session.parse_parameters();
-	protocol=sParm['protocol'];
-	if protocol=="people14":
-		groundtruth_shapes=[];
-		for GS_submission in gold_standard_hit.submittedtask_set.all():
-			groundtruth_shapes=GS_submission.get_parsed().shapes;
-			break
-			#GET,POST=pickler.loads(GS_submission.response)
-			#parse1=POST['sites'].split(";")
-			#locations=parse1[3:17]
-			#locations_xy=map(lambda s:map(lambda v:float(v),s.split(",")[0:2]),locations);
-			#all_locations.append(locations_xy);
-		#print all_locations
-		#average_locations=all_locations[0];
-		#for l in all_locations[1:]:
-		#	average_locations=map(lambda a,b:a+b,average_locations,l);
-		#N=len(all_locations);
-		#print average_locations
-		#average_locations=map(lambda v:map(lambda x:x/N,v),average_locations);
-		#print average_locations
-
-		worker_submission=submission.get_parsed().shapes;
-		
-		if len(worker_submission)==0 and len(groundtruth_shapes)==0:
-			performance='no data'
-			delta_utility=1;					
-		elif len(worker_submission)==0 and len(groundtruth_shapes)>0:
-			performance='missing_shapes';
-			delta_utility=-10;
-		elif len(worker_submission)>0 and len(groundtruth_shapes)==0:
-			performance='spurious_shapes';
-			delta_utility=-1;
-		else:
-			#GET,POST=pickler.loads(str(submission.response))
-			#parse1=POST['sites'].split(";")
-			#locations=parse1[3:17]
-			#locations_xy=map(lambda s:map(lambda v:float(v),s.split(",")[0:2]),locations);
-
-			def compute_error(a,b,k):
-				if k==1:
-					return 0;
-
-				error=0;
-				print "CE:", 		
-				for v1,v2 in map(None,a,b):
-					diff2=map(lambda x,y:(x-y)*(x-y),a,b);
-					error+=math.sqrt(sum(diff2));		
-					print math.sqrt(sum(diff2)),
-				print 		
-				return error
-			#difference=map(compute_error,average_locations,locations_xy);
-			#average_distance=sum(difference)/len(average_locations);
-			correspondence={};
-			for s in worker_submission:
-				bestV=1000000;
-				bestI=-1;
-				cS=s['center'];
-				for iGt,gt in enumerate(groundtruth_shapes):
-					cG=gt['center'];
-					dX=cS[0]-cG[0];
-					dY=cS[1]-cG[1];
-					d=dX*dX+dY*dY;
-					if d<bestV:
-						bestV=d;
-						bestI=iGt
-				correspondence[s['label']]=(bestI,bestV)
-			print "--------------------------"
-			print 
-			print correspondence
-			print groundtruth_shapes
-			print worker_submission
-			print "==============="
-			quality=0;
-			for s in worker_submission:
-				bestI=correspondence[s['label']][0];
-				P1=map(lambda v:(v[0],v[1]),s['points']);
-				K1=map(lambda v:v[3],s['points']);
-				P2=map(lambda v:(v[0],v[1]),groundtruth_shapes[bestI]['points']);
-				#compute point-wise difference
-				difference=map(compute_error,P1,P2,K1);
-				#print difference
-				average_distance=sum(difference)/len(difference);
-				quality=quality+average_distance;
-
-			quality=quality/len(worker_submission);
-			print quality
-	
-			reward_map=[ 	(-1,  5,  +10), 
-					( 5, 10,  +5), 
-					(10, 15,  +1), 
-					(15, 20,   0), 
-					(20, 40, -10), 
-					(40, 1000000, -20) ];
-			delta_utility=-100;
-			for iR,r in enumerate(reward_map):
-				if average_distance>r[0] and average_distance<=r[1]:
-					delta_utility=r[2];
-			performance=str(average_distance)
-
-		grading_report=GoldStandardGradeRecord(session=session,worker=worker,hit=task,
-					performance=performance,grade=delta_utility);
-
-		worker.utility = min(100,worker.utility+delta_utility);
-		grading_report.save();
-		worker.save();
-		return grading_report
-	else:
-		print "Unsupported protocol"
-		return None
-
-
-
-def people14_parse_submission(submission):
-	GET,POST=pickler.loads(str(submission.response))
-
-	shapes=POST['sites'].split(";;")
-	comments=POST['Comments'];
-
-	all_shapes=[];
-	for s in shapes[1:]:
-		tokens=s.split(";");
-		shape_label=tokens[0];
-		level1=tokens[2:4];
-		level2=tokens[5:];
-		#print level1
-		#print level2;
-		if len(level2)==0:
-			continue
-				
-		pt1=click_2_num(level1[0])[0:2];
-		pt2=click_2_num(level1[1])[0:2];
-		(w,h)=map(lambda x,y:x-y,pt2,pt1);
-		s=max(w,h);
-
-		scale=s/500.0;
-		wN=w/scale;
-		hN=h/scale;
-		oX2=(500-wN)/2;
-		oY2=(500-hN)/2;
-		oX1=pt1[0];
-		oY1=pt1[1];
-
-
-		def point2frame(str_pt):
-			pt=str_pt.split(',');
-			x=float(pt[0]);
-			y=float(pt[1]);
-			newX=(x-oX2)*scale+oX1;
-			newY=(y-oY2)*scale+oY1;
-			return (newX,newY,float(pt[2]),float(pt[3]));
-
-		l2points=map(point2frame,level2);
-
-		torso=l2points[2:4]+l2points[8:10];
-		if len(torso)==0:
-			continue
-		mX=0;mY=0;
-		for pt in torso:
-			(x,y)=pt[0:2];
-			mX=mX+x;
-			mY=mY+y;
-		mX=mX/len(torso);
-		mY=mY/len(torso);
-		#print mX,mY
-
-		shape={'label':shape_label,
-			'center':(mX,mY),
-			'points':l2points,
-			'torso':torso,
-			'box':[pt1,pt2]};
-		all_shapes.append(shape);
-
-	return (all_shapes,comments);
-
-
-
-def people14_get_gs_annotation(session,gs_session,gold_standard_hit):
-	sParm=session.parse_parameters();
-	protocol=sParm['protocol'];
-	if protocol=="people14":
-		all_locations=[];
-		for GS_submission in gold_standard_hit.submittedtask_set.filter(session=gs_session):
-			groundtruth_shapes=GS_submission.get_parsed().shapes;
-			return groundtruth_shapes
-			#GET,POST=pickler.loads(GS_submission.response)
-			#parse1=POST['sites'].split(";")
-			#locations=parse1[3:17]
-			#locations_xy=map(lambda s:map(lambda v:float(v),s.split(",")[0:2]),locations);
-			#all_locations.append(locations_xy);
-		#print all_locations
-		#average_locations=all_locations[0];
-		#for l in all_locations[1:]:
-		#	average_locations=map(lambda a,b:a+b,average_locations,l);
-		#N=len(all_locations);
-		#print average_locations
-		#average_locations=map(lambda v:map(lambda x:x/N,v),average_locations);
-		#return average_locations
-		return None
-	else:
-		return None
 
 
 def click_2_num(txt):
 	return map(lambda v: float(v), txt.split(','));
 
-def get_existing_locations(session,hit):
-	sParm=session.parse_parameters();
-	protocol=sParm['protocol'];
-	if protocol=="people14":
-		all_locations=[];
-		target=(500,500);
-		existing_locations=[];
-		
-		if not 'GS_session' in sParm:
-			return [];
 
-		GoldStandard_session_code=sParm['GS_session'];
-		gs_session = get_object_or_404(Session,code=GoldStandard_session_code)
-		gold_standard_hit=gs_session.mthit_set.filter(int_hitid=hit.int_hitid)[0];
-
-		for GS_submission in gold_standard_hit.submittedtask_set.all():
-			GET,POST=pickler.loads(GS_submission.response)
-			print POST
-			shapes=POST['sites'].split(";;")
-			print shapes
-			for s in shapes[1:]:
-				tokens=s.split(";");
-				level1=tokens[2:4];
-				level2=tokens[5:];
-				print level1
-				print level2;
-				if len(level1)==0:
-					continue
-				
-				pt1=click_2_num(level1[0])[0:2];
-				pt2=click_2_num(level1[1])[0:2];
-				(w,h)=map(lambda x,y:x-y,pt2,pt1);
-				s=max(w,h);
-
-				torso=level2[2:4]+level2[8:10];
-				mX=0;mY=0;
-				for pt in torso:
-					(x,y)=click_2_num(pt)[0:2];
-					mX=mX+x;
-					mY=mY+y;
-				mX=mX/len(torso);
-				mY=mY/len(torso);
-				print mX,mY
-
-				scale=s/500.0;
-				wN=w/scale;
-				hN=h/scale;
-				oX=(500-wN)/2;
-				oY=(500-hN)/2;
-				mX=(mX-oX)*scale+pt1[0];
-				mY=(mY-oY)*scale+pt1[1];
-				existing_locations.append((mX,mY));
-			break;
-		return existing_locations
-	else:
-		return None
-
-
-
-
-def stats_worker_contributions_perfect():
-    from django.db import connection
-    cursor = connection.cursor()
-    cursor.execute("""
-SELECT worker, count( sid ) num_sessions, sum( contribution ) total_contribution
-FROM (
-
-SELECT st.worker worker, st.session_id sid, count( st.hit_id ) contribution
-FROM `mturk_submittedtask` st, mturk_manualgraderecord mgr
-WHERE mgr.submission_id = st.id
-AND mgr.quality >9
-GROUP BY worker, st.session_id
-)tmp
-GROUP BY worker
-ORDER BY total_contribution DESC 
-""")
-    results=[];
-    try:
-	for r in cursor.fetchall():
-		res={'worker':r[0],
-			'num_sessions':r[1],
-			'contribution':r[2]};
-		results.append(res);
-	cursor.close();
-	return results
-    except:
-	return None
-
-    return None
-
-
-
-def stats_worker_contributions_any():
-    from django.db import connection
-    cursor = connection.cursor()
-    cursor.execute("""
-SELECT worker, count( sid ) num_sessions, sum( contribution ) total_contribution
-FROM (
-
-SELECT st.worker worker, st.session_id sid, count( st.hit_id ) contribution
-FROM `mturk_submittedtask` st
-GROUP BY worker, st.session_id
-)tmp
-GROUP BY worker
-ORDER BY total_contribution DESC 
-""")
-    results=[];
-    try:
-	for r in cursor.fetchall():
-		res={'worker':r[0],
-		     'num_sessions':r[1],
-		     'contribution':r[2]};
-		results.append(res);
-	cursor.close();
-	return results
-    except:
-	return None
-
-    return None
-
-
-
-
-
-def stats_submissions_per_session():
-    from django.db import connection
-    cursor = connection.cursor()
-    cursor.execute("""
-SELECT s.code, session_id, count( * )
-FROM `mturk_submittedtask`
-LEFT JOIN mturk_session s ON s.id = session_id
-GROUP BY session_id
-ORDER BY session_id DESC
-""")
-    results=[];
-    try:
-	for r in cursor.fetchall():
-		res={'session_code':r[0],
-			'session_id':r[1],
-			'submissions':r[2]};
-		results.append(res);
-	cursor.close();
-	return results
-    except:
-	return None
-
-    return None
 
 
 
@@ -1270,7 +684,8 @@ def get_grade_conflict_submission_list(session,g1,g2):
     from django.db import connection
     cursor = connection.cursor()
     cursor.execute("""
- SELECT		DISTINCT t.id id
+SELECT
+		DISTINCT t.id id
 FROM `mturk_submittedtask` t, mturk_manualgraderecord r1, mturk_manualgraderecord r2
 WHERE t.session_id =%s
 AND ( t.valid )
@@ -1294,12 +709,6 @@ AND r2.quality = %s
 
     return None
 
-def get_grading_tasks_for_grading_submission(session,grading_session,worker_code,task_id):
-	results=[];
-	return results
-
-
-
 
 def check_session_exclusions(worker,session):
     exclusions=[];
@@ -1315,17 +724,6 @@ select se.id,se.decline_reason from mturk_sessionexclusion se left join mturk_su
     except:
 	pass
 
-    ''' #Removing the check on the inverted exclusion. This makes the exclusions directed!
-    cursor = connection.cursor()
-    cursor.execute("""
-select se.id,se.decline_reason from mturk_sessionexclusion se left join mturk_submittedtask st ON se.session_A_id=%s  and se.session_B_id=st.session_id and st.worker=%s where st.id is not NULL;    
-""",[session.id,worker.worker]);
-    try:
-	for r in cursor.fetchall():
-		exclusions.append((r[0],r[1]));
-	cursor.close();
-    except:
-	pass
-	'''
     return exclusions;
+
 

@@ -1,37 +1,28 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-<title>prototype</title>
+<title>Image annotation</title>
+<script language="javascript" src="js/prototype.js" > </script>
+<script language="javascript" src="js/webtoolkit.cookies.js" > </script>
+
+<script language="javascript" src="js/mt.js" ></script>
+
 <script language="javascript">AC_FL_RunContent = 0;</script>
-<script src="js/AC_RunActiveContent.js" language="javascript"></script>
+<script language="javascript" src="js/AC_RunActiveContent.js" ></script>
+<script language="javascript" src="js/flash_ui.js" ></script>
+
+
 </head>
 
 <body bgcolor="#ffffff">
-
-<script language="javascript" src="js/prototype.js" > </script>
-
-<script language="JavaScript">
-function disableEnterKey(e)
-{
-     var key;
-
-     if(window.event)
-          key = window.event.keyCode;     //IE
-     else
-          key = e.which;     //firefox
-
-     if(key == 13)
-          return false;
-     else
-          return true;
-}
-</script>
 <form id="MT_form" name="MT_form" action="http://www.mturk.com/mturk/externalSubmit" method="POST" >
 
 IMPORTANT: Read the <a id="a_instructions" href="instructions.html" target="wnd_instructions">instructions</a>!!<br/>
 <!-- <b>Instructions have been updated!</b><br/>-->
 
 <div id="rating_div" style="display:none;"></div>
+
+
 
 <div id="flash_div"></div>
 
@@ -40,6 +31,14 @@ Error. Javascript is required.
 </noscript>
 <hr/>
 Any comments/suggestions/etc: <input type=text name="Comments" id="Comments" value="" onKeyPress="return disableEnterKey(event)">
+<hr/>
+UI scale: 
+<a href="#" onclick="scale_flash_ui(annotation_gui,0.5);return false;">x0.5</a> |
+<a href="#" onclick="scale_flash_ui(annotation_gui,1);return false;">x1 </a> |
+<a href="#" onclick="scale_flash_ui(annotation_gui,1.5);return false;">x1.5 </a> |
+<a href="#" onclick="scale_flash_ui(annotation_gui,2);return false;">x2</a> |
+<a href="#" onclick="scale_flash_ui(annotation_gui,3);return false;">x3</a> |
+<a href="#" onclick="scale_flash_ui(annotation_gui,4);return false;">x4</a> <br/>
 <hr/>
 <input type=hidden name="assignmentId" id="assignmentId" value="">
 <input type=hidden name="hitId" id="hitId" value="ignored">
@@ -121,8 +120,9 @@ query_args=query_args.split("?")[1];
 args_list=query_args.split("&");
 rating=""
 swf=""
-swf_w='600';
-swf_h='400';
+swf_w=600;
+swf_h=400;
+var persistent_ui_scale = get_persistent_value('ui_scale',1);
 
 no_mode_in_query=1;
 
@@ -148,9 +148,9 @@ for (i = 0; i <= args_list.length; i++)
 	}else if( arg_n=="swf"){
 	        swf=arg_v;
 	}else if( arg_n=="swf_w"){
-	        swf_w=arg_v;
+	        swf_w=int(arg_v);
 	}else if( arg_n=="swf_h"){
-	        swf_h=arg_v;
+	        swf_h=int(arg_v);
 	}else if( arg_n=="rating"){
 	        rating=arv_v;
 	}else if( arg_n=="mode"){
@@ -200,8 +200,8 @@ if(mode_value=="AmazonMTsandbox"){
 	  $('flash_div').innerHTML=
 		AC_FL_RunContent2(
 			'codebase', 'http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0',
-			'width', swf_w,
-			'height', swf_h,
+			'width', swf_w * persistent_ui_scale,
+			'height', swf_h * persistent_ui_scale,
 			'src', swf,
 			'quality', 'high',
 			'pluginspage', 'http://www.macromedia.com/go/getflashplayer',

@@ -2,11 +2,16 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
 <title>Image annotation</title>
+<script language="javascript" src="js/prototype.js" > </script>
+<script language="javascript" src="js/webtoolkit.cookies.js" > </script>
+
+<script language="javascript" src="js/mt.js" > </script>
+
 <script language="javascript">AC_FL_RunContent = 0;</script>
-<script src="js/AC_RunActiveContent.js" language="javascript"></script>
-<script language="javascript" src="/code/js/prototype.js" > </script>
-<script language="javascript" src="/code/js/mt.js" > </script>
-<script language="javascript" src="/code/js/webtoolkit.cookies.js" > </script>
+<script language="javascript" src="js/AC_RunActiveContent.js" language="javascript"></script>
+<script language="javascript" src="js/flash_ui.js" language="javascript"></script>
+
+
 </head>
 
 
@@ -39,8 +44,18 @@ Error. Javascript is required.
 
 <div id="comments_form_div">
 <hr/>
-Any comments/suggestions/etc: <input type=text name="Comments" id="Comments" value="">
+Any comments/suggestions/etc: <input type=text name="Comments" id="Comments" value="" onKeyPress="return disableEnterKey(event)">
 <hr/>
+<b>Config:</b><br/>
+UI scale: 
+<a href="#" onclick="scale_flash_ui(annotation_gui,0.5);return false;">x0.5</a> |
+<a href="#" onclick="scale_flash_ui(annotation_gui,1);return false;">x1 </a> |
+<a href="#" onclick="scale_flash_ui(annotation_gui,1.5);return false;">x1.5 </a> |
+<a href="#" onclick="scale_flash_ui(annotation_gui,2);return false;">x2</a> |
+<a href="#" onclick="scale_flash_ui(annotation_gui,3);return false;">x3</a> |
+<a href="#" onclick="scale_flash_ui(annotation_gui,4);return false;">x4</a> <br/>
+<hr/>
+
 </div>
 <input type=hidden name="assignmentId" id="assignmentId" value="">
 <input type=hidden name="hitId" id="hitId" value="ignored">
@@ -210,17 +225,18 @@ $('MT_form').action=submitURL;
 var now = new Date();
 $('load_time').value=now.toUTCString();
 
-
-create_flash_interface(swf,swf_w,swf_h,query_args);
+var persistent_ui_scale = get_persistent_value('ui_scale',1);
+create_flash_interface(swf,swf_w*persistent_ui_scale,swf_h*persistent_ui_scale,query_args);
 
 
 var hide_chat = function()
 {
-show_gchat = 0;
-Cookies.setCookie('show_gchat', show_gchat, 30*60*60); // set cookie for 1 month
-$('help_frame').src=""
-$('help_frame').style.display="none"
+  show_gchat = 0;
+  Cookies.setCookie('show_gchat', show_gchat, 30*60*60); // set cookie for 1 month
+  $('help_frame').src=""
+  $('help_frame').style.display="none"
 }
+
 var show_chat = function()
 {
 show_gchat = 1;
