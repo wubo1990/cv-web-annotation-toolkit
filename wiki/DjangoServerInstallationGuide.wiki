@@ -32,6 +32,10 @@ sudo apt-get install phpmyadmin
 {{{
 sudo apt-get install python-imaging
 }}}
+ # Install numpy, python_cvxopt (needed for cvxmod below)
+{{{
+sudo apt-get install python-numpy python-cvxopt
+}}}
 
 = ROS install =
 
@@ -61,6 +65,7 @@ wget http://www.djangoproject.com/download/1.1.1/tarball/
 tar xzvf Django-1.1.1.tar.gz
 cd Django-1.1.1
 sudo python setup.py install
+cd ..
 }}}
  # Install boto (for Mechanical Turk integration) with a patch.
 {{{
@@ -70,6 +75,7 @@ wget http://cv-web-annotation-toolkit.googlecode.com/files/boto-1.8d_patch
 cd boto-1.8d
 patch -p1 <../boto-1.8d_patch
 sudo python setup.py install
+cd ..
 }}}
  # django-tagging  (v.0.3.0 for django 1.0.2)
 {{{
@@ -77,6 +83,7 @@ wget http://django-tagging.googlecode.com/files/django-tagging-0.3.tar.gz
 tar xvzf django-tagging-0.3.tar.gz
 cd django-tagging-0.3
 sudo python setup.py install
+cd ..
 }}}
  # django-registration
 {{{
@@ -84,6 +91,7 @@ wget http://bitbucket.org/ubernostrum/django-registration/get/v0.7.tar.gz
 tar xvzf v0.7.tar.gz
 cd django-registration
 sudo python setup.py install
+cd ..
 }}}
  # rpc4django
 {{{
@@ -91,6 +99,15 @@ wget http://www.davidfischer.name/wp-content/uploads/2010/01/rpc4django-0.1.7.ta
 tar xvfz rpc4django-0.1.7.tar.gz
 cd rpc4django-0.1.7
 python setup.py install
+cd ..
+}}}
+ # CVXMOD - convex optimization modelling package
+{{{
+wget http://cvxmod.net/dist/cvxmod-0.4.6.tar.gz
+tar xzf cvxmod-0.4.6.tar.gz
+cd cvxmod-0.4.6/
+python setup.py install
+cd ..
 }}}
 
 = Django code installation =
@@ -200,4 +217,3 @@ sudo chown -R www-data /var/datasets/test-bbox-data-1
    # Go to /admin/auth/user/
    # Create a new user (e.g. mt-tester), choose a password
    # Assign the user to the mt-api-test group
-
