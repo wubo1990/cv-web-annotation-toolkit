@@ -1,0 +1,16 @@
+#summary Release notes for the annotation server v.0.2.0
+
+
+= Database upgrade =
+
+  * add is_gold (tinyint(1)) to session 
+  * drop mturk_goldstandardqualification
+  * drop mturk_goldstandardgraderecord
+
+
+= Config changes =
+  * each task is now a separate application and must be added to settings.py
+
+
+= Other issues = 
+  * fixed rospy.init_node call to work within the thread 
