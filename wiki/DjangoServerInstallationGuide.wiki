@@ -213,9 +213,9 @@ To install test server fixtures:
 wget http://cv-web-annotation-toolkit.googlecode.com/files/django_crowd_test_fixture_0.1.0.tgz
 tar xvzf django_crowd_test_fixture_0.1.0.tgz
 }}}
- # Load the test fixtures into the database
+ # Load the default fixtures into the database
 {{{
-django-admin.py loaddata django_crowd_test_fixture_0.1.0/test_fixture.json
+django-admin.py loaddata default_project/default.json
 }}}
  # Copy the session images to /var/datasets
 {{{
