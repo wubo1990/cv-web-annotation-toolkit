@@ -139,6 +139,13 @@ svn checkout https://cv-web-annotation-toolkit.googlecode.com/svn/trunk/django/w
 svn checkout https://cv-web-annotation-toolkit.googlecode.com/svn/trunk/django/web_annotations_server/datastore/ datastore/ --username $GCUSER
 svn checkout https://cv-web-annotation-toolkit.googlecode.com/svn/trunk/django/web_annotations_server/default_project/ default_project/ --username $GCUSER
 }}}
+ # Install required javascript (open source, but aren't BSD)
+{{{
+cd mturk/code/js
+wget http://vision.cs.uiuc.edu/annotation/all_js.tgz
+tar xvzf all_js.tgz
+cd ../../../
+}}}
  # Copy default configuration over the initial project values.
 {{{
 cp default_project/example_settings.py ./settings.py
