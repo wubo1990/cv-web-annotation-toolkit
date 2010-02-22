@@ -196,3 +196,8 @@ django-admin.py loaddata django_crowd_test_fixture_0.1.0/test_fixture.json
 sudo cp -r django_crowd_test_fixture_0.1.0/test-bbox-data-1 /var/datasets/
 sudo chown -R www-data /var/datasets/test-bbox-data-1
 }}}
+ # Create a test user
+   # Go to /admin/auth/user/
+   # Create a new user (e.g. mt-tester), choose a password
+   # Assign the user to the mt-api-test group
+
