@@ -11,8 +11,8 @@ The cv_web_tk server supports multiple components:
 
 This installation guide guide walks through the installation of the common components and the mech turk server. Other components can be installed separately as django applications.
 
-The installation assumes a bare Ubuntu linux 9.10 machine. It has been tested on
- * Karmik Ubuntu (9.10) in vmware player, code revision r296.
+The installation assumes a bare Ubuntu linux 9.10 machine. Recent tests:
+ * r296: Karmik Ubuntu (9.10) in vmware player (outdated).
 
 These instructions assume no knowledge of django and the goal to install this server only. If you know, what's going on, feel free to skip steps and use other features. For example, you can use any database of your choice, change code and data locaitions, etc.
 
