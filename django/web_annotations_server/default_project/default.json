@@ -10,6 +10,16 @@
     }
   }, 
   {
+    "pk": 2, 
+    "model": "auth.group", 
+    "fields": {
+      "name": "mt-api-test", 
+      "permissions": [
+        46,43,59,62
+      ]
+    }
+  }, 
+  {
     "pk": 1, 
     "model": "mturk.tasktype", 
     "fields": {
@@ -357,4 +367,117 @@
       "name": "group-by-object-grading"
     }
   }
+
+  {
+    "pk": 1, 
+    "model": "mturk.fundingaccount", 
+    "fields": {
+      "access_key": "n/a", 
+      "secret_key": "n/a", 
+      "name": "blank"
+    }
+  }, 
+  {
+    "pk": 1, 
+    "model": "mturk.session", 
+    "fields": {
+      "hit_type": "", 
+      "code": "test-outline-session-prototype", 
+      "HITlimit": 10, 
+      "parameters": null, 
+      "standalone_mode": 1, 
+      "state": 1, 
+      "task_def": 101, 
+      "sandbox": 1, 
+      "gold_standard_qualification": null, 
+      "mturk_qualification": [], 
+      "owner": 2, 
+      "funding": 1
+    }
+  }, 
+  {
+    "pk": 2, 
+    "model": "mturk.session", 
+    "fields": {
+      "hit_type": "", 
+      "code": "test-bbox-session-prototype", 
+      "HITlimit": 10, 
+      "parameters": null, 
+      "standalone_mode": 1, 
+      "state": 1, 
+      "task_def": 102, 
+      "sandbox": 1, 
+      "gold_standard_qualification": null, 
+      "mturk_qualification": [], 
+      "owner": 2, 
+      "funding": 1
+    }
+  }, 
+  {
+    "pk": 3, 
+    "model": "mturk.session", 
+    "fields": {
+      "hit_type": "", 
+      "code": "test-bbox-data1", 
+      "HITlimit": 10, 
+      "parameters": null, 
+      "standalone_mode": 1, 
+      "state": 1, 
+      "task_def": 102, 
+      "sandbox": 1, 
+      "gold_standard_qualification": null, 
+      "mturk_qualification": [], 
+      "owner": 2, 
+      "funding": 1
+    }
+  }, 
+  {
+    "pk": 101, 
+    "model": "mturk.task", 
+    "fields": {
+      "description": "Test outline description", 
+      "title": "Test outline title. ", 
+      "instructions_url": "http://google.com/", 
+      "interface_xml": "<?xml version=\"1.0\"?>\r\n<task id=\"000001\" type=\"image\">\r\n<required_version release=\"0\" major=\"1\" minor=\"16\"/>\r\n  <targets>\r\n     <target name=\"bad-image\"> <annotation type=\"presence\" /></target>\r\n\r\n     <target name=\"object\"> <annotation type=\"outline\"/></target>\r\n  </targets>\r\n</task>", 
+      "approval_delay": 1209600, 
+      "duration": 1800, 
+      "max_assignments": 1, 
+      "keywords": "image, outline, test", 
+      "lifetime": 86400, 
+      "reward": "0.01", 
+      "type": 1, 
+      "name": "test-outline"
+    }
+  }, 
+  {
+    "pk": 102, 
+    "model": "mturk.task", 
+    "fields": {
+      "description": "Test bounding box description", 
+      "title": "Test bounding box title.", 
+      "instructions_url": "http://google.com/", 
+      "interface_xml": "<?xml version=\"1.0\"?>\r\n<task id=\"000010\" type=\"objects_of_interest\">\r\n   <targets>\r\n      <target name=\"object\"><annotation type=\"bbox2\"/> </target>\r\n  </targets>\r\n</task>", 
+      "approval_delay": 1209600, 
+      "duration": 1800, 
+      "max_assignments": 1, 
+      "keywords": "test, image, bounding box", 
+      "lifetime": 86400, 
+      "reward": "0.01", 
+      "type": 1, 
+      "name": "test-bbox"
+    }
+  }, 
+  {
+    "pk": 1, 
+    "model": "mturk.mthit", 
+    "fields": {
+      "parameters": "frame=9dc8f847-58be-4851-a271-8e958fe9b9b1&original_name=imgae_0001.jpg", 
+      "submitted": "2010-01-26 21:53:41", 
+      "state": 2, 
+      "session": 96, 
+      "int_hitid": "1", 
+      "ext_hitid": "3efa6412-adc8-4c02-99eb-d114a2b90a68-1"
+    }
+  }
+
 ]
