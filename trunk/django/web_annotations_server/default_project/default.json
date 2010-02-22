@@ -482,14 +482,14 @@
     "pk": 1, 
     "model": "mturk.submittedtask", 
     "fields": {
-      "hit": 18, 
+      "hit": 1, 
       "valid": 1, 
       "assignment_id": "test-assignment-1-613cc509-6deb-4373-8075-22aa1a70b9f0", 
       "worker": "test_worker-8bd4bd65-c73f-4688-b0f3-7e611a15d223", 
       "submitted": "2010-01-26 21:53:41", 
       "started": null, 
       "state": 1, 
-      "session": 96, 
+      "session": 3, 
       "final_grade": "0.0000", 
       "response": "((dp1\n(dp2\nS'load_time'\np3\nS'Sunday, January 24 2010 01:35 AM'\np4\nsS'sites'\np5\nS'<?xml version=\"1.0\"?>\\n<results>\\n<image url=\"http://vm6.willowgarage.com:8080/frames/test-bbox-640643e7-5d54-4621-a579-98ecee859fb1/9dc8f847-58be-4851-a271-8e958fe9b9b1.jpg\"/>\\n<annotation>\\n<size>\\n<width>640</width>\\n<height>480</height>\\n</size>\\n<bbox height=\"132\" left=\"285.1\" name=\"object\" sqn=\"1\" top=\"114.4\" width=\"51.2\">\\n<pt ct=\"1264315826499\" x=\"285.1\" y=\"114.4\"/>\\n<pt ct=\"1264315831993\" x=\"336.3\" y=\"246.4\"/>\\n</bbox>\\n</annotation>\\n<meta load_time=\"1264315821239\" submit_time=\"1264315843336\"/>\\n</results>\\n'\np6\nsS'Comments'\np7\nS'Test comments'\np8\nsS'submit_time'\np9\nS'Sunday, January 24 2010 01:40 AM'\np10\nst."
     }
@@ -498,14 +498,14 @@
     "pk": 2, 
     "model": "mturk.submittedtask", 
     "fields": {
-      "hit": 18, 
+      "hit": 1, 
       "valid": 1, 
       "assignment_id": "test-assignment-1-dd15ff8c-56a6-4acc-876a-63b36c283408", 
       "worker": "test_worker-78684d95-eeeb-44e3-981c-cec59ff3a696", 
       "submitted": "2010-01-26 21:53:41", 
       "started": null, 
       "state": 1, 
-      "session": 96, 
+      "session": 3, 
       "final_grade": "0.0000", 
       "response": "((dp1\n(dp2\nS'load_time'\np3\nS'Sunday, January 24 2010 01:35 AM'\np4\nsS'sites'\np5\nS'<?xml version=\"1.0\"?>\\n<results>\\n<image url=\"http://vm6.willowgarage.com:8080/frames/test-bbox-640643e7-5d54-4621-a579-98ecee859fb1/9dc8f847-58be-4851-a271-8e958fe9b9b1.jpg\"/>\\n<annotation>\\n<size>\\n<width>640</width>\\n<height>480</height>\\n</size>\\n<bbox height=\"132\" left=\"285.1\" name=\"object\" sqn=\"1\" top=\"114.4\" width=\"51.2\">\\n<pt ct=\"1264315826499\" x=\"285.1\" y=\"114.4\"/>\\n<pt ct=\"1264315831993\" x=\"336.3\" y=\"246.4\"/>\\n</bbox>\\n</annotation>\\n<meta load_time=\"1264315821239\" submit_time=\"1264315843336\"/>\\n</results>\\n'\np6\nsS'Comments'\np7\nS'Test comments'\np8\nsS'submit_time'\np9\nS'Sunday, January 24 2010 01:40 AM'\np10\nst."
     }
