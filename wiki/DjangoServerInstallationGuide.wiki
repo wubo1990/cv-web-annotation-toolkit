@@ -196,9 +196,11 @@ sudo apache2ctl restart
 }}}
  # Compare the [http://localhost/ apache site] with the [http://localhost:8080/ development server]. They should be identical.
 
-Note:  Django development server will immediately pick up all changes, but Apache will not.
-Note2: This configuration serves many static files through django. This is a performance issue and those files should be served through another server.
-Note3: If apache is configured to works through https, we can use https in HOST_NAME_FOR_MTURK in settings.py. This way Mechanical Turk will use a secure connection to the server. 
+*Note:*  Django development server will immediately pick up all changes, but Apache will not.
+
+*Note2:* This configuration serves many static files through django. This is a performance issue and those files should be served through another server.
+
+*Note3:* If apache is configured to works through https, we can use https in HOST_NAME_FOR_MTURK in settings.py. This way Mechanical Turk will use a secure connection to the server. 
 
 == Installing Unit Test server ==
 
