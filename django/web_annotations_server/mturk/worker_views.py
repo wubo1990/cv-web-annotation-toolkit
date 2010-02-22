@@ -32,10 +32,17 @@
 #*  POSSIBILITY OF SUCH DAMAGE.
 #***********************************************************
 
+import numpy
+import datetime
+from decimal import Decimal
+
+from django.http import HttpResponse,HttpResponseRedirect
 from django.shortcuts import render_to_response,get_object_or_404 
 
 from models import *
 from common import *
+
+import ros_integration
 
 
 def advance_next_check_time(training_progress):
@@ -69,29 +76,35 @@ def select_workitem_from_gold(session,worker):
         training_progress.save();
 
     if training_progress.num_gold_submissions < gold_qual.num_gold_initial:
-        return pick_random_workitem_for_worker(gold_session,worker)
+        return pick_random_workitem_for_worker(gold_qual.gold_session,worker)
     else:
         if training_progress.next_check <= training_progress.num_normal_submissions:
             advance_next_check_time(training_progress);
-            return pick_random_workitem_for_worker(gold_session,worker)
+            return pick_random_workitem_for_worker(gold_qual.gold_session,worker)
 
     return None
 
+def pick_random_workitem_for_worker(gold_session,worker):
+    return select_new_gold_workitem(gold_session.id,worker.worker);
+
 
 def substitute_workitem(worker,task,gold_workitem):
-    ttl=datetime.datetime.now()+detetime.timedelta(seconds=2*gold_workitem.session.task_def.duration)
+    ttl=datetime.datetime.now()+datetime.timedelta(seconds=2*gold_workitem.session.task_def.duration)
     item_sub=ItemSubstitution(worker=worker,requested_item=task,shown_item=gold_workitem,expires=ttl,state=1);
     item_sub.save();
 
 def finalize_item_substitution(workitem,worker):
-    item_sub=ItemSubstitutions.objects.filter(worker=worker,shown_item=workitem,state=1)[0];
+    item_substitutions=ItemSubstitution.objects.filter(worker=worker,shown_item=workitem,state=1);
+    if len(item_substitutions)==0:
+        return 
+    item_sub=item_substitutions[0];
     item_sub.state=2;
     item_sub.save();
 
 def grade_submission_with_gold(gold_session,submission,worker):
     te=gold_session.task_def.type.get_engine();
     submission_grade = te.grade(submission,gold_session);
-    rcd=GoldStandardGradeRecord(gold_session=gold_session,worker=worker,workitem=submission.hit,submission=submission,grade=submission_grade);
+    rcd=GoldStandardGradeRecord(gold_session=gold_session,worker=worker,workitem=submission.hit,submission=submission,grade=str(submission_grade));
     rcd.save();
 
     qual=GoldStandardQualification.objects.get(gold_session=gold_session);
@@ -100,8 +113,8 @@ def grade_submission_with_gold(gold_session,submission,worker):
     if created:
         advance_next_check_time(training_progress);
 
-    training_progress.num_gold_submissions += 1
-    training_progress.grade_total += submission_grade
+    training_progress.num_gold_submissions += Decimal("1.0")
+    training_progress.grade_total += Decimal(str(submission_grade))
     training_progress.grade_average = training_progress.grade_total / training_progress.num_gold_submissions
 
     if qual.passing_submission_grade<=submission_grade:
@@ -109,6 +122,17 @@ def grade_submission_with_gold(gold_session,submission,worker):
 
     training_progress.save();
 
+def check_submission_for_progress(session,submisison,worker):
+    qual=session.gold_standard_qualification
+    if qual is None:
+        return
+
+    (training_progress,created)=WorkerTrainingProgress.objects.get_or_create(worker=worker,gold_qual=qual);
+    if created:
+        advance_next_check_time(training_progress);
+
+    training_progress.num_normal_submissions += 1
+    training_progress.save();
 
 def get_task_page(request,session_code):
     session = get_object_or_404(Session,code=session_code)
@@ -123,7 +147,7 @@ def get_task_page(request,session_code):
         if 'extid' in request.REQUEST:
             task_id=request.REQUEST['extid']
 
-    task = get_object_or_404(MTHit,ext_hitid=task_id)
+    workitem = get_object_or_404(MTHit,ext_hitid=task_id)
 
     if "workerId" in request.REQUEST:
         worker_id=request.REQUEST["workerId"]
@@ -144,20 +168,22 @@ def get_task_page(request,session_code):
     else:
         worker=None
 
-    if task is None:
+    if workitem is None:
     	return render_to_response('mturk/not_available.html');
 
     #See, if we need to use the gold task
     if worker:
         gold_workitem=select_workitem_from_gold(session,worker);
-        if gold_task:
-            substitute_workitem(worker,task,gold_workitem);
-            task=gold_workitem;
+        if gold_workitem:
+            substitute_workitem(worker,workitem,gold_workitem);
+            workitem=gold_workitem;
 
-    te=task.session.task_def.type.get_engine();
-    url=te.get_task_page_url(task,request);
+    te=workitem.session.task_def.type.get_engine();
+    url=te.get_task_page_url(workitem,request);
 
     for k,v in request.GET.items():	
+        if k=='ExtID' or k=='extid':
+            v=workitem.ext_hitid
         url=url+"&"+k+"="+v
 
     final_url=url;
@@ -213,10 +239,16 @@ def submit_result(request):
     (worker,created)=Worker.objects.get_or_create(session=None,worker=workerId)
     if created:
         worker.save();
+        
+    print "GOLD?",session.is_gold,session.code
 
     if session.is_gold:
+        print "GOLD"
         finalize_item_substitution(workitem,worker)
         grade_submission_with_gold(session,submission,worker)
+    else:
+        check_submission_for_progress(session,submission,worker)
+            
 
     if session.standalone_mode:
         return HttpResponseRedirect("/mt/get_task/"+session.code+"/" );
@@ -228,7 +260,7 @@ def submit_result(request):
 	
     return render_to_response('mturk/after_submit.html',
 	{'submit_target':submit_target,
-  	'extid': hit.ext_hitid, 'workerId':workerId,
+  	'extid': workitem.ext_hitid, 'workerId':workerId,
 	'assignmentId':assignmentId   });
 
 

@@ -56,6 +56,8 @@ import uuid
 import mturk.models 
 from mturk.common import *
 
+print mturk.models.task_engines
+
 from rpc4django import rpcmethod
 
 from formatting import *

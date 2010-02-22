@@ -147,9 +147,12 @@ urlpatterns = patterns('',
 
 
     #EXPERIMENTAL:                       
+    (r'^gold/mark/(?P<submission_id>[\w\-]+)/', 'mturk.views.mark_as_gold_submission'),
+    (r'^gold/unmark/(?P<submission_id>[\w\-]+)/', 'mturk.views.unmark_as_gold_submission'),
+
 
     #Work unit                
-    (r'^(?P<protocol>[\w-]+)/(?P<session_code>[\w\-]+)/task.html', 'mturk.views.get_task_page'),
+    (r'^(?P<protocol>[\w-]+)/(?P<session_code>[\w\-]+)/task.html', 'mturk.worker_views.get_task_page'),
 
 
     (r'^post_image/(?P<session_code>\d+)/(?P<frame>[\w\-]+)/$', 'mturk.views.post_image'),
@@ -215,6 +218,7 @@ urlpatterns = patterns('',
     (r'^download/(?P<path>.*)$', 'django.views.static.serve', {'document_root': os.path.join(settings.DATASETS_ROOT,'downloads')}),
 
     (r'^rospublishers/$', 'mturk.views.get_ros_publishers'),
+    (r'^ros_topic_publishers/$', 'mturk.views.get_ros_topic_publishers'),
 
 
     (r'^opt/(?P<session_code>[\w\-]+)/submissions/$', 'mturk.views.opt_get_session_submissions'),

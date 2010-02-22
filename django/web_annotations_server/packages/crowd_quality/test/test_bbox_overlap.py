@@ -27,6 +27,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 # Author: Alexander Sorokin. 
+from __future__ import with_statement
 
 PKG='crowd_quality'
 import roslib; roslib.load_manifest(PKG)
@@ -35,6 +36,7 @@ import unittest
 
 import sys,os
 import subprocess
+from xml.dom import minidom
 
 from crowd_quality.bbox import *
 from crowd_quality.bbox.generate_bbox_dataset import *
@@ -53,9 +55,34 @@ class TestBBoxOverlap(unittest.TestCase):
         bb2=BoundingBox(22,19,25,10);
         boxes2=[bb1,bb2];
         print compute_bbox_set_agreement(boxes1,boxes2)
-        
-        
-    def test_session_results_filter(self):
+
+    def get_test_data_dir(self):
+        p=subprocess.Popen("rospack find crowd_quality",stdout=subprocess.PIPE,shell=True)
+                              
+        (stdoutdata, stderrdata) = p.communicate();
+        package_dir=stdoutdata.strip()    
+        data_dir=os.path.join(package_dir,"test_data");
+        return data_dir
+
+    def test_agreement(self):        
+
+        data_dir=self.get_test_data_dir()
+
+        x_gold=minidom.parse(os.path.join(data_dir,"test_02","gold.xml"))
+        x_submission=minidom.parse(os.path.join(data_dir,"test_02","submission.xml"))
+        score1 = agreement.compute_agreement(x_submission,x_gold)
+        self.assertTrue(score1<0.10)
+        score2 = agreement.compute_agreement(x_gold,x_submission)
+        self.assertTrue(score2<0.10)
+        self.assertAlmostEqual(score1,score2,0.001)
+
+        x_gold=minidom.parse(os.path.join(data_dir,"test_02","gold2.xml"))
+        x_submission=minidom.parse(os.path.join(data_dir,"test_02","submission_to_gold2.xml"))
+        score = agreement.compute_agreement(x_submission,x_gold)
+        self.assertTrue(score>0.9)
+
+
+    def x_test_session_results_filter(self):
         
         p=subprocess.Popen("rospack find crowd_quality",stdout=subprocess.PIPE,shell=True)
                               

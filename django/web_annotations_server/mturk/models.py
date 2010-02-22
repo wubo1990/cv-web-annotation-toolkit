@@ -37,26 +37,19 @@ class FundingAccount(models.Model):
         	return self.name
 
 task_engines={};
-import mturk.protocols.gxml.task;
-task_engines["gxml"]=mturk.protocols.gxml.task.GXmlTaskEngine();
-import mturk.protocols.grading.task;
-task_engines["grading"]=mturk.protocols.grading.task.GradingTaskEngine();
-import mturk.protocols.video_events.task;
-task_engines["video_events"]=mturk.protocols.video_events.task.VideoEventsTaskEngine();
-import mturk.protocols.grouping.task;
-task_engines["grouping"]=mturk.protocols.grouping.task.GroupingTaskEngine();
-
-import mturk.protocols.attributes.task;
-task_engines["attributes"]=mturk.protocols.attributes.task.AttributesTaskEngine();
-
-import mturk.protocols.anyhtml.task;
-task_engines["anyhtml"]=mturk.protocols.anyhtml.task.AnyHTMLTaskEngine();
 
 class TaskType(models.Model):
 	name=models.SlugField();
 	
 	def get_engine(self):
-		print task_engines
+		if self.name not in task_engines:
+			m_name="mturk.protocols."+self.name
+			try:
+				m=__import__(m_name);
+				task_engines[self.name]=m.protocols.__dict__[self.name].get_task_engine();
+			except Exception,e :
+				print "Can't import %s:" % m_name,e
+			print task_engines
 		return task_engines.get(self.name,None)
 
 	def __unicode__(self):
@@ -512,8 +505,8 @@ class WorkerTrainingProgress(models.Model):
 	num_gold_submissions   = models.IntegerField(default=0);
 	num_passing_submissions= models.IntegerField(default=0);
 	next_check             = models.IntegerField(default=-1);
-	grade_total            = models.DecimalField(max_digits=15,decimal_places=5)
-	grade_average          = models.DecimalField(max_digits=15,decimal_places=5)
+	grade_total            = models.DecimalField(max_digits=15,decimal_places=5,default="0.0")
+	grade_average          = models.DecimalField(max_digits=15,decimal_places=5,default="0.0")
 
 
 class GoldSubmission(models.Model):
@@ -541,7 +534,7 @@ ITEM_SUBSTITUTION_STATE = (
             (4, 'Cancelled'),
 )
 
-class ItemSubstitutions(models.Model):
+class ItemSubstitution(models.Model):
 	worker 	       = models.ForeignKey(Worker);
 	requested_item = models.ForeignKey(WorkItem,related_name='substitutions_as_requested');
 	shown_item     = models.ForeignKey(WorkItem,related_name='substitutions_as_shown');
@@ -594,7 +587,20 @@ def click_2_num(txt):
 	return map(lambda v: float(v), txt.split(','));
 
 
+def select_new_gold_workitem(session_id,worker):
 
+    QUERY="""select hit.id from mturk_mthit hit left outer join mturk_submittedtask s on s.hit_id=hit.id and s.worker=%s where s.id is null and hit.session_id=%s limit 1
+	  """
+    cursor = connection.cursor()
+    cursor.execute(QUERY,[worker,session_id])
+
+    results=[];
+    r=cursor.fetchone()
+    if r is None:
+	    return None
+    hit_id=r[0];
+    cursor.close();
+    return WorkItem.objects.get(id=hit_id);
 
 
 def worker_grading_report_complete(worker_id):

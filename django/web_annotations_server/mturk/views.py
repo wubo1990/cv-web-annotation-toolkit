@@ -390,6 +390,31 @@ def grading_paged(request,session_code,page=1):
 			template_name='protocols/' +protocol+'/grading_list.html',extra_context={'nav':nav});
 
 @login_required
+def mark_as_gold_submission(request,submission_id):
+    submission = get_object_or_404(SubmittedTask,id=submission_id)
+    workitem = submission.hit;
+    (gs,created)=GoldSubmission.objects.get_or_create(workitem=workitem,submission=submission);
+    if created:
+        gs.save();
+    return HttpResponse("+")
+
+@login_required
+def unmark_as_gold_submission(request,submission_id):
+    submission = get_object_or_404(SubmittedTask,id=submission_id)
+    workitem = submission.hit;
+
+    try:
+        gs=GoldSubmission.objects.get(workitem=workitem,submission=submission);
+        gs.delete()
+    except:
+        return HttpResponse("-")
+
+    return HttpResponse("+")
+
+
+
+
+@login_required
 def grading_thumbnail_random(request,session_code):
 	session = get_object_or_404(Session,code=session_code)
 	protocol=session.task_def.type.name;
@@ -1666,6 +1691,12 @@ def expire_session_hits_by_type(request,session_code):
 
 def get_ros_publishers(request):
     pub_list=ros_integration.get_publishers()
+    resp=HttpResponse(yaml.dump(pub_list));
+    return resp;
+
+def get_ros_topic_publishers(request):
+    topic_name=request.REQUEST['topic']
+    pub_list=ros_integration.get_ros_topic_publishers(topic_name)
     resp=HttpResponse(yaml.dump(pub_list));
     return resp;
 

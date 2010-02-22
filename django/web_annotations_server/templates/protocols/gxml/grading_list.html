@@ -3,6 +3,22 @@
 
 {% block extrahead %}
 <script src="/code/js/prototype.js" language="javascript"></script>
+<script>
+function mark_gold(sID)
+{
+      $('gold_mark__'+sID).innerHTML='submitting ...';
+      new Ajax.Updater('gold_mark__'+sID, '/mt/gold/mark/'+sID+'/', {
+         parameters: { }
+          });
+}
+function unmark_gold(sID)
+{
+      $('gold_mark__'+sID).innerHTML='submitting ...';
+      new Ajax.Updater('gold_mark__'+sID, '/mt/gold/unmark/'+sID+'/', {
+         parameters: { }
+          });
+}
+</script>
 {% endblock %}
 
 
@@ -119,7 +135,19 @@ Feedback:<textarea rows="5" cols="50" name="message_{{s.id}}"></textarea>
 <br/>
 <a href="#" onclick="submit_id('{{s.id}}');set_display_mode({{s.id}},'graded');return false;">Submit this grade only</a>
 </div>
-</td></tr></table></td></tr>
+</td></tr>
+
+{% if user.is_staff %}
+{% if s.session.is_gold %}
+<tr><td>
+<div id="gold_mark__{{s.id}}">
+</div>
+<a href="#" onclick="mark_gold('{{s.id}}')">Mark as gold</a>|<a href="#" onclick="unmark_gold('{{s.id}}');">Unmark as gold</a>.
+</td></tr>
+{% endif %}
+{% endif %}
+
+</table></td></tr>
 
 <tr id="div_{{s.id}}_r5">
 <td><div id="div_{{s.id}}_graded_msg" style="display:none">{{s.id}} has been graded</div>
@@ -188,6 +216,7 @@ function submit_id(sID){
           });
 }
 
+
 function submit_results(){
    for(var i=0;i<all_submissions.length;i++)
    {
@@ -214,7 +243,6 @@ function submit_results(){
 <input type="button" onclick="javascript:submit_results()" value="submit">
 </div>
 </form>
-
 
 {% endblock %}
 

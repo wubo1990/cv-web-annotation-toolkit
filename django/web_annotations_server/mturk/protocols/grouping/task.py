@@ -55,8 +55,6 @@ class GroupingTaskEngine(TaskEngine):
         xmlObj=task.parse_parameters_xml();
         return {} 
 
-    def get_models(self):
-        return sys.modules["web_annotations_server.mturk.models"]
 
 
     def get_task_page_url(self,task,request):
