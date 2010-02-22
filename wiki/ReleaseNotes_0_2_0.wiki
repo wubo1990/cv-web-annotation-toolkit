@@ -3,7 +3,7 @@
 
 = Database upgrade =
 
-  * add is_gold (tinyint(1)) to session 
+  * add is_gold (tinyint(1)) to mturk_session 
   * drop mturk_goldstandardqualification
   * drop mturk_goldstandardgraderecord
 
