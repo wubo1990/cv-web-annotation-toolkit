@@ -1,0 +1,11 @@
+<?xml version="1.0" ?><results>
+<image url="http://vm6.willowgarage.com:8080/frames/test-gold-person-gold/cb52d71b-c741-4696-aff2-5a440f8e180e-1.jpg"/>
+<annotation>
+<size><width>500</width><height>375</height></size>
+<bbox height="147" left="230.45" name="object" sqn="1" top="157.55" width="127">
+	<pt ct="1266791140870" x="230.45" y="157.55"/>
+	<pt ct="1266791144496" x="357.45" y="304.55"/>
+</bbox>
+</annotation>
+
+<meta load_time="1266791134956" submit_time="1266791166854"/><submission id="89" ref-hit="cb52d71b-c741-4696-aff2-5a440f8e180e-1" ref-session="test-gold-person-gold" ref-submission="89" url="http://vm6.willowgarage.com:8080/mt/submission_data_xml/89/cb52d71b-c741-4696-aff2-5a440f8e180e-1/" worker="A31N5ZMJL65D4M"/></results>

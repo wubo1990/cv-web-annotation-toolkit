@@ -34,6 +34,8 @@
 #***********************************************************
 #Author: Alexander Sorokin
 
+from __future__ import with_statement
+
 """
 Generate bounding box quality evaluation dataset
 
@@ -173,7 +175,7 @@ def compute_bbox_set_agreement(example_boxes,gold_boxes):
   p.constr.append(S2*x<=1)
 
   p.solve(True)
-  overlap=cvxmod.value(p)/nExB;
+  overlap=cvxmod.value(p)/max(nExB,nGtB);
   assert(overlap<1.0001);
   return overlap
 

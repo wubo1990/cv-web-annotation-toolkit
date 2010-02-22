@@ -1,0 +1,23 @@
+<?xml version="1.0" ?><results>
+<image url="http://vm6.willowgarage.com:8080/frames/test-gold-person-gold/aaabc1a8-3d10-4f79-b80b-7731de4cdab1-2.jpg"/>
+<annotation>
+<size><width>500</width><height>333</height></size>
+<bbox height="223.8" left="40.2" name="object" sqn="1" top="191.7" width="147">
+	<pt ct="1266782174345" x="40.2" y="191.7"/>
+	<pt ct="1266782176363" x="187.2" y="415.5"/>
+</bbox>
+<bbox height="211.8" left="131.1" name="object" sqn="2" top="203.7" width="127.2">
+	<pt ct="1266782179665" x="131.1" y="203.7"/>
+	<pt ct="1266782182381" x="258.3" y="415.5"/>
+</bbox>
+<bbox height="221" left="213.6" name="object" sqn="3" top="195.25" width="144">
+	<pt ct="1266782187314" x="213.6" y="195.25"/>
+	<pt ct="1266782190533" x="357.6" y="416.25"/>
+</bbox>
+<bbox height="231.4" left="346.9" name="object" sqn="4" top="186.55" width="151.8">
+	<pt ct="1266782196729" x="346.9" y="186.55"/>
+	<pt ct="1266782199085" x="498.7" y="417.95000000000005"/>
+</bbox>
+</annotation>
+
+<meta load_time="1266782169020" submit_time="1266782204419"/><submission id="51" ref-hit="aaabc1a8-3d10-4f79-b80b-7731de4cdab1-2" ref-session="test-gold-person-gold" ref-submission="51" url="http://vm6.willowgarage.com:8080/mt/submission_data_xml/51/aaabc1a8-3d10-4f79-b80b-7731de4cdab1-2/" worker="qwerty"/></results>

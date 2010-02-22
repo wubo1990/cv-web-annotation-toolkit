@@ -10,9 +10,12 @@
 
   <rosdep name="rospy"/>
   <rosdep name="scipy"/>
-  <rosdep name="mech_turk_ros"/>
-  <rosdep name="mech_turk_ros_msgs"/>
-  <rosdep name="cv_mech_turk2"/>
+
+  <depend package="mech_turk_ros"/>
+  <depend package="mech_turk_ros_msgs"/>
+  <depend package="cv_mech_turk2"/>
+
+  <depend package="crowd_quality"/>
 
   <export>
     <rosdoc config="${prefix}/rosdoc.yaml" />

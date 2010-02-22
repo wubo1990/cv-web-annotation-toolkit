@@ -1,4 +1,4 @@
-import random,math,urllib,os,sys
+import random,math,urllib,os,sys,numpy
 from django.conf import settings
 
 from mturk.protocols.task import TaskEngine
@@ -9,11 +9,13 @@ import xml.dom.minidom
 from xml.dom.minidom import Node
 
 if settings.ROS_INTEGRATION:
-    import roslib; roslib.load_manifest('crowd_quality') 
+    import roslib; roslib.load_manifest('django_crowd_server') 
     from crowd_quality.bbox import compute_agreement as bbox__compute_agreement
 else:
     def bbox__compute_agreement(x_submission,x_gold):
         return 1;
+
+from mturk.models import GoldSubmission
 
 
 class GXmlTaskEngine(TaskEngine):
@@ -225,11 +227,11 @@ class GXmlTaskEngine(TaskEngine):
         x_submission=self.get_submission_xml_doc(submission)
 
         workitem=submission.hit;
-        gold_submissions=GoldSubmission.objcets.filter(workitem=workitem);
-        all_agreement_scored=[];
+        gold_submissions=GoldSubmission.objects.filter(workitem=workitem);
+        all_agreement_scores=[];
         for gold in gold_submissions:
-            x_gold=self.get_submission_xml_doc(gold)
-            agreement=crowd_quality.bbox.compute_agreement(x_submission,x_gold)
+            x_gold=self.get_submission_xml_doc(gold.submission)
+            agreement=bbox__compute_agreement(x_submission,x_gold)
             all_agreement_scores.append(agreement)
 
-        return mean(all_agreement_scored)*100
+        return numpy.mean(all_agreement_scores)*100

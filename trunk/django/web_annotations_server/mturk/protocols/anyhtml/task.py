@@ -56,9 +56,6 @@ class AnyHTMLTaskEngine(TaskEngine):
 
         return {'page_src':page_src}
 
-    def get_models(self):
-        print sys.modules.keys()
-        return sys.modules["web_annotations_server.mturk.models"]
 
 
     def get_task_page_url(self,task,request):

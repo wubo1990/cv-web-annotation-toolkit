@@ -45,8 +45,11 @@ class TaskEngine:
             return ('','')            
 
     def get_models(self):
-        """ To avoid recursive dependencies, this is the only way tasks are allowed to access mturk.models"""
-        return sys.modules["web_annotations_server.mturk.models"]
+        """ To avoid recursive dependencies, this is the only way tasks are allowed to access mturk.models
+        @deprecated: It's ok now to simply do import mturk.models
+        """
+        import mturk.models
+        return mturk.models
 
 
 

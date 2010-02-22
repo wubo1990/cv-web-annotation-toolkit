@@ -1,5 +1,5 @@
 from django.contrib import admin
-from models import Session,SessionExclusion,FundingAccount,MTHit,SubmittedTask,Worker,Task,TaskType,MTurkQualificationDefinition,MTurkQualification,Payment,WorkerProfile,Worker,WorkerMetricsQualifications
+from models import Session,SessionExclusion,FundingAccount,MTHit,SubmittedTask,Worker,Task,TaskType,MTurkQualificationDefinition,MTurkQualification,Payment,WorkerProfile,Worker,WorkerMetricsQualifications,GoldSubmission,GoldStandardQualification,WorkerTrainingProgress
 
 import views
 import mturk.payments.views
@@ -17,7 +17,7 @@ class SessionAdmin(admin.ModelAdmin):
         }),
         ('Advanced options', {
             'classes': ('collapse',),
-            'fields': ('standalone_mode', 'gold_standard_qualification',  'mturk_qualification', 'hit_type' )
+            'fields': ('standalone_mode', 'is_gold','gold_standard_qualification',  'mturk_qualification', 'hit_type' )
         }),
     )
     filter_horizontal = ['mturk_qualification'];
@@ -56,6 +56,13 @@ class MTQualDefAdmin(admin.ModelAdmin):
     list_display = ('id','name');
     save_as=True    
 
+
+class GoldSubmissionAdmin(admin.ModelAdmin):
+    pass	
+class GoldQualificationAdmin(admin.ModelAdmin):
+    pass	
+class WorkerTrainingProgressAdmin(admin.ModelAdmin):
+    pass
 
 class SessionExclusionAdmin(admin.ModelAdmin):
     pass	
@@ -101,3 +108,8 @@ admin.site.register(Payment,PaymentAdmin);
 
 admin.site.register(WorkerProfile,WorkerProfileAdmin);
 admin.site.register(WorkerMetricsQualifications,WorkerMetricsQualificationsAdmin);
+
+admin.site.register(GoldSubmission,GoldSubmissionAdmin);
+admin.site.register(GoldStandardQualification,GoldQualificationAdmin);
+admin.site.register(WorkerTrainingProgress,WorkerTrainingProgressAdmin);
+
