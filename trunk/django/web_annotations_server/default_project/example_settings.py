@@ -120,8 +120,13 @@ INSTALLED_APPS = (
     'registration',
     'rpc4django',
 
-    'crowd_server.mturk',
-    'crowd_server.datastore',
+    'mturk',
+    'datastore',
+    'mturk.protocols.gxml',
+    'mturk.protocols.attributes',
+    'mturk.protocols.grading',
+    'mturk.protocols.grouping',
+    'mturk.protocols.anyhtml'
 
 )
 
@@ -140,4 +145,7 @@ MTURK_QUALIFICATIONS_PREFIX="CD DJ: "
 ## number of hits to show per page
 NUM_HITS_PER_PAGE = 20
 
+
+ROS_INTEGRATION=False
+MTURK_INTEGRATION=True
 
