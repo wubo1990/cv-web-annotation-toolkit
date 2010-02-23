@@ -219,8 +219,8 @@ django-admin.py loaddata default_project/default.json
 }}}
  # Copy the session images to /var/datasets
 {{{
-sudo cp -r django_crowd_test_fixture_0.1.0/test-bbox-data-1 /var/datasets/
-sudo chown -R www-data /var/datasets/test-bbox-data-1
+sudo cp -r django_crowd_test_fixture_0.1.0/test-bbox-data-1 /var/datasets/test-bbox-data1
+sudo chown -R www-data /var/datasets/test-bbox-data1
 }}}
  # Create a test user
    # Go to /admin/auth/user/
