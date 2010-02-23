@@ -35,10 +35,10 @@ import threading
 
 from django.conf import settings
 
-import roslib; roslib.load_manifest('django_crowd_server')
-import rospy
-
 if settings.ROS_INTEGRATION:
+    import roslib; roslib.load_manifest('django_crowd_server')
+    import rospy
+
     def init_ros(m):
         print "ROS init start"
         print m

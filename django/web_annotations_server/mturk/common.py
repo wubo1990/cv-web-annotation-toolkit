@@ -302,7 +302,7 @@ def create_session_hit_type(session):
 
     t=session.task_def;
     qualifications = Qualifications()
-    qual_views.add_session_qualifications(qualifications,session);
+    add_session_qualifications(qualifications,session);
 
     create_hit_rs = conn.register_hit_type(  title=t.title,
                                              description=t.description,
