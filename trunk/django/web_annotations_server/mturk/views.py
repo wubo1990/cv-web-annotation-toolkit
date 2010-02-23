@@ -812,7 +812,7 @@ def force_update_session_HITType(request,session_code):
     except MTurkException:
         return HttpResponse("- Failed to create hit type");
         
-
+    print new_hit_type,old_hit_type
     (num_affected,num_failures)=update_session_hittype(session,new_hit_type);
     return HttpResponse("+ affected %d num_failures %d"%( num_affected,num_failures))
 
