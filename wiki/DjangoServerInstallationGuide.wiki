@@ -172,6 +172,9 @@ sudo chown -R www-data /var/django
 }}}
  # Run development server
 {{{
+sudo -u www-data bash
+export PYTHONPATH=$PYTHONPATH:/var/django:/var/django/crowd_server
+export DJANGO_SETTINGS_MODULE=crowd_server.settings
 python manage.py runserver localhost:8080
 }}}
 
