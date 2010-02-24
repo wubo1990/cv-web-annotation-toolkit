@@ -210,8 +210,14 @@ def activate_hit(session,hit):
                                         qualifications=qualifications)
         if create_hit_rs.status != True:
             return (False, "Error talking to AWS: %s (%s)" % (create_hit_rs.Message,create_hit_rs.Code));
+        
+        try:
+            session.hit_type=create_hit_rs.HITTypeId;
+        except Exception,e:
+            print str(e)
+            print str(create_hit_rs)
+            return (False, "Exception found while creating HIT: %s (AWS error): %s (%s)" % (str(e),create_hit_rs.Message,create_hit_rs.Code));
 
-        session.hit_type=create_hit_rs.HITTypeId;
         session.save();
     else:
         num_active_assignments=hit.submittedtask_set.filter(state__in=SUBMISSION_STATE_CAN_BE_VALID).count()
