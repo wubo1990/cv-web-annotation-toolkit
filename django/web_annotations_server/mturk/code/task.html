@@ -24,7 +24,7 @@
 IMPORTANT: Read the <a id="a_instructions" href="instructions.html" target="wnd_instructions">instructions</a>!! <!--<b>Instructions have been updated!</b><br/>-->
 </div>
 
-<div id="rating_div" style="display:none;"></div>
+<div id="feedback_div" ></div>
 
 <div id="existing_comments_div" style="display:none;"></div>
 
@@ -219,6 +219,11 @@ if(mode_value=="AmazonMTsandbox"){
 	submitURL="/mt/submit/";
 }
 
+feedback_url=gup("feedback_url");
+if(feedback_url != "")
+{
+    new Ajax.Updater('feedback_div',feedback_url);
+}
 
 
 $('MT_form').action=submitURL;

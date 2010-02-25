@@ -55,6 +55,8 @@ urlpatterns = patterns('',
     (r'^show_most_recent_result/(?P<session_code>[\w\-]+)/$', 'mturk.views.show_most_recent_result'),
 
 
+    (r'^gpa/(?P<session_code>[\w\-]+)/(?P<worker_id>[\w\-]+)/$', 'mturk.worker_views.show_worker_gpa'),
+
     #END public                       
 
 

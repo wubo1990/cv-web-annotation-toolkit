@@ -186,6 +186,9 @@ def get_task_page(request,session_code):
             v=workitem.ext_hitid
         url=url+"&"+k+"="+v
 
+    if worker:
+        url+="&feedback_url=/mt/gpa/%s/%s/" % (session.code,worker.worker);
+
     final_url=url;
     return HttpResponseRedirect(final_url)	
 
@@ -282,4 +285,26 @@ def send_hit_parameters(request,ext_id):
         return HttpResponse(hit.parameters,mimetype="text/xml");
     else:
         return HttpResponse(hit.parameters,mimetype="text/plain");
+
+def show_worker_gpa(request,session_code,worker_id):
+    session = get_object_or_404(Session,code=session_code)
+
+    qual=session.gold_standard_qualification
+    if qual is None:
+        return render_to_response('mturk/gpa/inline_blank.html')
+
+    (worker,worker_created)=Worker.objects.get_or_create(session=None,worker=worker_id)
+    if worker_created:
+        return render_to_response('mturk/gpa/inline_blank.html')
+
+    (progress,progress_created)=WorkerTrainingProgress.objects.get_or_create(worker=worker,gold_qual=qual);
+    if progress_created:
+        return render_to_response('mturk/gpa/inline_blank.html')
+
+    try:
+        last_grade=GoldStandardGradeRecord.objects.filter(gold_session=qual.gold_session, worker=worker).order_by('-id')[0];
+    except IndexError:
+        last_grade=None
+
+    return render_to_response('mturk/gpa/inline_worker_gpa.html',{'progress':progress,'last_grade':last_grade,'qualification':qual})
 
