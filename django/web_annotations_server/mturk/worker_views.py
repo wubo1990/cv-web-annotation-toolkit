@@ -66,6 +66,7 @@ def select_workitem_from_gold(session,worker):
 
     gold_workitem=None
     if session.gold_standard_qualification is None:
+        print "No gold standard qualification"
         return None
 
     gold_qual = session.gold_standard_qualification
@@ -76,6 +77,7 @@ def select_workitem_from_gold(session,worker):
         training_progress.save();
 
     if training_progress.num_gold_submissions < gold_qual.num_gold_initial:
+        print "Picking initial tasks"
         return pick_random_workitem_for_worker(gold_qual.gold_session,worker)
     else:
         if training_progress.next_check <= training_progress.num_normal_submissions:
@@ -233,6 +235,9 @@ def submit_result(request):
             mthit.save();
 
     session.task_def.type.get_engine().on_submit(submission);
+
+    #num_possibly_valid_submissions=SubmittedTask.objects.filter(hit=workitem,valid=True).count();
+    #if num_possibly_valid_submissions>=workitem.get_num_required_submissions():
     workitem.state=2; #Submitted
     workitem.save()
 

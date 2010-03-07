@@ -192,6 +192,9 @@ class MTHit(models.Model):
         def __str__(self):
           return str(self.int_hitid)
 
+	def get_num_required_submissions(self):
+		return self.session.task_def.max_assignments
+
 	def get_filename(self):
 		if "frame" in self.parse_parameters():
 			return os.path.join(settings.DATASETS_ROOT, self.session.code, self.parse_parameters()["frame"] + ".jpg")
@@ -508,6 +511,8 @@ class WorkerTrainingProgress(models.Model):
 	grade_total            = models.DecimalField(max_digits=15,decimal_places=5,default="0.0")
 	grade_average          = models.DecimalField(max_digits=15,decimal_places=5,default="0.0")
 
+	def __str__(self):
+		return "%s @ %s: %s g(%d),n(%d)"  % (self.worker.worker,self.gold_qual.gold_session.code,str(self.grade_average),self.num_gold_submissions,self.num_normal_submissions )
 
 class GoldSubmission(models.Model):
 	workitem    = models.ForeignKey(MTHit)
@@ -589,8 +594,11 @@ def click_2_num(txt):
 
 def select_new_gold_workitem(session_id,worker):
 
-    QUERY="""select hit.id from mturk_mthit hit left outer join mturk_submittedtask s on s.hit_id=hit.id and s.worker=%s where s.id is null and hit.session_id=%s limit 1
+    QUERY="""select hit.id from mturk_mthit hit 
+INNER JOIN mturk_goldsubmission gold ON hit.id = gold.workitem_id
+LEFT OUTER JOIN mturk_submittedtask s ON s.hit_id=hit.id and s.worker=%s where s.id is null and hit.session_id=%s limit 1
 	  """
+    #print QUERY
     cursor = connection.cursor()
     cursor.execute(QUERY,[worker,session_id])
 

@@ -8,7 +8,7 @@ from datastore import xmlmisc
 import xml.dom.minidom
 from xml.dom.minidom import Node
 
-if settings.ROS_INTEGRATION:
+if settings.ROS_INSTALLED:
     import roslib; roslib.load_manifest('django_crowd_server') 
     from crowd_quality.bbox import compute_agreement as bbox__compute_agreement
 else:
@@ -21,7 +21,7 @@ from mturk.models import GoldSubmission
 class GXmlTaskEngine(TaskEngine):
     def get_internal_params(self):
         return {'list_num_per_page':10,
-                'frame_w':800,'frame_h':800};
+                'frame_w':800,'frame_h':1400};
 
     def get_submission_view_url(self,submission):
         viewurl=""

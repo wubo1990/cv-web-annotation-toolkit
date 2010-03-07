@@ -135,6 +135,7 @@ class AttributesTaskEngine(TaskEngine):
         x_root.setAttribute("ref-session",str(submission.session.code));
         x_root.setAttribute("ref-hit",submission.hit.ext_hitid);
         x_root.setAttribute("ref-submission",str(submission.id));
+        x_root.setAttribute("ref-worker",str(submission.worker));
         x_root.setAttribute("id",str(submission.id));
 
         if(comment):

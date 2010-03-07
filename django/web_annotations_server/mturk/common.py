@@ -222,10 +222,11 @@ def activate_hit(session,hit):
     else:
         num_active_assignments=hit.submittedtask_set.filter(state__in=SUBMISSION_STATE_CAN_BE_VALID).count()
         num_assignments_to_activate=t.max_assignments - num_active_assignments;
-        if num_assignments_to_activate==0:
+        if num_assignments_to_activate<=0:
             return (True,"+ %s" %hit.ext_hitid)
 
         create_hit_rs = conn.create_hit(question=q, hit_type=session.hit_type, max_assignments=num_assignments_to_activate)
+        
 
     try:
         mt_hit_id=create_hit_rs.HITId
@@ -309,7 +310,8 @@ def create_session_hit_type(session):
     t=session.task_def;
     qualifications = Qualifications()
     add_session_qualifications(qualifications,session);
-
+    #qualifications.add(PercentAssignmentsApprovedRequirement(comparator="GreaterThan", integer_value="80"))
+    print qualifications
     create_hit_rs = conn.register_hit_type(  title=t.title,
                                              description=t.description,
                                             keywords=str(t.keywords),
@@ -317,6 +319,7 @@ def create_session_hit_type(session):
                                             duration=t.duration,
                                             approval_delay=t.approval_delay, 
                                             qual_req=qualifications)
+    print str(create_hit_rs)
     if (create_hit_rs.status != True):
         raise MTurkException(create_hit_rs);
 

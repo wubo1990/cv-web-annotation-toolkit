@@ -856,6 +856,39 @@ def update_session_hittype(session,new_hit_type):
             num_affected+=1;
         except MTurkException :
             num_failures+=1;
+        #break
+
+    return (num_affected,num_failures)
+
+@login_required
+def touch_random_session_hit(request,session_code):
+    session = get_object_or_404(Session,code=session_code)
+
+    if session.standalone_mode:
+        return HttpResponse("- The session is standalone. Can not update")
+
+    (num_affected,num_failures)=internal_touch_update_random_session_hit(session);
+    return HttpResponse("+ affected %d num_failures %d"%( num_affected,num_failures))
+
+def internal_touch_update_random_session_hit(session):
+    hits=session.mechturkhit_set.all(); #.filter(state=6)
+    num_hits = hits.count()
+    print num_hits
+    if num_hits==0:
+        return (0,0)
+    
+    selected_hit=random.randint(0,num_hits-1)
+    conn = get_mt_connection(session)    
+    num_failures =0;
+    num_affected=0;
+    h=hits[selected_hit]
+    print h.mechturk_hit_id
+    try:
+        rs = change_hit_type(conn,h.mechturk_hit_id,session.hit_type)
+        num_affected+=1;
+    except MTurkException :
+        num_failures+=1;
+
     return (num_affected,num_failures)
 
 
