@@ -337,7 +337,7 @@ def submit_work(work_unit_id,worker,assignment_id,data,**kwargs):
 
 
 @rpcmethod(name='mt.submit_grade',permission='mturk.add_manualgraderecord')
-def submit_grade(submission_id,worker,assignment_id,data,**kwargs):
+def submit_grade(submission_id,quality,feedback,**kwargs):
     """Submit grade.  
 
     Allows the authenticated user to submit a grade. This API provides for integrated grading and faster grading or for automated external grading tools.

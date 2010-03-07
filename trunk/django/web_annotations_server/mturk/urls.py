@@ -120,6 +120,7 @@ urlpatterns = patterns('',
     (r'^expire_session_hits_by_type/(?P<session_code>[\w\-]+)/$', 'mturk.views.expire_session_hits_by_type'),
 
     (r'^force_update_session_hit_type/(?P<session_code>[\w\-]+)/$', 'mturk.views.force_update_session_HITType'),
+    (r'^touch_random_session_hit/(?P<session_code>[\w\-]+)/$', 'mturk.views.touch_random_session_hit'),
     (r'^force_update_task_hit_type/(?P<task_code>[\w\-]+)/$', 'mturk.views.force_update_task_HITType'),
 
 

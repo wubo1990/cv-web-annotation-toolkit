@@ -1,1 +1,1 @@
-Scores: average {{progress.grade_average}}, {% if last_grade %} last measured: {{last_grade.grade}}{% endif %}, required: {{qualification.passing_submission_grade}}.
+Scores: average {{progress.grade_average}}, {% if last_grade %} <a href="{{last_grade.submission.get_view_url}}" target="_review">last measured: {{last_grade.grade}}</a>, {% endif %}required: {{qualification.passing_submission_grade}}.
