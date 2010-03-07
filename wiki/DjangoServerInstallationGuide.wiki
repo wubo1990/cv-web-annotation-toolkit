@@ -205,6 +205,8 @@ sudo apache2ctl restart
 
 *Note3:* If apache is configured to works through https, we can use https in HOST_NAME_FOR_MTURK in settings.py. This way Mechanical Turk will use a secure connection to the server. 
 
+*Note4:* "DocumentRoot /var/www" in the default site can cause trouble. If you get an error, try commenting it out.
+
 == Installing Unit Test server ==
 
 Unit test server assumes specific configuration of tasks and sessions on the server. 
