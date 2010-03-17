@@ -35,6 +35,7 @@
 
 # Python imports
 import urllib,uuid,os,shutil,copy, math
+import time
 import cPickle as pickler
 
 # Library imports
@@ -812,8 +813,12 @@ def force_update_session_HITType(request,session_code):
     except MTurkException:
         return HttpResponse("- Failed to create hit type");
         
+    if "delay" in request.REQUEST:
+        delay=float(request.REQUEST["delay"])
+    else:
+        delay=None
     print new_hit_type,old_hit_type
-    (num_affected,num_failures)=update_session_hittype(session,new_hit_type);
+    (num_affected,num_failures)=update_session_hittype(session,new_hit_type,delay);
     return HttpResponse("+ affected %d num_failures %d"%( num_affected,num_failures))
 
 @login_required
@@ -840,7 +845,7 @@ def force_update_task_HITType(request,task_code):
     return HttpResponse("+ affected %d num_failures %d"%( tot_num_affected,tot_num_failures))
 
 
-def update_session_hittype(session,new_hit_type):
+def update_session_hittype(session,new_hit_type,delay=None):
     session.hit_type = new_hit_type;
     session.save()
     hits=session.mechturkhit_set.all()
@@ -856,7 +861,8 @@ def update_session_hittype(session,new_hit_type):
             num_affected+=1;
         except MTurkException :
             num_failures+=1;
-        #break
+        if delay:
+            time.sleep(delay)
 
     return (num_affected,num_failures)
 

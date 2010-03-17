@@ -243,6 +243,24 @@ def activate_hit(session,hit):
 
 
 
+def add_hit_assignments(session,hit,num_assignments):
+    if session.standalone_mode:
+        return (True,"%s" % hit.ext_hitid)
+
+    conn = get_mt_connection(session)
+
+    mthit=MechTurkHit.objects.filter(session=session,mthit=hit)[0];
+    hit_id=mthit.mechturk_hit_id;
+    conn.extend_hit(hit_id,num_assignments);
+    mthit.state=1;
+    mthit.save();
+    hit.state=6 #Active.
+    hit.save();
+
+    return (True,"%s" % hit.ext_hitid)
+
+
+
 def expire_hit(conn,hit_id):
     params = {'HITId' : hit_id,}
     
