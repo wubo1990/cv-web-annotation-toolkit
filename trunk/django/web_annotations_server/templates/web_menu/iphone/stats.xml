@@ -9,11 +9,27 @@
 </small></li>
 				<li><a href="/web_menu/queue.xml#_Queue" rev="async:np"><em>I have {{stats.server.queue_length}} orders in my queue. <small>I'll be busy for about {{stats.server.ETA_time}} minutes.</small></a></li>
 			</ul>
+
+ <h2>About HERB</h2>
+            <p style="font-size:11pt; padding-left:15px;padding-right:15px">The <a href="http://personalrobotics.intel-research.net/">Personal Robotics</a> project at Intel aims to develop useful robotic assistants in populated indoor environments. The project is a collaborative effort between the Intel Labs at Pittsburgh and Seattle, the Quality of Life Technologies, Carnegie Mellon University, and the University of Washington at Seattle.<br /> 
+         
+</p>
+            <h2>Powered By</h2>
+            <ul class="iArrow">
+             <li><em>Intel</em><small>Intel Robotics</small></li>
+                <li><em>ROS</em><small>An open source robotics platform</small></li>
+                </ul>
+
+<!--
 			<h2>Info About me</h2>
+			<p>
+				The <a href="http://personalrobotics.intel-research.net">Personal Robotics</a> project at Intel aims to develop useful robotic assistants in populated indoor environments. The project is a collaborative effort between the Intel Labs at Pittsburgh and Seattle, the Quality of Life Technologies, Carnegie Mellon University, and the University of Washington at Seattle.
+			</p>
 			<ul class="iArrow">
-				<li><a href="#_Article"><em>Intel logo? CMU logo?. Nice words about Intel, CMU, QoLT, QoLThis robot , CMUContent Here</em><small>Additional item info three</small></a></li>
 				<li>Powered by Intel</li>
 				<li>Powered by ROS <small>An open source robotics platform</small></li>
 			</ul>
+-->
+
 ]]></data>
 </root>

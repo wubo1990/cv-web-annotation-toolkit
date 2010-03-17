@@ -6,12 +6,15 @@
         <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" />
 
         <link rel="stylesheet" href="/web_menu/s/WebApp/Design/Render.css" />
+{% if is_firefox %}
         <link rel="stylesheet" href="/web_menu/s/WebApp/Design/Firefox.css" />
+{% endif %}
         <script type="text/javascript" src="/web_menu/s/WebApp/Action/Logic.js"></script>
         
         <script type="text/javascript">
         // These functions handle the updating of the Queue when it's onscreen.
         var queueIntervalId = 0;
+	var can_place_new_order = ({{ order.state }}==1) || {{ order.state }}>3;
 
 	var item_images=new Array();
         
@@ -21,7 +24,7 @@
         
         // haven't used this yet, but if we want to cancel it, here it is
         function stopQueueUpdate(){
-        clearInterval(queueIntervalId);
+            clearInterval(queueIntervalId);
         }
 
 function endsWith(s,str)
@@ -39,6 +42,11 @@ function endsWith(s,str)
 	    // Async call it with default params to emulate the same behavior as async link click!
             WA.Request(url, null, -1);
           }
+          if (endsWith(document.location.toString(),"#_Ordered") ){
+            var url = "/web_menu/myorder.xml#_Ordered";
+	    // Async call it with default params to emulate the same behavior as async link click!
+            WA.Request(url, null, -1);
+	  }
        }
         
         //called when a drink is selected
@@ -47,13 +55,11 @@ function endsWith(s,str)
         		drinkText.innerHTML=drink;
         		theDrinkPic.src = item_images[pic];
         	
-        		//alert(placeOrderForm.drinkchoice));
+
         	        	}
         	
         	// update the queue
         
-
-	WA.AddEventListener("load", MyFunc);
 
 	function MyFunc(evt) {
 	  if (evt.context[0] == "waQueue") {
@@ -71,20 +77,41 @@ function endsWith(s,str)
           }else if( evt.context[0] == "waOrdered") {
             // Build the URL with WA.Postable
             var url = "/web_menu/myorder.xml#_Ordered";
-            //var url = "/web_menu/order/xml/224/#_Ordered";
 
 	    // Async call it with default params to emulate the same behavior as async link click!
             WA.Request(url, null, -1);
           }else if( evt.context[0] == "waOrder") {
             // Build the URL with WA.Postable
-            //var url = "/web_menu/myorder.xml#_Ordered";
             var url = "/web_menu/order/xml/?" + WA.Postable(["order_id"], evt.context);
 	    // Async call it with default params to emulate the same behavior as async link click!
             WA.Request(url, null, -1); 
-	  }
-	//alert(evt.context[0]);
+          }else if( evt.context[0] == "waHome") {
 
+	    if( ! can_place_new_order )
+	    {
+		var url = "/web_menu/myorder.xml#_Ordered";
+
+		// Async call it with default params to emulate the same behavior as async link click!
+		WA.Request(url, null, -1);				 
+            }
+	  }
 	}
+	function test(evt){
+
+	  if( ! can_place_new_order && evt.context[1][0]=='waHome')
+  	  {   
+	    var url = "/web_menu/myorder.xml#_Ordered";
+ 
+    	    // Async call it with default params to emulate the same behavior as async link click!
+	    WA.Request(url, null, -1);
+	  }
+          return false;
+
+        }
+	WA.AddEventListener("load", MyFunc);
+	WA.AddEventListener("beginslide", test);
+
+
 
 
         </script>
@@ -95,28 +122,37 @@ function endsWith(s,str)
         }
          
         function drinkSelected(pic){
-	  theDrinkPic.src = item_images[pic];
-  	  theDrinkPic.height = 50;
+          var drinkPic = document.getElementById('theDrinkPic');
+	  drinkPic.src = item_images[pic];
+  	  drinkPic.height = 50;
         
         }
          
         function selectStation(){
           document.getElementById('stationSelector').focus();
+
         }
+        function stationSelected(station){
+          var stationPic = document.getElementById('theStationPic');
+
+	  stationPic.src = "/web_menu/s/img/"+station+".png";
         
+        }        
+	function submit_order(){
+	if(document.getElementById('stationSelector').value=="Bring it to the...")
+	{
+	return false;
+	}
+	if(document.getElementById('drinkSelector').value=="Choose a treat...")
+	{
+	return false;
+	}
+	order_is_new = 0;
+	   return WA.Submit('placeOrderForm');
+	}
         </script>
         
-        <style type="text/css">
-        .myselect {
-       	 	font-size:12pt;
-        	background:none;
-        	-khtmlappearance:none;
-        	border:none;
-        	font-weight:bold;
-        	height:40px; 
-        	
-        }
-        </style>
+
 
     </head>
 
@@ -124,7 +160,6 @@ function endsWith(s,str)
     <div id="WebApp">
 
         <div id="iHeader">
-            <!--a href="/web_menu/home.xml#_waHome" id="waHomeButton" rev="async" rel="action">Back</a-->
             <a href="#" id="waBackButton" >Back</a>
             <span id="waHeadTitle">HERB</span>
         </div>
@@ -137,12 +172,12 @@ function endsWith(s,str)
          
 		<div class="iMenu">
 			 <h3 style="margin-top:20px">Order a drink from Herb...</h3>
-			<form action="return WA.Submit(this)" id="placeOrderForm">
+			<form action="submit_order();" id="placeOrderForm">
 			<ul class="iArrow">
 			<!-- drink selection -->
-				<li onclick="selectDrink();"><img src="/web_menu/s/img/question.png" class="iFull" id="theDrinkPic" />
+				<li onclick="selectDrink();"><img src="/web_menu/s/img/treat.png" class="iFull" id="theDrinkPic" />
 					<select class="myselect" id="drinkSelector" onchange="drinkSelected(this.options[this.selectedIndex].value);" name="drinkSelector">
-						<option>Choose a Drink...</option>
+						<option>Choose a treat...</option>
 		  {% block drinkchoice %}
 						<option value="1">Water</option>
   						<option value="2">Juice</option>
@@ -152,9 +187,9 @@ function endsWith(s,str)
   					</select>
 				</li>
 			<!-- Station selection -->
-				<li onclick="selectStation();"><img src="/web_menu/s/img/drink.png" class="iFull" id="theStationPic" />
-					<select class="myselect" id="stationSelector" name="stationSelector">
-						<option>Select a delivery station...</option>
+				<li onclick="selectStation();"><img src="/web_menu/s/img/station.png" class="iFull" id="theStationPic" />
+					<select class="myselect" id="stationSelector" onchange="stationSelected(this.options[this.selectedIndex].value);" name="stationSelector">
+						<option>Bring it to the...</option>
 		{% block locationchoice %}					
 						<option value="1">Station 1</option>
 						<option value="2">Station 2</option>
@@ -164,7 +199,7 @@ function endsWith(s,str)
 				<li><label>Your name</label><input type="text" name="personname" /></li>
 			</ul>
 			</ul>
-               <a href="#_Ordered"  class="iPush iBGreen" style="display:block;" onclick="return WA.Submit('placeOrderForm')" id="placeOrderBtn">Place Order</a>
+               <a href="#_Ordered"  class="iPush iBGreen" style="display:block;" onclick="return submit_order();" id="placeOrderBtn">Place Order</a>
 
 
 
