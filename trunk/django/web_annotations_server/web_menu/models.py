@@ -113,7 +113,7 @@ class Order(models.Model):
 		return "%d(%d)" % (self.id,self.state)
 
 	def ETA_minutes(self):
-		if self.ETA_seconds==-1:
+		if self.ETA_seconds<0:
 			return -1
 		else:
 			return float(self.ETA_seconds)/60.0;
@@ -122,6 +122,14 @@ class Order(models.Model):
 		delivery_location_name=WorldStation.objects.get(location=self.delivery_location).code.replace('_',' '); 
 		return delivery_location_name
 
+	def is_scheduled(self):
+		print self.ETA_seconds
+		return float(self.ETA_seconds)>=0.0;
+
+	def is_active(self):
+		return self.state==2 or self.state==3;
+	def is_inactive(self):
+		return not self.is_active();
 
 class Server(models.Model):
 	code      = models.SlugField()

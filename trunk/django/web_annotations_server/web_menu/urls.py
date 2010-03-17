@@ -56,6 +56,7 @@ active_orders_list_info_xml = {
 urlpatterns = patterns('',
     #(r'^$', 'web_menu.views.wait'),
     (r'^$', 'web_menu.views.start'),
+
                        
     (r'^m/(?P<menu_code>[\w-]+)/$', 'web_menu.views.wait'),
     (r'^s/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.DJ_CODE_RT+'web_menu/html/'}),                       
@@ -95,7 +96,7 @@ urlpatterns = patterns('',
     #(r'^queue/service/(?P<service_domain>)/$','web_menu.views.show_domain_queue'),
 
     (r'^order/new/$',views.new_order),
-    (r'^order/new/return',views.new_order_submit_full),
+    (r'^order/new/submit',views.new_order_submit_full),
     (r'^order/choose_item/(?P<order_id>[\w-]+)/(?P<item_id>[\w-]+)/$',views.choose_order_item),
     (r'^order/deliver_to/(?P<order_id>[\w-]+)/(?P<map_id>[\w-]+)/$',views.choose_order_map_location),
     (r'^order/deliver_to_station/(?P<order_id>[\w-]+)/(?P<map_id>[\w-]+)/(?P<station_code>[\w-]+)/$',views.choose_order_delivery_station),

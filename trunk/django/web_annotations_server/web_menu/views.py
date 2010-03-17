@@ -104,7 +104,7 @@ def start(request):
 		try:
 			print "Session order ID is",request.session['order_id']
 			order=Order.objects.get(id=request.session['order_id']);
-			if order.state != 1:
+			if order.state != 1 and order.state<4:
 				return HttpResponseRedirect("/web_menu/order/show/%d/#_Order/%d" % (order.id,order.id))
 		except:
 			return HttpResponseRedirect("/web_menu/order/new/")
@@ -116,7 +116,11 @@ def start(request):
 def show_order(request,order_id):
 	order=Order.objects.get(id=order_id)
 	if MENU_DESIGN=="iphone":
-		return render_to_response(design['new_order'], {'order':order,'menu':[],'map':[],'server':[],'info':[]})
+		if 'Mozilla' in request.META['HTTP_USER_AGENT']:
+			is_firefox=1;
+		else:
+			is_firefox=0;
+		return render_to_response(design['new_order'], {'order':order,'menu':[],'map':[],'server':[],'info':[],'is_firefox':is_firefox})
 	else:
 		return render_to_response('web_menu/my_order.html', {'order':order})
 
@@ -139,7 +143,8 @@ def my_order_xml(request):
 	order_id=request.session['order_id'];
 	order=Order.objects.get(id=order_id)
 	order.my_order=1;
-	return render_to_response('web_menu/iphone/order.xml', {'order':order,'target':'order-content'},mimetype='text/xml');
+
+	return render_to_response('web_menu/iphone/order.xml', {'order':order,'target':'ordered-content','goto':'waOrdered'},mimetype='text/xml');
 
 
 
@@ -274,14 +279,30 @@ def new_order(request):
 	server=domain.servers.all()[0];
 
 	menu = domain.menus.all()[0]
-	
-	new_order=Order(state=1,server=server);
-	new_order.save();
-	request.session['order_id']=new_order.id;
+
+	order = None
+
+	if 'order_id'  in request.session:
+		order=get_object_or_404(Order,id=request.session['order_id']);
+		if order.state>3:
+			order=None;
+			del request.session['order_id'];
+
+	if order is None:
+		order=Order(state=1,server=server);
+		order.save();
+		request.session['order_id']=order.id;
 
 	info_stats=get_info_stats(server);
 
-	return render_to_response(design['new_order'], {'order':new_order,'menu':menu,'map':domain.map,'server':server,'info':info_stats})
+	if 'Mozilla' in request.META['HTTP_USER_AGENT']:
+		is_firefox=1;
+	else:
+		is_firefox=0;
+	if order.state > 1:
+		order.is_not_new = True
+
+	return render_to_response(design['new_order'], {'order':order,'menu':menu,'map':domain.map,'server':server,'info':info_stats,'is_firefox':is_firefox})
 
 
 def new_order_submit_full(request):
@@ -464,7 +485,8 @@ def update_order(request,order_id=None,ETA=None,queue_position=None):
 	if new_state is None:
 		new_state=request.REQUEST.get("state",None)
 	if new_state is not None:
-		order.state=int(new_state);
+		if int(new_state)>order.state:
+			order.state=int(new_state);
 
 	order.save();
 
