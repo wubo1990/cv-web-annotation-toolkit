@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<root>
+<go to="waHome"/> 
+
+<destination mode="replace" zone="waHome" />
+	<data>
+<![CDATA[
+        <div class="iLayer" id="waHome" title="Home">
+         <a href="/web_menu/queue.xml#_Queue" rev="async" rel="action" class="iButton iBClassic">Queue</a> 
+         <a href="/web_menu/stats.xml#_Status" rev="async" rel="action" class="iButton iBClassic">Stats @2@@</a> 
+         
+		<div class="iMenu">
+			 <h3 style="margin-top:20px">Order a drink from Herb...</h3>
+			<form action="return WA.Submit(this)" id="placeOrderForm">
+			<ul class="iArrow">
+			<!-- drink selection -->
+				<li onclick="selectDrink();"><img src="/web_menu/s/img/question.png" class="iFull" id="theDrinkPic" />
+					<select class="myselect" id="drinkSelector" onchange="drinkSelected(this.options[this.selectedIndex].value);" name="drinkSelector">
+						<option>Choose a Drink...</option>
+
+{% for item in menu.available_items %}
+
+<option value="{{item.id}}" /> {{item.metadata}}</option>
+<script>
+item_images[{{item.id}}]="/web_menu/images/{{item.menu.code}}/{{item.image_name}}"; 
+</script>
+
+
+{% endfor %}
+
+  					</select>
+				</li>
+			<!-- Station selection -->
+				<li onclick="selectStation();"><img src="/web_menu/s/img/drink.png" class="iFull" id="theStationPic" />
+					<select class="myselect" id="stationSelector" name="stationSelector">
+						<option>Select a delivery station...</option>
+{% for s in map.worldstation_set.all %}
+
+<option value="{{s.location}}" /> {{s.code}}</option>
+
+{% endfor %}
+					</select>
+				</li>
+				<li><label>Your name</label><input type="text" name="personname" /></li>
+			</ul>
+			</ul>
+               <a href="#_Ordered"  class="iPush iBGreen" style="display:block;" onclick="return WA.Submit('placeOrderForm')" id="placeOrderBtn">Place Order</a>
+
+
+
+			</form>
+		</div><!-- end iMenu -->
+       </div><!-- end home Layer -->
+]]></data>
+</root>

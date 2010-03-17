@@ -11,7 +11,7 @@
 					<em>{{o.item.metadata}}</em>
 					<big>{{o.user_name}}
 						<small><img src="/web_menu/s/img/clock.png" style="margin:4px"/> 
-{% ifequal o.ETA_minutes -1 %} scheduling, station {{o.delivery_location.code }} {% else %} {{o.ETA_minutes|floatformat }} min, station {{o.delivery_location.code}}{% endifequal %}
+{% ifequal o.ETA_minutes -1 %} scheduling, station {{o.delivery_location }} {% else %} {{o.ETA_minutes|floatformat }} min, station {{o.delivery_location.code}}{% endifequal %}
 </small>
 					</big>
 </a>

@@ -1,0 +1,202 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>Order from HERB</title>
+        <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" />
+
+        <link rel="stylesheet" href="WebApp/Design/Render.css" />
+        <script type="text/javascript" src="WebApp/Action/Logic.js"></script>
+        
+        <script type="text/javascript">
+        // These functions handle the updating of the Queue when it's onscreen.
+        var queueIntervalId = 0;
+        
+        function startQueueUpdate(){
+        	queueIntervalId = setInterval("updateQueue()", 4000); // calls updateQueue every 10 seconds
+        }	
+        
+        // haven't used this yet, but if we want to cancel it, here it is
+        function stopQueueUpdate(){
+        clearInterval(queueIntervalId);
+        }
+        
+        function updateQueue(){
+        	if (document.location == "http://localhost:8888/herb/webapp.net/Demo/herbv4.html#_Queue" ){
+       		 alert('update queue has been called');
+       		  // do the asynch call
+       		 }
+       }
+        
+        //called when a drink is selected
+        	function setDrink(drink, pic){
+        		//alert(drink+ " selected");
+        		var drinkText = document.getElementById('theDrink');
+        		drinkText.innerHTML=drink;
+        		theDrinkPic.src ='img/drink'+pic+'.png';
+        	
+        		//alert(placeOrderForm.drinkchoice));
+        	        	}
+        	
+        	// update the queue
+        
+        </script>
+        
+        <script type="text/javascript">
+        function selectDrink(){
+        document.getElementById('drinkSelector').focus();
+         }
+         
+        function drinkSelected(pic){
+        theDrinkPic.src ='img/drink'+pic+'.png';
+        
+       // alert(document.getElementById(drinkSelector).options[0].value);
+      // alert('selected');
+      
+        }
+         
+        function selectStation(){
+        document.getElementById('stationSelector').focus();
+         }
+        
+        </script>
+        
+        <style type="text/css">
+        .myselect {
+       	 	font-size:12pt;
+        	background:none;
+        	-khtmlappearance:none;
+        	border:none;
+        	font-weight:bold;
+        	height:40px; 
+        	
+        }
+        </style>
+
+    </head>
+
+    <body onload="startQueueUpdate();">
+    <div id="WebApp">
+
+        <div id="iHeader">
+            <a href="#" id="waBackButton">Back</a>
+            <span id="waHeadTitle">HERB</span>
+        </div>
+
+        <div id="iGroup">
+
+        <div class="iLayer" id="waHome" title="Home">
+        <a href="#_Queue" rel="action" class="iButton iBClassic">Queue</a>
+         <a href="#_Status" rel="action" class="iButton iBClassic">Stats</a>
+         
+		<div class="iMenu">
+			 <h3 style="margin-top:20px">Order a drink from Herb...</h3>
+			<form action="return WA.Submit(this)" id="placeOrderForm">
+			<ul class="iArrow">
+			<!-- drink selection -->
+				<li onclick="selectDrink();"><img src="img/drink.png" class="iFull" id="theDrinkPic" />
+					<select class="myselect" id="drinkSelector" onchange="drinkSelected(this.options[this.selectedIndex].value);" name="drinkSelector">
+						<option>Choose a Drink...</option>
+						<option value="1">Water</option>
+  						<option value="2">Juice</option>
+  						<option value="3">Diet Coke</option>
+  						<option value="4">Beer</option>
+  					</select>
+				</li>
+			<!-- Station selection -->
+				<li onclick="selectStation();"><img src="img/drink.png" class="iFull" id="theStationPic" />
+					<select class="myselect" id="stationSelector" name="stationSelector">
+						<option>Select a delivery station...</option>
+						<option value="1">Station 1</option>
+						<option value="2">Station 2</option>
+					</select>
+				</li>
+				<li><label>Your name</label><input type="text" name="personname" /></li>
+			</ul>
+			</ul>
+               <a href="#"  class="iPush iBGreen" style="display:block;" onclick="return WA.Submit('placeOrderForm')" id="placeOrderBtn">Place Order</a>
+			</form>
+		</div><!-- end iMenu -->
+       </div><!-- end home Layer -->
+       
+       <!-- begin queue layer -->
+        
+        <div class="iLayer" id="waQueue" title="Queue">
+		<div class="iList">
+			<!-- <h2>Drinks</h2> -->
+			<ul class="iArrow iShop">
+				<li>
+					<img src="WebApp/Img/blank.gif" class="iFull" />
+					<em>Juice</em>
+					<big>Alex
+						<small><img src="Img/stars.png" style="margin:4px"/> 10 min, station X</small>
+					</big>
+				</li>
+                
+                <li>
+					<img src="WebApp/Img/blank.gif" class="iFull" />
+					<em>Juice</em>
+					<big>Alex
+						<small><img src="Img/stars.png" style="margin:4px"/> Now Serving</small>
+					</big>
+				</li>
+                
+                <li>
+					<img src="WebApp/Img/blank.gif" class="iFull" />
+					<em>Water</em>
+					<big>George
+						<small><img src="Img/stars.png" style="margin:4px"/> 5 min, station X</small>
+					</big>
+				</li>
+                
+                <li>
+					<img src="WebApp/Img/blank.gif" class="iFull" />
+					<em>Water</em>
+					<big>JD
+						<small><img src="Img/stars.png" style="margin:4px"/> 9 min, station X</small>
+					</big>
+				</li>
+                
+                <li>
+					<img src="WebApp/Img/blank.gif" class="iFull" />
+					<em>Soda</em>
+					<big>Francois
+						<small><img src="img/clock.png" style="margin:4px"/> 12min, station X</small>
+					</big>
+				</li>
+                
+                <li>
+					<img src="WebApp/Img/blank.gif" class="iFull" />
+					<em>Soda</em>
+					<big>Michael
+						<small><img src="img/clock.png" style="margin:4px"/> 20 min, station X</small>
+					</big>
+				</li>
+			</ul>
+		</div>
+	</div>
+        <!-- end queue layer -->
+        
+        <!-- begin status layer -->
+            <div class="iLayer" id="waStatus" title="Herb's Status">
+		<div class="iList">
+			<h2>Drink Info</h2>
+			<ul class="iArrow">
+				<li><em>I've served 13 drinks</em><small>3 diet cokes, 2 waters, 4 juices, 4 beers</small></li>
+				<li><a href="#_Article"><em>List item two</em><small>Additional item info two</small></a></li>
+			</ul>
+			<h2>Info About me</h2>
+			<ul class="iArrow">
+				<li><a href="#_Article"><em>Content Here</em><small>Additional item info three</small></a></li>
+				<li>This item has no link</li>
+			</ul>
+		</div>
+	</div>
+    	<!-- end status layer -->
+
+
+	
+	</div><!-- end iGroup -->
+    </div>
+</body>
+</html>

@@ -1,6 +1,10 @@
 {% extends "web_menu/iphone/new_order_base.html" %}
 
 {% block drinkchoice %}
+<script>
+var item_images=new Array();
+var station_images=new Array();
+</script>
 {% for item in menu.available_items %}
 
 <option value="{{item.id}}" /> {{item.metadata}}</option>
@@ -17,6 +21,11 @@ item_images[{{item.id}}]="/web_menu/images/{{item.menu.code}}/{{item.image_name}
 
 
 {% block locationchoice %}
+<script>
+{% for s in map.worldstation_set.all %}
+station_images["{{s.code}}"]="/web_menu/s/img/station{{s.id}}.png";
+{% endfor %}
+</script>
 {% for s in map.worldstation_set.all %}
 
 <option value="{{s.location}}" /> {{s.code}}</option>
