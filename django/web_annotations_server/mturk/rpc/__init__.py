@@ -372,3 +372,17 @@ def add_assignments(hit_ext_id,num_assignments,**kwargs):
     return success
 
 
+@rpcmethod(name='mt.get_work_unit_assignment_counts')
+def get_work_unit_assignment_counts(session_id):
+    """Lists all work units in the session. Only work unit IDs are returned.
+    @param  session_id: The unique session code.
+    @return: [work_unit_id] The list of work unit IDs.
+    """
+    
+    session=mturk.models.Session.objects.get(code=session_id);
+    counts={};
+    for w in session.mthit_set.all():
+        counts[w.ext_hitid]=get_num_assignments(session,w);
+    
+    return counts
+

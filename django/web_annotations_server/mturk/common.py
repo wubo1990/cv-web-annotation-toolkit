@@ -259,6 +259,19 @@ def add_hit_assignments(session,hit,num_assignments):
 
     return (True,"%s" % hit.ext_hitid)
 
+def get_num_assignments(session,hit):
+    if session.standalone_mode:
+        return 0;
+
+    conn = get_mt_connection(session)
+    try:
+        mthit=MechTurkHit.objects.filter(mthit=hit)[0];
+    except:
+        return 0
+    
+    hit_id=mthit.mechturk_hit_id;
+    hit_info=conn.get_hit(hit_id)[0];
+    return int(hit_info.MaxAssignments);
 
 
 def expire_hit(conn,hit_id):
