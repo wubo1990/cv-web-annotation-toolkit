@@ -18,4 +18,4 @@ if 1==1:
     from rpc import submit_work
     from rpc import submit_grade
     from rpc import post_image
-
+    from rpc import add_assignments

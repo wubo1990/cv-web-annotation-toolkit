@@ -353,7 +353,22 @@ def submit_grade(submission_id,quality,feedback,**kwargs):
         worker.save()
 
 
-    gr=mturk.models.ManualGradeRecord(submission=submission,quality=int(quality),feedback=feedback,worker=worker)
+    gr,created=mturk.models.ManualGradeRecord.objects.get_or_create(submission=submission,worker=worker)
+    gr.quality=int(quality)
+    gr.feedback=feedback
     gr.save();
 
     return True
+
+@rpcmethod(name='mt.add_assignments')
+def add_assignments(hit_ext_id,num_assignments,**kwargs):
+    """Add turk assignments.  
+
+    """
+    request=kwargs['request'];
+
+    hit = get_object_or_404(mturk.models.MTHit,ext_hitid=hit_ext_id);
+    success,id= add_hit_assignments(hit.session,hit,num_assignments)
+    return success
+
+
