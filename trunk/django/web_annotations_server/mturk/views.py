@@ -1320,10 +1320,11 @@ def finalize_graded_submissions(session):
     for r in results:
 
         (grade,feedback) = compute_final_grade(session,r);
-
         if grade is None:
             #It's not a graded submission
             continue
+
+        feedback += get_submission_url_notice(r)
 
         if grade>3:
             success=mt_approve_submission(r,grade,feedback,  conn,te);
@@ -1430,6 +1431,7 @@ def reject_poor_results(request,session_code):
 			doReject=0;
 		if doReject:
                     try:
+                        feedback += get_submission_url_notice(r)
                         resp = conn.reject_assignment(r.assignment_id,feedback)
                         r.valid=False;
                         r.state=4;
@@ -1456,6 +1458,9 @@ def reject_poor_results(request,session_code):
         nav={'session':session};
 	return render_to_response("mturk/approval_report.html",{'report':report,'nav':nav});
 
+
+def get_submission_url_notice(r):
+    return "[See your submission:"+settings.HOST_NAME_FOR_MTURK+"mt/view_submission/"+r.hit.ext_hitid+"/"+str(r.id)+"/ ]"
 
 
 
@@ -1498,8 +1503,13 @@ def approve_good_results(request,session_code):
 		if grade>3:
 			doAccept=1;
 
+                        
+                feedback += get_submission_url_notice(r)
+
 		if doAccept:
                     try:
+                        print feedback
+                        num_approved += 1;
                         resp = conn.approve_assignment(r.assignment_id,feedback)
                         if r.valid and grade<10:
                             r.valid=False;
@@ -1547,7 +1557,7 @@ def approve_all_results(request,session_code):
         num_errors=0;
 	for r in results:
             try:
-                feedback="Automatic approval. "
+                feedback="Automatic approval. " + get_submission_url_notice(r)
                 resp = conn.approve_assignment(r.assignment_id,feedback)
                 print resp
                 r.state=3;
@@ -1588,7 +1598,7 @@ def approve_all_results_str(request,session):
 
     for r in results:
         try:
-            feedback=""
+            feedback=get_submission_url_notice(r)            
             resp = conn.approve_assignment(r.assignment_id,feedback)
             num_approved += 1
             approval_results.append( {'result':'approved','assignment_id':r.assignment_id,'feedback':feedback})
@@ -1816,7 +1826,8 @@ def reject_worker_all(request,worker_id):
 
         (conn,te)=get_session_context(session_ctx,r.session);
         try:
-            resp = conn.reject_assignment(r.assignment_id,feedback)
+            feedback2=feedback+get_submission_url_notice(r)
+            resp = conn.reject_assignment(r.assignment_id,feedback2)
             r.valid=False;
             r.state=4;
             r.final_grade=str(grade_value);
@@ -1826,7 +1837,7 @@ def reject_worker_all(request,worker_id):
             r.hit.state=5; # Open
             r.hit.save();
 
-            strAns=strAns+'Rejected: %s\t"%s"<br/>'% (r.assignment_id,feedback)
+            strAns=strAns+'Rejected: %s\t"%s"<br/>'% (r.assignment_id,feedback2)
             if r.session.code in rejection_counts:
                 rejection_counts[r.session.code] = rejection_counts[r.session.code]+1
             else:

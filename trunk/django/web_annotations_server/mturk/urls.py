@@ -57,6 +57,7 @@ urlpatterns = patterns('',
 
     (r'^gpa/(?P<session_code>[\w\-]+)/(?P<worker_id>[\w\-]+)/$', 'mturk.worker_views.show_worker_gpa'),
 
+    (r'^view_submission/(?P<ext_hitid>[\w\-]+)/(?P<id>[\w\-]+)/$', 'mturk.worker_views.view_submission_page'),
     #END public                       
 
 
