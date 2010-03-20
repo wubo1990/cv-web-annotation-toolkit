@@ -355,7 +355,6 @@ class SubmittedTask(models.Model):
 
 	def get_view_url(self):
 		te=self.hit.session.task_def.type.get_engine();
-		print te
 		return te.get_submission_view_url(self)
 	def get_thumbnail_url(self):
 		te=self.hit.session.task_def.type.get_engine();

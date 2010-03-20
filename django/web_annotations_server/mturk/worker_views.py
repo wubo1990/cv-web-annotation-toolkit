@@ -279,6 +279,15 @@ def get_submission_data_xml(request,id=None,ext_hitid=None):
 
     return HttpResponse(str_response,mimetype="text/xml");
 
+def view_submission_page(request,ext_hitid,id):
+    submission = get_object_or_404(SubmittedTask,id=int(id))
+    if submission.hit.ext_hitid != ext_hitid:
+        raise Http404();
+
+    view_url=submission.get_view_url();
+    return HttpResponseRedirect(view_url);
+
+
 
 def get_task_parameters(request,task_name):
     task = get_object_or_404(Task,name=task_name)
