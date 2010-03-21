@@ -232,5 +232,7 @@ urlpatterns = patterns('',
     (r'^fix/update_start_times/$', 'mturk.views.update_start_times'),                       
 
     (r'^project/submit_boxes_to_attributes/$', 'mturk.protocols.attributes.views.submit_boxes_to_attributes'),                       
+
+    (r'^fix/num_required_submissions/$', 'mturk.views.fix_num_required_submissions'),
 );
                        
