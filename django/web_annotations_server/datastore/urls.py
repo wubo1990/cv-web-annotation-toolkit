@@ -33,7 +33,7 @@ urlpatterns = patterns('',
     (r'^wnd2_mask/(?P<item_name>[\w\-\./]+)/(?P<l>[\w.\-e]+),(?P<t>[\w.\-e]+),(?P<w>[\w.\-e]+),(?P<h>[\w.\-e+]+)/$', 'datastore.views.get_wnd2_mask'),                                                                                                                 
 
 
-    (r'^box/(?P<item_name>[\w\-\./]+)/(?P<l>[\w.-e]+),(?P<t>[\w.-e]+),(?P<w>[\w.-e]+),(?P<h>[\w.-e+]+)/pad(?P<pad>[\w.-e]+)/$', 'datastore.views.get_padded_box'),                                                                                                                 
+    (r'^box/(?P<item_name>[\w\-\./]+)/(?P<l>[\w.-e]+),(?P<t>[\w.\-e]+),(?P<w>[\w.\-e]+),(?P<h>[\w.\-e+]+)/pad(?P<pad>[\w.-e]+)/$', 'datastore.views.get_padded_box'),                                                                                                                 
 
     (r'^data/(?P<dataset_name>[\w-]+)/$', 'datastore.views.show_data_items'),
     (r'^data/(?P<dataset_name>[\w-]+)/p(?P<page>[\w]+)/$', 'datastore.views.show_data_items'),

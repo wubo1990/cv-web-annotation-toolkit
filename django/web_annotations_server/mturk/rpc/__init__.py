@@ -54,6 +54,7 @@ import copy
 import uuid
 
 import mturk.models 
+import mturk.views
 from mturk.common import *
 
 print mturk.models.task_engines
@@ -246,22 +247,26 @@ def create_work_unit(session_id,parameters,shall_activate,**kwargs):
 
     @return: HIT ID - unique ID of the task.
     """
+
     session=get_object_or_404(mturk.models.Session,code=session_id)
+    try:
+        if session.mthit_set.count()>=session.HITlimit:
+            return "Error: HIT creation failed: maximum HIT count (%d) reached" % session.HITlimit
 
-    if session.mthit_set.count()>=session.HITlimit:
-        return "Error: HIT creation failed: maximum HIT count (%d) reached" % session.HITlimit
+        id = session.mthit_set.count()+1;
 
-    id = session.mthit_set.count()+1;
+        rand_id=str(uuid.uuid4())+"-"+str(id)
 
-    rand_id=str(uuid.uuid4())+"-"+str(id)
+        hit=mturk.models.MTHit(session=session,ext_hitid=rand_id,int_hitid=id,parameters=parameters);
+        hit.save();
 
-    hit=mturk.models.MTHit(session=session,ext_hitid=rand_id,int_hitid=id,parameters=parameters);
-    hit.save();
-
-    if not session.standalone_mode and shall_activate:
-        created,ext_id = activate_hit(session,hit)
-    else:
-        ext_id = hit.ext_hitid
+        if not session.standalone_mode and shall_activate:
+            created,ext_id = activate_hit(session,hit)
+        else:
+            ext_id = hit.ext_hitid
+    except Exception,e:
+        print e
+        raise
 
     return ext_id
 
@@ -382,7 +387,13 @@ def get_work_unit_assignment_counts(session_id):
     session=mturk.models.Session.objects.get(code=session_id);
     counts={};
     for w in session.mthit_set.all():
-        counts[w.ext_hitid]=get_num_assignments(session,w);
+        counts[w.ext_hitid]=w.get_num_required_submissions() 
+        #get_num_assignments(session,w);
     
     return counts
 
+@rpcmethod(name='mt.finalize_session_submissions')
+def finalize_session_submissions(session_code):
+    session = get_object_or_404(Session,code=session_code)
+    ( num_approved, num_rejected, num_failed_to_approve, num_failed_to_reject) = mturk.views.finalize_graded_submissions(session);
+    return {'approved':num_approved, 'rejected':num_rejected, 'failed_to_approve':num_failed_to_approve, 'failed_to_reject':num_failed_to_reject}

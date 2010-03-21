@@ -19,3 +19,4 @@ if 1==1:
     from rpc import submit_grade
     from rpc import post_image
     from rpc import add_assignments
+    from rpc import finalize_session_submissions

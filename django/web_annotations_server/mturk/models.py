@@ -188,12 +188,16 @@ class MTHit(models.Model):
 
 	state=models.IntegerField(choices=HIT_STATE,default=1);
 
+	num_required_submissions=models.IntegerField(default=0);
 
         def __str__(self):
           return str(self.int_hitid)
 
 	def get_num_required_submissions(self):
+            if self.num_required_submissions==0:
 		return self.session.task_def.max_assignments
+	    else:
+                return self.num_required_submissions
 
 	def get_filename(self):
 		if "frame" in self.parse_parameters():

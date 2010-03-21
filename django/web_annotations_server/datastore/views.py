@@ -158,21 +158,33 @@ def get_padded_box(request,item_name,l,t,w,h,pad):
 		raise Http404();
 	im = Image.open(image_filename);	
 	pad=float(pad);
-	c = im.crop(map(lambda v:int(round(v)),[float(l)-pad,float(t)-pad,float(l)+float(w)+2*pad,float(t)+float(h)+2*pad]));
-	#c=c.convert("rgb");
+	oX=max(0,pad-float(l)+2);
+	oY=max(0,pad-float(t)+2);
+
+	ideal_box_right=(float(l)+float(w)+pad-oX)
+	ideal_box_bottom=(float(t)+float(h)+pad-oY)
+	clip_pad_on_right=max(0,ideal_box_right-im.size[0])
+	clip_pad_on_bottom=max(0,ideal_box_bottom-im.size[1])
+	actual_right_pad=pad - clip_pad_on_right;
+	actual_bottom_pad=pad - clip_pad_on_bottom;
+	print actual_bottom_pad
+
+	c = im.crop(map(lambda v:int(round(v)),[max(0,float(l)-pad),max(0,float(t)-pad),ideal_box_right-clip_pad_on_right,ideal_box_bottom-clip_pad_on_bottom]))
+	c=c.convert("RGB");
 	draw = ImageDraw.Draw(c)
-	draw.line((pad-1, pad-1, #UL
-		   pad-1, c.size[1]-pad+1, #LL
-		   c.size[0]-pad+1,c.size[1]-pad+2, #LR
-		   c.size[0]-pad+1,pad-1, #UR
-		   pad-1,pad-1), #UL
+	draw.line((max(0,pad-1-oX), max(0,pad-1-oY), #UL
+		   max(0,pad-1-oX), min(c.size[1]-1,c.size[1]-actual_bottom_pad+1), #LL
+		   min(c.size[0]-1,c.size[0]-actual_right_pad+1),min(c.size[1]-1,c.size[1]-actual_bottom_pad+2), #LR
+		   min(c.size[0]-1,c.size[0]-actual_right_pad+1),max(0,pad-1-oY), #UR
+		   max(0,pad-1-oX),max(0,pad-1-oY)), #UL
 		  fill="blue")
-	draw.line((pad-2, pad-2, #UL
-		   pad-2, c.size[1]-pad+2, #LL
-		   c.size[0]-pad+2,c.size[1]-pad+2, #LR
-		   c.size[0]-pad+2,pad-2, #UR
-		   pad-2,pad-2), #UL
+	draw.line((pad-2-oX, pad-2-oY, #UL
+		   pad-2-oX, c.size[1]-actual_bottom_pad +2, #LL
+		   c.size[0]-actual_right_pad+2,c.size[1]-actual_bottom_pad+2, #LR
+		   c.size[0]-actual_right_pad+2,pad-2-oY, #UR
+		   pad-2-oX,pad-2-oY), #UL
 		  fill="white")
+
 	del draw 
 
 	response = HttpResponse(mimetype="image/jpeg")

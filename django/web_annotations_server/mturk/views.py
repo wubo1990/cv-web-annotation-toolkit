@@ -1899,6 +1899,15 @@ def opt_get_session_grades(request,session_code):
 
 
 
+@login_required
+def fix_num_required_submissions(request):
+    for h in MTHit.objects.all():
+        print h.id
+        if h.num_required_submissions==0:
+            h.num_required_submissions=h.session.task_def.max_assignments;
+            h.save()
+
+
 
 @login_required
 def update_start_times(request):

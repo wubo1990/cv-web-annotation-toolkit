@@ -281,6 +281,7 @@ var check_after_load=function()
 
       s= "<table border='1' class='task_table'>"+task_header_template.evaluate({attributes_header:parameters_header_html_str});
 
+      attribute_names=get_attribute_names(parameters_data);
       for( var iID=0;iID<items.length;iID++)
       {
 	var i=items[iID];
@@ -290,6 +291,7 @@ var check_after_load=function()
 
 	objID="A_obj"+id;
 	updated_html = parameters_display_html_str.replace(/ATTR/g,objID).replace("<display_html>","").replace("</display_html>","").replace(/<td>/g,"<td onclick='table_cell_click(event);'>").replace(/<input/g,"<input onclick='stop_bubble(event);'");
+
 
 	var task_template;
 
