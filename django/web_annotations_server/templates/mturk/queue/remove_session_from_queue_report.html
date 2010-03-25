@@ -1,0 +1,15 @@
+{% extends "mturk/base_app.html" %}
+
+{% block subtitle %}Session removed from the queue ({{session.code}}) | {% endblock %}
+
+{% block subbranding %}Session removed from the queue ({{session.code}}) | {% endblock %}
+
+{% block content %}
+
+{{session.code}}<br/>
+<hr/>
+Removed work items: {{stats.num_affected}}<br/>
+Skipped: {{stats.num_skipped}}<br/>
+<hr/>
+
+{% endblock %}

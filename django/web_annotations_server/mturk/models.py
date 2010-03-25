@@ -123,6 +123,10 @@ class Session(models.Model):
 	standalone_mode = models.BooleanField(default=False);
 	sandbox         = models.BooleanField(default=True);
 	is_gold         = models.BooleanField(default=False);
+
+	use_task_priority = models.BooleanField(default=False);
+	priority_queue = models.SlugField(default="");
+
 	HITlimit        = models.IntegerField(default=100);
 
 	parameters=models.TextField(null=True, blank=True); #depreciated
@@ -547,7 +551,22 @@ class ItemSubstitution(models.Model):
 	requested_item = models.ForeignKey(WorkItem,related_name='substitutions_as_requested');
 	shown_item     = models.ForeignKey(WorkItem,related_name='substitutions_as_shown');
 	expires        = models.DateTimeField();
-	state = models.IntegerField(default=1,choices=ITEM_SUBSTITUTION_STATE);
+	state          = models.IntegerField(default=1,choices=ITEM_SUBSTITUTION_STATE);
+
+
+
+class WorkPriorityQueueItem(models.Model):
+	queue    = models.SlugField(default="");
+	priority = models.IntegerField(default=40);
+	#DecimalField(max_digits=15,decimal_places=7,
+        #                         default="0.0",
+        #                         help_text="Item priority");
+	work     = models.ForeignKey(WorkItem);
+	assignments_left     = models.IntegerField(default=0);
+
+	class Meta:
+		ordering = ('-priority', 'id')
+
 
 
 

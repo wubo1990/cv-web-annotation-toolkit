@@ -186,6 +186,7 @@ urlpatterns = patterns('',
     (r'^results_report/(?P<session_code>[\w\-]+)/perfect/$', 'mturk.views.get_perfect_results'),
     (r'^results_report/(?P<session_code>[\w\-]+)/non_perfect/$', 'mturk.views.get_non_perfect_results'),
 
+    (r'^get_num_assignments/(?P<ext_hit_id>[\w\-]+)/', 'mturk.views.view_get_num_assignments'),
     #END EXPERIMENTAL                       
 
     #DEPRECATED                       
@@ -234,5 +235,10 @@ urlpatterns = patterns('',
     (r'^project/submit_boxes_to_attributes/$', 'mturk.protocols.attributes.views.submit_boxes_to_attributes'),                       
 
     (r'^fix/num_required_submissions/$', 'mturk.views.fix_num_required_submissions'),
+
+
+    (r'^queue/put/session/(?P<session_code>[\w\-]+)/(?P<priority>[\d\.]+)/$', 'mturk.views.queue_session_work_units'),
+    (r'^queue/remove/session/(?P<session_code>[\w\-]+)/$', 'mturk.views.queue_session_work_units'),
+
 );
                        

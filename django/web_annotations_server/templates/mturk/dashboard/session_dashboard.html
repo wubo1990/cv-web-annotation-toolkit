@@ -14,6 +14,11 @@ var run_search=function(session_code,search_inp)
     loc="/mt/good_results_w_filter/"+session_code+"/p1/"+search_inp+"/";
     window.location=loc;
 }
+var run_put_with_priority=function(session_code,priority_inp)
+{
+    loc="/mt/queue/put/session/"+session_code+"/"+priority_inp+"/";
+    window.location=loc;
+}
 </script>
 {% endblock %}
 
@@ -78,6 +83,16 @@ Mech Turk:<br/>
 <a href="/mt/expire_session_hits_by_type/{{session.code}}/">Expire <b>all</b> hits with the same <b>task</b> as this session</a></li>
 </ul>
 <hr/>
+
+{% if session.use_task_priority %}
+<h2>Queue</h2>
+<ul>
+<li> Priority: <input id="new_priority" name="new_priority" value="50">. <a href="#" onclick="run_put_with_priority('{{session.code}}',$F('new_priority'));return false;">Put session on the queue</a>.</li>
+<li><a href="/mt/queue/remove/session/{{session.code}}/">Remove the session from the queue.</a></li>
+</ul>
+{% endif %}
+
+
 
 
 <h2>Approval</h2>

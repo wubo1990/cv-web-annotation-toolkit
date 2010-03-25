@@ -57,6 +57,40 @@ def advance_next_check_time(training_progress):
         training_progress.next_check += position;
     training_progress.save()
 
+def pick_workitem_from_queue(request,session,worker):
+    if not session.use_task_priority:
+        return None
+
+    print "PICK FROM QUEUE"
+    queue_name=session.priority_queue;
+    last_priority=request.session.get('last_task_priority_'+queue_name,-1)
+    last_id=request.session.get('last_task_id_'+queue_name,-1);
+
+    new_work_item=None
+    for item in WorkPriorityQueueItem.objects.filter(queue=queue_name,priority__gte=last_priority):
+        if item.priority==last_priority and item.id<=last_id:
+            continue
+        try:
+            if item.assignments_left==0:
+                continue
+
+            c = SubmittedTask.objects.filter(hit=item.work,worker=worker).count()
+            if c>0:
+                continue
+
+            item.assignments_left -= 1;
+            item.save();
+        except:
+            continue
+
+        new_work_item=item.work
+        request.session['last_task_priority_'+queue_name]=item.priority;
+        request.session['last_task_id_'+queue_name]=item.id;
+        break
+
+    return new_work_item
+
+
 
 def select_workitem_from_gold(session,worker):
     """Pick the gold workitem if necessary. There are two reasons to pick a gold item: 
@@ -179,6 +213,11 @@ def get_task_page(request,session_code):
         if gold_workitem:
             substitute_workitem(worker,workitem,gold_workitem);
             workitem=gold_workitem;
+        else:
+            priority_work_item=pick_workitem_from_queue(request,session,worker);
+            if priority_work_item:
+                substitute_workitem(worker,workitem,priority_work_item);
+                workitem=priority_work_item;
 
     te=workitem.session.task_def.type.get_engine();
     url=te.get_task_page_url(workitem,request);
@@ -193,6 +232,9 @@ def get_task_page(request,session_code):
 
     final_url=url;
     return HttpResponseRedirect(final_url)	
+
+
+
 
 
 
