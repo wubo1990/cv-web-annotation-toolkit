@@ -1912,3 +1912,112 @@ def fix_num_required_submissions(request):
 @login_required
 def update_start_times(request):
     pass
+
+
+def view_get_num_assignments(request,ext_hit_id):
+    session=Session.objects.get(code=ext_hit_id);
+    counts={};
+    for w in session.mthit_set.all():
+        counts[w.ext_hitid]=get_num_assignments(session,w);
+    
+    return HttpResponse(str(counts));
+"""
+
+    hit = get_object_or_404(MTHit,ext_hitid=ext_hit_id);
+    N=get_num_assignments(hit.session,hit)
+    return HttpResponse(str(N))
+"""
+
+
+
+def remove_session_from_queue(session):
+    num_items_deleted=0;
+    for queue_item in WorkPriorityQueueItem.objects.filter(work__session=session):
+        queue_item.delete()
+        num_items_deleted+=1;
+    return {"num_items_deleted":num_items_deleted};
+
+def put_session_to_the_queue(session,priority):
+    stats={}
+    num_items_posted=0;
+    num_assignments_created=0;
+    for hit in session.mthit_set.all():
+        num_submitted=hit.submittedtask_set.filter(valid=1).count()
+        num_required=hit.get_num_required_submissions()
+        if num_required>num_submitted:
+            queue_item=WorkPriorityQueueItem(queue=session.priority_queue,priority=priority,work=hit, assignments_left=num_required-num_submitted);
+            queue_item.save()
+            num_items_posted+=1;
+            num_assignments_created += queue_item.assignments_left;
+
+    stats["num_items_posted"] = num_items_posted;
+    stats["num_assignments_created"] = num_assignments_created;
+    return stats
+
+
+def post_session_hits(session):
+
+    hits=session.mthit_set.all();
+    results=session.submittedtask_set.all();
+    
+    num_submitted=0;
+    for hit in hits:
+        num_submissions=hit.submittedtask_set.all().filter(valid=1).count();
+        num_required=hit.get_num_required_submissions();
+        if num_required>num_submissions:
+            created,ext_id = activate_hit(session,hit)
+            if not created:
+                raise Exception("Error creating HIT:"+ext_id) #@TODO: add proper exception information
+
+        print "Hit",hit.id ,"is submitted"
+        num_submitted += 1;
+
+    return {"num_submitted":num_submitted}
+
+
+@login_required
+def queue_session_work_units(request,session_code,priority):
+    session = get_object_or_404(Session,code=session_code)
+    nav={'session':session};
+
+    stats=remove_session_from_queue(session);
+
+    stats2=put_session_to_the_queue(session,priority);
+
+    stats3=post_session_hits(session);
+
+    stats.update(stats2)
+    stats.update(stats3)
+
+    return render_to_response('mturk/queue/put_session_report.html',
+                              {'user':request.user,'session':session,'stats':stats,'nav':nav});
+
+@login_required
+def remove_session_from_the_queue(request,session_code):
+    session = get_object_or_404(Session,code=session_code)
+    nav={'session':session};
+
+    stats=remove_session_from_queue(session);
+
+    conn = get_mt_connection(session)    
+
+    hits=session.mechturkhit_set.all()
+    
+    num_skipped =0;
+    num_affected=0;
+    for h in hits:
+        if h.state==1:
+            expire_hit(conn,h.mechturk_hit_id)
+            h.state=5
+            h.save()
+            num_affected+=1;
+        else:
+            num_skipped +=1;
+
+    stats2={'num_affected':num_affected,
+            'num_skipped':num_skipped}
+
+    stats.update(stats2)
+
+    return render_to_response('mturk/queue/remove_session_from_queue_report.html',
+                              {'user':request.user,'session':session,'stats':stats,'nav':nav});

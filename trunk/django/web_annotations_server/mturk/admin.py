@@ -15,6 +15,10 @@ class SessionAdmin(admin.ModelAdmin):
         (None, {
             'fields': ('code', 'task_def', 'funding','sandbox', 'HITlimit','owner')
         }),
+        ('Queue', {
+            'classes': ('collapse',),
+            'fields': ('use_task_priority', 'priority_queue')
+        }),
         ('Advanced options', {
             'classes': ('collapse',),
             'fields': ('standalone_mode', 'is_gold','gold_standard_qualification',  'mturk_qualification', 'hit_type' )

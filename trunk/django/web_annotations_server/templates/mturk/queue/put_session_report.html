@@ -1,0 +1,15 @@
+{% extends "mturk/base_app.html" %}
+
+{% block subtitle %}Session in the queue ({{session.code}}) | {% endblock %}
+
+{% block subbranding %}Session in the queue ({{session.code}}) | {% endblock %}
+
+{% block content %}
+
+{{session.code}}<br/>
+<hr/>
+Work items put on the queue: {{stats.num_items_posted}}<br/>
+Assignments expected: {{stats.num_assignments_created}}<br/>
+<hr/>
+
+{% endblock %}
