@@ -109,6 +109,13 @@ cd cvxmod-0.4.6/
 python setup.py install
 cd ..
 }}}
+ # Celery + RabitMQ
+   # On python2.5, install multiprocessing:
+{{{
+easy_install multiprocessing
+}}}
+  # Follow these [http://www.turnkeylinux.org/blog/django-celery-rabbitmq installation instructions].
+  # Follow the links in comment 2 and install the celerybroker/celeryd in the /etc/init.d
 
 = Django code installation =
 
