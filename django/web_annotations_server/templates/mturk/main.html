@@ -13,6 +13,7 @@ My sessions:<br/>
 <td>Session</td>
 <td>Open submissions</td>
 <td>Total submissions</td>
+<td>Running?</td>
 </tr>
 {% for s in sessions %}
 <tr>
@@ -24,6 +25,13 @@ My sessions:<br/>
 </td>
 <td>
 {{s.num_submissions}}
+</td>
+<td>
+{% if s.is_running %}
+Running
+{% else %}
+Idle
+{% endif %}
 </td>
 
 </tr>

@@ -10,6 +10,7 @@ from django.shortcuts import render_to_response,get_object_or_404
 from django.views.generic.list_detail import object_list
 from django.contrib.auth.decorators import login_required
 
+from django.template import RequestContext
 
 from models import *
 import models_stats
@@ -31,7 +32,8 @@ def session_stats_by_worker(request,session_code):
     session_stats= models_stats.worker_contributions_to_session(session);
 
     return render_to_response('mturk/session_stats__by_worker.html',
-                              {'session':session,'session_stats':session_stats});
+                              {'session':session,'session_stats':session_stats},
+                               context_instance=RequestContext(request));
 
 
 

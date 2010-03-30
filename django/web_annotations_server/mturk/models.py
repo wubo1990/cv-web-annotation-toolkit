@@ -107,7 +107,7 @@ class Task(models.Model):
 		return self.parsed_parameters;
 
 
-
+#Not used really
 SESSION_STATE = (
             (1, 'Active'),
             (2, 'HasAllTasks'),
@@ -116,7 +116,7 @@ SESSION_STATE = (
             (5, 'Finalized'),
         )        
 class Session(models.Model):
-	code=models.SlugField();
+	code=models.SlugField(help_text="Unique session id");  
 	task_def=models.ForeignKey(Task);
 	funding=models.ForeignKey(FundingAccount);
 
@@ -140,10 +140,11 @@ class Session(models.Model):
 
 	state=models.IntegerField(choices=SESSION_STATE,default=1);
 
+	is_running      = models.BooleanField(default=False);
 	
 	gold_standard_qualification = models.ForeignKey('GoldStandardQualification',null=True,blank=True);
 	mturk_qualification = models.ManyToManyField('MTurkQualification',blank=True,null=True);
-
+	num_required_submissions=models.IntegerField(default=0);
 
 	class Meta:
 		permissions = (
@@ -155,6 +156,12 @@ class Session(models.Model):
 	
 	def __str__(self):
         	return self.code
+
+	def get_num_required_submissions_per_item(self):
+            if self.num_required_submissions==0:
+		return self.task_def.max_assignments
+	    else:
+                return self.num_required_submissions
 
 	def num_open_submissions(self):
 		return self.submittedtask_set.exclude(state=3).exclude(state=4).count();
@@ -199,7 +206,8 @@ class MTHit(models.Model):
 
 	def get_num_required_submissions(self):
             if self.num_required_submissions==0:
-		return self.session.task_def.max_assignments
+		return self.session.get_num_required_submissions_per_item()
+	        #task_def.max_assignments
 	    else:
                 return self.num_required_submissions
 
@@ -286,6 +294,12 @@ SUBMISSION_STATE = (
         )        
 SUBMISSION_STATE_CAN_BE_VALID=[1,2,3,5];
 
+
+SUBMISSION_APPROVAL_STATE = (
+            (1, 'Not set'),
+            (3, 'Approved'),
+            (4, 'Rejected'),
+	    )
 class SubmittedTask(models.Model):
 	hit = models.ForeignKey(MTHit);
 	session = models.ForeignKey(Session);
@@ -305,6 +319,7 @@ class SubmittedTask(models.Model):
                                  default="0.0",
                                  help_text="The final grade assigned to submission.");
 	state   = models.IntegerField(choices=SUBMISSION_STATE,default=1);
+	approval_state   = models.IntegerField(choices=SUBMISSION_APPROVAL_STATE,default=1);
 
 	class Meta:
 		permissions = (
@@ -558,9 +573,6 @@ class ItemSubstitution(models.Model):
 class WorkPriorityQueueItem(models.Model):
 	queue    = models.SlugField(default="");
 	priority = models.IntegerField(default=40);
-	#DecimalField(max_digits=15,decimal_places=7,
-        #                         default="0.0",
-        #                         help_text="Item priority");
 	work     = models.ForeignKey(WorkItem);
 	assignments_left     = models.IntegerField(default=0);
 
@@ -597,7 +609,7 @@ class Payment(models.Model):
 
 	class Meta:
 		permissions = (
-			("pay bonus", "Can pay bonus"),
+			("pay_bonus", "Can pay bonus"),
 			#("confirm", "Can confirm payments"),
 			)
 

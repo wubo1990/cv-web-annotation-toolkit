@@ -301,6 +301,7 @@ def mt_approve_submission(r,grade,feedback,  conn,te):
         
         r.final_grade=str(grade);
         r.state=3;
+        r.approval_state=3;
         r.save();
         if grade<10:
             r.hit.state=5; # Open
@@ -318,6 +319,7 @@ def mt_reject_submission(r,grade,feedback,  conn,te):
         resp = conn.reject_assignment(r.assignment_id,feedback)
         r.valid=False;
         r.state=4;
+        r.approval_state=4;
         r.final_grade=str(grade);
         r.save()
         te.on_deactivate(r);

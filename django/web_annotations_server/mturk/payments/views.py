@@ -1,6 +1,6 @@
 from django.shortcuts import render_to_response,get_object_or_404 
 from django.http import HttpResponse,Http404,HttpResponseRedirect
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required,permission_required
 
 from boto.mturk.price import Price
 
@@ -11,6 +11,7 @@ from mturk.models import *
 def main(request):
     return render_to_response('mturk/payments/main.html',{'user':request.user});
 
+@permission_required('payment.pay_bonus')
 def create_interactive(request):
     if request.method == 'POST':
         form = PaymentForm(request.POST, request.FILES)
@@ -36,6 +37,7 @@ def make_payment(payment):
     payment.save()
     return success
 
+@login_required
 def make_payments(request,queryset):
     total=0;
     n_ok=0;
@@ -54,7 +56,7 @@ def make_payments(request,queryset):
     return render_to_response('mturk/payments/payments_made.html', {'queryset': queryset,'total':total,'n_ok':n_ok,'n_failed':n_failed,'n_skipped':n_skipped})
 
 
-@login_required
+@permission_required('payment.pay_bonus')
 def create_simple(request,work_product_id):
     work_product = get_object_or_404(WorkProduct,id=work_product_id)
 
@@ -74,7 +76,7 @@ def create_simple(request,work_product_id):
 
     return render_to_response('mturk/payments/create_minimal.html', {'form': form,'user':request.user})
 
-@login_required
+@permission_required('payment.pay_bonus')
 def create_simple2(request,worker,session_code):
     session=get_object_or_404(Session,code=session_code);
     work_product = WorkProduct.objects.filter(session=session,worker=worker)[0]

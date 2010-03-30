@@ -7,6 +7,8 @@ from xml.dom import minidom
 from mturk.protocols.task import TaskEngine
 import cPickle as pickler
 
+import string
+
 class GradingTaskEngine(TaskEngine):
     def get_internal_params(self):
         return {'list_num_per_page':1,
@@ -93,7 +95,7 @@ class GradingTaskEngine(TaskEngine):
             w.save();
 
         for sub_id in grades.keys():
-            (session_code,submission_id)=sub_id.split("_");
+            (session_code,submission_id)=self.parse_submission_id(sub_id)
 
             session=get_object_or_404(self.get_models().Session,code=session_code)
             original_submission=get_object_or_404(self.get_models().SubmittedTask,id=submission_id)
@@ -124,7 +126,7 @@ class GradingTaskEngine(TaskEngine):
 
         print "DEACTIVATE"
         for sub_id in grades.keys():
-            (session_code,submission_id)=sub_id.split("_");
+            (session_code,submission_id)=self.parse_submission_id(sub_id)
 
             session=get_object_or_404(self.get_models().Session,code=session_code)
             original_submission=get_object_or_404(self.get_models().SubmittedTask,id=submission_id)
@@ -164,7 +166,7 @@ class GradingTaskEngine(TaskEngine):
         x_info.setAttribute("by_worker",submission.worker);
 
         for sub_id in grades.keys():
-            (session_code,submission_id)=sub_id.split("_");
+            (session_code,submission_id)=self.parse_submission_id(sub_id)
             x_grade = x_doc.createElement("grade")
             x_root.appendChild(x_grade);
             x_grade.setAttribute("for_session",session_code);
@@ -175,3 +177,14 @@ class GradingTaskEngine(TaskEngine):
             x_grade.setAttribute("by_worker",submission.worker);
 
         return x_doc
+
+    def parse_submission_id(self,sub_id):
+        parts=sub_id.split("_");
+        if len(parts)==2:
+            return parts
+        
+        session_code=string.join(parts[0:-1],"_")
+        submission_id=parts[-1]
+
+        return (session_code,submission_id)
+
