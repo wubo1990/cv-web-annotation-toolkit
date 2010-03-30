@@ -65,9 +65,18 @@ def pick_workitem_from_queue(request,session,worker):
     queue_name=session.priority_queue;
     last_priority=request.session.get('last_task_priority_'+queue_name,-1)
     last_id=request.session.get('last_task_id_'+queue_name,-1);
+    restart_countdown=request.session.get('restart_countdown_'+queue_name,settings.QUEUE_RESTART_FREQUENCY);
+    if restart_countdown<=0:
+        last_priority=100000;
+        last_id=0;
+        queue=WorkPriorityQueueItem.objects.filter(queue=queue_name)
+        restart_countdown=settings.QUEUE_RESTART_FREQUENCY;
+    else:
+        queue=WorkPriorityQueueItem.objects.filter(queue=queue_name,priority__lte=last_priority)
+        restart_countdown -=1;
 
     new_work_item=None
-    for item in WorkPriorityQueueItem.objects.filter(queue=queue_name,priority__gte=last_priority):
+    for item in queue:
         if item.priority==last_priority and item.id<=last_id:
             continue
         try:
@@ -86,6 +95,7 @@ def pick_workitem_from_queue(request,session,worker):
         new_work_item=item.work
         request.session['last_task_priority_'+queue_name]=item.priority;
         request.session['last_task_id_'+queue_name]=item.id;
+        request.session['restart_countdown_'+queue_name]=restart_countdown;
         break
 
     return new_work_item

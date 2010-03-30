@@ -18,6 +18,8 @@ urlpatterns = patterns('',
 
 
     (r'^mt/', include('mturk.urls')),
+
+    (r'^RPC2$', 'rpc4django.views.serve_rpc_request'),
     (r'^datastore/', include('datastore.urls')),
 
     #(r'^ds/', include('datasets.urls')),

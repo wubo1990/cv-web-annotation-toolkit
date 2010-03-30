@@ -40,7 +40,11 @@ var run_unblock=function(worker )
 
 </div>
 </td>
-<td><a href="/mt/payments/create/simple2/{{s.worker}}/{{session.code}}/" target="bonus_wnd">Grant bonus</a></td>
+<td>
+{% if perms.mturk.pay_bonus %}
+<a href="/mt/payments/create/simple2/{{s.worker}}/{{session.code}}/" target="bonus_wnd">Grant bonus</a>
+{% endif %}
+</td>
 </tr>
 {% endfor %}
 </table>

@@ -397,3 +397,18 @@ def finalize_session_submissions(session_code):
     session = get_object_or_404(Session,code=session_code)
     ( num_approved, num_rejected, num_failed_to_approve, num_failed_to_reject) = mturk.views.finalize_graded_submissions(session);
     return {'approved':num_approved, 'rejected':num_rejected, 'failed_to_approve':num_failed_to_approve, 'failed_to_reject':num_failed_to_reject}
+
+
+
+@rpcmethod(name='mt.set_session_priority')
+def set_session_priority(session_code,priority):
+    session = get_object_or_404(Session,code=session_code)
+    stats=update_session_queue_priority(session,priority)
+    return stats
+
+@rpcmethod(name='mt.set_workitem_priority')
+def set_workitem_priority(work_item_id,priority):
+    item = get_object_or_404(WorkItem,id=work_item_id)
+    stats=update_work_item_queue_priority(item,priority)
+    return stats
+

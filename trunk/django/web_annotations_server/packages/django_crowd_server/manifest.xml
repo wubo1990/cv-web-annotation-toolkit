@@ -17,6 +17,26 @@
 
   <depend package="crowd_quality"/>
 
+
+<!-- non-formalized dependencies:
+
+sudo apt-get install mysql-server python python-mysqldb 
+sudo apt-get install python-imaging
+
+OPTIONAL: sudo apt-get install phpmyadmin
+
+django 1.1.1
+
+Install boto (for Mechanical Turk integration) with a patch.
++ http://cv-web-annotation-toolkit.googlecode.com/files/boto-1.8d_patch
+
+django-tagging (v.0.3.0 for django 1.0.2)
+
+django-registration
+
+rpc4django
+-->
+
   <export>
     <rosdoc config="${prefix}/rosdoc.yaml" />
   </export>

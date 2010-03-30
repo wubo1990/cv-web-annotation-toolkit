@@ -21,7 +21,7 @@ class SessionAdmin(admin.ModelAdmin):
         }),
         ('Advanced options', {
             'classes': ('collapse',),
-            'fields': ('standalone_mode', 'is_gold','gold_standard_qualification',  'mturk_qualification', 'hit_type' )
+            'fields': ('standalone_mode', 'is_gold','gold_standard_qualification',  'mturk_qualification', 'hit_type','is_running', 'num_required_submissions' )
         }),
     )
     filter_horizontal = ['mturk_qualification'];

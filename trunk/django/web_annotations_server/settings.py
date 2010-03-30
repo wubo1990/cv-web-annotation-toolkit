@@ -39,7 +39,8 @@ elif os.path.exists('/var/django2/web_annotations_server/'):
 
 
 DATABASE_ENGINE = 'mysql'           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'ado_mssql'.
-DATABASE_NAME = 'annotations_v2'             # Or path to database file if using sqlite3.
+DATABASE_NAME = 'annotations_v2_test'             # Or path to database file if using sqlite3.
+#DATABASE_NAME = 'annotations_v2'             # Or path to database file if using sqlite3.
 DATABASE_USER = 'ann_devel'             # Not used with sqlite3.
 DATABASE_PASSWORD = 'ann_devel_password_11223344'         # Not used with sqlite3.	DATABASE_NAME = 'annotations'             # Or path to database file if using sqlite3.
 DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
@@ -58,7 +59,7 @@ TIME_ZONE = 'America/Chicago'
 LANGUAGE_CODE = 'en-us'
 
 SITE_ID = 1
-SITE_NAME = 'vm7.willowgarage.com'
+SITE_NAME = 'vm6.willowgarage.com'
 
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
@@ -93,16 +94,23 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+
+    # Required for RPC4Django authenticated method calls
+    # Requires Django 1.1+
+    'django.contrib.auth.middleware.RemoteUserMiddleware',
+    'snippets.basic_auth.BasicAuthenticationMiddleware',
+
     'django.middleware.doc.XViewMiddleware',
 )
 
-ROOT_URLCONF = 'web_annotations_server.urls'
+# Required for RPC4Django authenticated method calls
+# Requires Django 1.1+
+AUTHENTICATION_BACKENDS = (
+	'django.contrib.auth.backends.ModelBackend',
+	'django.contrib.auth.backends.RemoteUserBackend',
+)
 
-DATASETS_ROOT = '/var/datasets/'
-SEGMENTATION_ROOT = DATASETS_ROOT+'segmentations/'
-
-MTURK_WORK = '/var/mturk/autosubmit/'
-MTURK_ENV = '/var/mturk/scripts/'
+BASIC_WWW_AUTHENTICATION=True
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
@@ -111,6 +119,12 @@ TEMPLATE_DIRS = (
     DJ_CODE_RT+"templates/",
     #"/var/lib/python-support/python2.5/django/contrib/admin/templates/",
 )
+
+TEMPLATE_CONTEXT_PROCESSORS=("django.core.context_processors.auth",
+			     "django.core.context_processors.debug",
+			     "django.core.context_processors.i18n",
+			     "django.core.context_processors.media")
+
 
 
 DEFAULT_FROM_EMAIL='syrnick@gmail.com'
@@ -122,27 +136,51 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.admin',
-    'web_annotations_server.mturk',
-    'web_annotations_server.datastore',
-    'web_annotations_server.annotations',
-    'web_annotations_server.evaluation',
-    'web_annotations_server.autograding',
-    'web_annotations_server.mturk_latex',
+
     'tagging',
     'registration',
-    'web_annotations_server.web_menu',
-    #'annotation.annotation_store',
-    'web_annotations_server.image_collector',
+    'rpc4django',
+    'celery',
 
-    'web_annotations_server.cv_models',
+
+    'mturk',
+    'datastore',
+
+    'mturk.protocols.gxml',
+    'mturk.protocols.attributes',
+    'mturk.protocols.grading',
+    'mturk.protocols.grouping',
+    'mturk.protocols.anyhtml',
+
+    #'web_annotations_server.annotations',
+    #'web_annotations_server.evaluation',
+    #'web_annotations_server.autograding',
+    #'web_annotations_server.mturk_latex',
+
+    #'web_annotations_server.web_menu',
+    #'annotation.annotation_store',
+    #'web_annotations_server.image_collector',
+
+    #'web_annotations_server.cv_models',
     #'web_annotations_server.state_machine',	
 )
 
 ACCOUNT_ACTIVATION_DAYS=4
 
-HOST_NAME_FOR_MTURK="http://vm7.willowgarage.com/"
+ROOT_URLCONF = 'web_annotations_server.urls'
+
+DATASETS_ROOT = '/var/datasets/'
+SEGMENTATION_ROOT = DATASETS_ROOT+'segmentations/'
+
+MTURK_WORK = '/var/mturk/autosubmit/'
+MTURK_ENV = '/var/mturk/scripts/'
+
+
+HOST_NAME_FOR_MTURK="http://vm6.willowgarage.com:8080/"
 
 MTURK_BLOCK_WORKER_MIN_UTILITY=30
+
+MTURK_QUALIFICATIONS_PREFIX="CV-WEB-TK: "
 
 ## number of hits to show per page
 NUM_HITS_PER_PAGE = 20
@@ -157,3 +195,18 @@ MODEL_STORE_ROOT='/var/django2/model_store'
 
 WEBMENU_ROOT = '/var/django2/web_menu/'
 
+
+BROKER_HOST = "127.0.0.1"
+BROKER_PORT = 5672
+BROKER_VHOST = "/"
+BROKER_USER = "guest"
+BROKER_PASSWORD = "guest"
+
+
+QUEUE_RESTART_FREQUENCY=20
+
+MTURK_TEST_DATA='/var/django2/web_annotations_server/mturk/test_data/'
+
+ROS_INSTALLED=True
+ROS_INTEGRATION=True
+MTURK_INTEGRATION=True

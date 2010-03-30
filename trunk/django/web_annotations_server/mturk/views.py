@@ -959,6 +959,10 @@ def submit_redo_HITs(request,session_code):
         print "Hit",hit.id ,"is submitted"
         num_submitted += 1;
 
+    if num_submitted>0:
+        session.is_running=True;
+        session.save()
+
     return render_to_response("mturk/submit_redo.html",{"num_submitted": num_submitted,'nav':nav})
 
 def get_good_hit_results_xml(request,ext_id):
@@ -1348,8 +1352,27 @@ def repost_idle_submissions(session):
     for work_unit in session.mthit_set.filter(state__in=[1,5,7]):
         activate_hit(session,work_unit)
         num_activated+=1;
+    if num_activated>0:
+        session.is_running=True;
+        session.save()
 
     return num_activated
+
+def update_session_state(session):
+
+    still_running=False
+    for work_unit in session.mthit_set.all():
+        num_required=work_unit.get_num_required_submissions();
+        num_available=work_unit.submittedtask_set.filter(valid=1)
+        if num_required>num_available:
+            still_running=True
+            break
+
+    if still_running:
+        session.is_running=True;
+        session.save()
+
+
 
 
 
@@ -1369,6 +1392,7 @@ def process_graded_submissions(request,session_code):
 
 
         num_activated = repost_idle_submissions(session);
+
 
         stats={'num_activated':num_activated,'num_approved':num_approved,'num_rejected':num_rejected};
         return render_to_response('mturk/session_process_action_report.html',
@@ -1530,6 +1554,8 @@ def approve_good_results(request,session_code):
                     except Exception,e:
                         errors.append('Approve FAILED: %s\t"%s" : %s <br/>'% (r.assignment_id,feedback,str(e)))
 
+        update_session_state(session)
+
         report={'num_approved':num_approved,
                 'num_rejected':num_rejected,
                 'num_skipped':num_skipped,
@@ -1569,6 +1595,8 @@ def approve_all_results(request,session_code):
             except Exception,e:
                 errors.append('Approve FAILED: %s\t"%s" : %s <br/>'% (r.assignment_id,feedback,str(e)))
                 num_errors+=1
+
+        update_session_state(session)
 
         report={'num_approved':num_approved,
                 'num_rejected':num_rejected,
@@ -1661,9 +1689,14 @@ def expire_session_hits(request,session_code):
             num_affected+=1;
         else:
             num_skipped +=1;
+
+    session.is_running=False;
+    session.save()
     report={'num_affected':num_affected,
             'num_skipped':num_skipped}
     nav={'session':session};
+
+    
     return render_to_response("mturk/expire_session_hits.html",{"report":report,"nav":nav})
 
 
@@ -1937,6 +1970,32 @@ def remove_session_from_queue(session):
         num_items_deleted+=1;
     return {"num_items_deleted":num_items_deleted};
 
+
+def update_session_queue_priority(session,new_priority):
+    num_items_updated=0;
+    num_assignments_updated=0;
+    for queue_item in WorkPriorityQueueItem.objects.filter(work__session=session):
+        queue_item.priority=new_priority;
+        queue_item.save()
+        num_items_updated+=1;
+        num_assignments_updated += queue_item.assignments_left
+
+    return {"num_items_updated":num_items_updated,"num_assignments_updated":num_assignments_updated};
+
+
+def update_work_item_queue_priority(work_item,new_priority):
+    num_items_updated=0;
+    num_assignments_updated=0;
+    for queue_item in WorkPriorityQueueItem.objects.filter(work=work_item):
+        queue_item.priority=new_priority;
+        queue_item.save()
+        num_items_updated+=1;
+        num_assignments_updated += queue_item.assignments_left
+
+    return {"num_items_updated":num_items_updated,"num_assignments_updated":num_assignments_updated};
+
+
+
 def put_session_to_the_queue(session,priority):
     stats={}
     num_items_posted=0;
@@ -1989,6 +2048,9 @@ def queue_session_work_units(request,session_code,priority):
     stats.update(stats2)
     stats.update(stats3)
 
+    session.is_running=True;
+    session.save();
+
     return render_to_response('mturk/queue/put_session_report.html',
                               {'user':request.user,'session':session,'stats':stats,'nav':nav});
 
@@ -2018,6 +2080,9 @@ def remove_session_from_the_queue(request,session_code):
             'num_skipped':num_skipped}
 
     stats.update(stats2)
+
+    session.is_running=False;
+    session.save();
 
     return render_to_response('mturk/queue/remove_session_from_queue_report.html',
                               {'user':request.user,'session':session,'stats':stats,'nav':nav});
