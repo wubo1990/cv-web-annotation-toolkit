@@ -1,9 +1,15 @@
 from django.contrib import admin
 from models import Session,SessionExclusion,FundingAccount,MTHit,SubmittedTask,Worker,Task,TaskType,MTurkQualificationDefinition,MTurkQualification,Payment,WorkerProfile,Worker,WorkerMetricsQualifications,GoldSubmission,GoldStandardQualification,WorkerTrainingProgress
 
+from django import forms
 import views
 import mturk.payments.views
 import mturk.qualifications.views
+
+
+from lxml import etree
+import string
+import os.path
 
 class FundingAccountAdmin(admin.ModelAdmin):
     pass	
@@ -56,9 +62,77 @@ def check_qualification(modeladmin, request, queryset):
     return mturk.qualifications.views.check_qualifications(request,queryset);
     
 
+
+class MTQualForm(forms.ModelForm):
+    class Meta:
+        model = MTurkQualificationDefinition
+
+
+    def xsd_file(self,fn):
+        moddir = os.path.dirname(__file__)
+        return os.path.join(moddir, 'schema', fn)
+        
+
+    def clean_question(self):
+        # do something that validates your data
+
+        question_xsd = etree.parse(self.xsd_file("QuestionForm.xsd"))
+        question_schema = etree.XMLSchema(question_xsd)
+
+        try:
+            doc = etree.fromstring(self.cleaned_data["question"])
+        except Exception,e:
+            raise forms.ValidationError(str(e))
+
+        if not question_schema.validate(doc):
+            
+            msg=string.join(
+                map(lambda e:str(e),question_schema.error_log.filter_from_errors()),
+                "<br/>")
+            raise forms.ValidationError(msg)
+
+        return self.cleaned_data["question"]
+
+    def clean_answer(self):
+        # do something that validates your data
+        answer_xsd = etree.parse(self.xsd_file("AnswerKey.xsd"))
+        answer_schema = etree.XMLSchema(answer_xsd)
+
+        try:
+            doc = etree.fromstring(self.cleaned_data["answer"])
+        except Exception,e:
+            raise forms.ValidationError(str(e))
+        answer_schema.validate(doc)
+        if not answer_schema.validate(doc):
+            
+            msg=string.join(
+                map(lambda e:str(e),answer_schema.error_log.filter_from_errors()),
+                "<br/>")
+            raise forms.ValidationError(msg)
+
+        return self.cleaned_data["answer"]
+
+    def clean_properties(self):
+        dta=self.cleaned_data["properties"]
+        try:
+            for s in dta.split('\n'):
+                if s.strip()=="":
+                    continue
+                parts=s.strip().split("=")
+                if len(parts)!=2:
+                    raise forms.ValidationError("Error: expected key=value, got: %s"%s)
+        except forms.ValidationError:
+            raise                        
+        except Exception,e:
+            return forms.ValidationError(str(e));
+        return self.cleaned_data["properties"]
+
 class MTQualDefAdmin(admin.ModelAdmin):
     list_display = ('id','name');
-    save_as=True    
+    save_as=True
+    form = MTQualForm
+
+
 
 
 class GoldSubmissionAdmin(admin.ModelAdmin):
