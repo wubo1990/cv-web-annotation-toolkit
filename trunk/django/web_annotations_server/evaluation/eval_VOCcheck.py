@@ -105,9 +105,15 @@ def main(argv):
             print >>fReport,"Failed to extract the file. It appears to be a plain tar file, but tar failed."
             writeError(report,"Failed to extract the file. It appears to be a plain tar file, but tar failed.")
             hasError=True
+    elif submission.endswith('.zip'):
+        status = os.system("unzip %s -d %s" % (submission,work_root));
+        if status !=0 :
+            print >>fReport,"Failed to extract the file. It appears to be a zip file, but unzip failed."
+            writeError(report,"Failed to extract the file. It appears to be zip file, but unzip failed.")
+            hasError=True
     else:
         print >>fReport,"Unknown file extension."
-        print >>fReport,"\tHint: Use '.tgz' or '.tar.gz' for compressed files"
+        print >>fReport,"\tHint: Use '.tgz', '.tar.gz' or '.zip' for compressed files"
         print >>fReport,"\tHint: Use '.tar' for uncompressed files"
         writeError(report,"Unknown file extension. Use .tgz or .tar.gz ")
         hasError=True

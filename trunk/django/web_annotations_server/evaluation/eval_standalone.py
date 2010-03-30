@@ -60,21 +60,18 @@ def main(argv):
         os.system("tar xvzCf %s %s" % (work_root,submission));
     elif submission.endswith('.tar'):
         os.system("tar xvCf %s %s" % (work_root,submission));
+    elif submission.endswith('.zip'):
+        os.system("unzip %s -d %s" % (submission,work_root));
     else:
         print >>fReport,"Unknown file extension."
-        print >>fReport,"\tHint: Use '.tgz' or '.tar.gz' for compressed files"
+        print >>fReport,"\tHint: Use '.tgz' or '.tar.gz' or '.zip' for compressed files"
         print >>fReport,"\tHint: Use '.tar' for uncompressed files"
-        writeError(report,"Unknown file extension. Use .tgz or .tar.gz ")
+        writeError(report,"Unknown file extension. Use .tgz or .tar.gz or .zip")
         hasError=True
 
     if hasError:
         return
 
-    work_root
-
-    if hasError:
-        os.system("tar xvCf %s %s" % (work_root,submission));
-        
     print >>fReport,"Extraction complete."
     print >>fReport,"Task is ready for evaluation."
 
