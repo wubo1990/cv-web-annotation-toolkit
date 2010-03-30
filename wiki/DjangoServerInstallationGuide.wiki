@@ -117,6 +117,11 @@ easy_install multiprocessing
   # Follow these [http://www.turnkeylinux.org/blog/django-celery-rabbitmq installation instructions].
   # Follow the links in comment 2 and install the celerybroker/celeryd in the /etc/init.d
 
+ # lxml for MTurk XML validation
+{{{
+sudo easy_install lxml
+}}}
+
 = Django code installation =
 
  # Set up a mysql database
