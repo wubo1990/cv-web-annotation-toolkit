@@ -119,6 +119,7 @@ easy_install multiprocessing
 
  # lxml for MTurk XML validation
 {{{
+sudo apt-get install libxslt1-dev
 sudo easy_install lxml
 }}}
 
