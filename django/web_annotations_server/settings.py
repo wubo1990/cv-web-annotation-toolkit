@@ -205,6 +205,8 @@ BROKER_PASSWORD = "guest"
 
 QUEUE_RESTART_FREQUENCY=20
 
+MTURK_BLOCK_WORKERS_ON_GOLD=True
+
 MTURK_TEST_DATA='/var/django2/web_annotations_server/mturk/test_data/'
 
 ROS_INSTALLED=True
