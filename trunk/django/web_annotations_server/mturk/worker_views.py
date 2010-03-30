@@ -169,6 +169,12 @@ def grade_submission_with_gold(gold_session,submission,worker):
     training_progress.save();
 
 def check_worker_performance(worker,session):
+    try:
+        if not settings.MTURK_BLOCK_WORKERS_ON_GOLD:
+            return (True,None)
+    except Exception:
+        pass
+
     qual=session.gold_standard_qualification
     (training_progress,created)=WorkerTrainingProgress.objects.get_or_create(worker=worker,gold_qual=qual);
     if created:
