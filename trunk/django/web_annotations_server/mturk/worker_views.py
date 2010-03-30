@@ -168,6 +168,21 @@ def grade_submission_with_gold(gold_session,submission,worker):
 
     training_progress.save();
 
+def check_worker_performance(worker,session):
+    qual=session.gold_standard_qualification
+    (training_progress,created)=WorkerTrainingProgress.objects.get_or_create(worker=worker,gold_qual=qual);
+    if created:
+        return (True,None)
+
+    if training_progress.num_gold_submissions<qual.min_gold_to_block:
+        return (True,None)
+    if training_progress.grade_average>=qual.min_gpa:
+        return (True,None)
+
+    report="Required GPA is %f, your GPA is %f." % (qual.min_gpa,training_progress.grade_average)
+    return (False,report)
+
+
 def check_submission_for_progress(session,submisison,worker):
     qual=session.gold_standard_qualification
     if qual is None:
@@ -219,6 +234,11 @@ def get_task_page(request,session_code):
 
     #See, if we need to use the gold task
     if worker:
+        if session.gold_standard_qualification is not None:
+            (can_work,report) = check_worker_performance(worker,session)
+            if not can_work:
+                return render_to_response('mturk/not_available_low_performance.html',{"report":report});
+
         gold_workitem=select_workitem_from_gold(session,worker);
         if gold_workitem:
             substitute_workitem(worker,workitem,gold_workitem);

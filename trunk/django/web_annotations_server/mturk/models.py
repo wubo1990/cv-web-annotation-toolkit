@@ -512,6 +512,7 @@ class GoldStandardQualification(models.Model):
 	num_gold_practice      = models.IntegerField(default=3);
 	num_gold_initial       = models.IntegerField(default=3);
 	random_check_frequency = models.DecimalField(max_digits=7,decimal_places=4);
+	min_gold_to_block      = models.IntegerField(default=3);
 	min_gpa                = models.DecimalField(max_digits=7,decimal_places=4,
                                  default="90.0",
                                  help_text="The minimum score required to pass.");
@@ -522,6 +523,8 @@ class GoldStandardQualification(models.Model):
 	min_passing_rate         = models.DecimalField(max_digits=7,decimal_places=4,
 						       default="90.0",
 						       help_text="The minimum 'approval' rate.");
+	def __str__(self):
+		return "Min GPA %f, Gold %s" % (self.min_gpa,self.gold_session)
 
 class WorkerTrainingProgress(models.Model):
 	worker 	               = models.ForeignKey(Worker);
