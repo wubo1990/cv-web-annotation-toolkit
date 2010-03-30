@@ -159,6 +159,11 @@ wget http://vision.cs.uiuc.edu/annotation/all_js.tgz
 tar xvzf all_js.tgz
 cd ../../../
 }}}
+ # Installing MTURK qualification definitions
+{{{
+cd mturk/schema
+./download_xsd.sh
+}}}
  # Copy default configuration over the initial project values.
 {{{
 cp default_project/example_settings.py ./settings.py
