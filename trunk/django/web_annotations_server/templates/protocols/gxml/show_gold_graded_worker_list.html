@@ -1,0 +1,74 @@
+{% extends 'mturk/public_base_app.html' %}
+{% load time_extras %}
+{% load navigator %}
+
+{% block content %}
+
+<hr/>
+page number:
+{% if has_previous %}
+<a href="../p{{previous}}/">{{previous}}</a>
+{% endif %}
+{{page}}
+{% if has_next %}
+<a href="../p{{next}}/">{{next}}</a>
+{% endif %} | {{num_pages}}
+<br>
+{% for p in page_range %}
+<a href="../p{{p}}/">{{p}}</a> 
+{% endfor %}
+
+<hr/>
+<table>
+{% for s in object_list %}
+<tr><td>
+Submitted: {{s.submitted|human_date}}  {{s.submitted|relative_using_date}}
+<br>
+<iframe height=800 width=800 src="{{s.get_view_url}}&{{s.hit.parameters}}&annotation_url=/mt/submission_data_xml/{{s.id}}/{{s.hit.ext_hitid}}/"></iframe>
+<br/>
+{% if s.get_parsed.comments %}
+<b>Comment: </b>{{ s.get_parsed.comments }} <br/>
+{% endif %}
+<hr/>
+</td>
+<td>
+{% for g in s.goldstandardgraderecord_set.all %}
+Gold standard grade: {{g.grade}}<br/>
+<a href="/mt/show/gold/{{s.hit.ext_hitid}}/">See gold submission</a><br/>
+{% endfor %} 
+</td>
+{% if can_edit %}
+<td>
+<a href="/mt/edit/submission/show/{{s.id}}/{{s.worker}}/" target="_blank">edit (opens in a new window)</a>
+</td>
+{% endif %}
+</tr>
+{% endfor %}
+</table>
+
+<noscript>
+Error. Javascript is required.
+</noscript>
+
+{% if has_previous %}
+<a href="../p{{previous}}/">{{previous}}</a>
+{% endif %}
+{{page}}
+{% if has_next %}
+<a href="../p{{next}}/">{{next}}</a>
+{% endif %} | {{num_pages}}
+<br>
+{% for p in page_range %}
+<a href="../p{{p}}/">{{p}}</a> 
+{% endfor %}
+
+{% if refresh_rate %}
+<script type="text/JavaScript">
+<!--
+setTimeout("document.location.reload(true)",{{refresh_rate}});
+//   -->
+</script>
+{% endif %}
+
+{% endblock %}
+

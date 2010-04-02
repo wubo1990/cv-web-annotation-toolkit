@@ -1,0 +1,16 @@
+{% extends "mturk/base_app.html" %}
+
+{% block subtitle %}Comments {% if nav.session %} for session {{session.code}} {% endif %} {% endblock %}
+
+{% block subbranding %}Comments {% if nav.session %} for session {{session.code}} {% endif %} {% endblock %}
+
+{% block content %}
+<table>
+<tr><th>Date</th><th>Text</th></tr>
+{% for c in comments %}
+<tr><td>{{c.when}}</td><td>{{c.comment}}</td></tr>
+{% endfor %}
+</table>
+
+{% endblock %}
+
