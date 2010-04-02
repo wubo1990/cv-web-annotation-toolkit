@@ -502,27 +502,45 @@ ORDER BY worker, final_grade
 
 def worker_to_session_contributions(worker):
 
-    contributions=[]
+    contributions={}
     try:
     	    cursor = connection.cursor()
 
 	    cursor.execute("""
-SELECT s.code , count( * ) c
-FROM mturk_session s, `mturk_submittedtask` subm
+SELECT s.code , count( * ) c , s.is_gold is_gold
+FROM mturk_session s, 
+`mturk_submittedtask` subm
 WHERE s.id = subm.session_id
 AND subm.worker = %s
+AND subm.revision_state = 1
 GROUP BY s.id
 ORDER by c DESC
 """,[worker])
 	    for r in cursor.fetchall():
-                (session,count)=r
-                contributions.append({'session':session,'count':count})
+                (session,count,is_gold)=r
+                contributions[session]={'session':session,'count':count, 'is_gold':is_gold,'by_state':{}}
+
+            for (state_id,state_title) in SUBMISSION_STATE:
+                cursor.execute("""
+SELECT s.code , count( * ) c 
+FROM mturk_session s, 
+`mturk_submittedtask` subm
+WHERE s.id = subm.session_id
+AND subm.worker = %s
+AND subm.state = %s
+AND subm.revision_state = 1
+GROUP BY s.id
+ORDER by c DESC
+""",[worker,state_id])
+                for r in cursor.fetchall():
+                    (session,count)=r
+                    contributions[session]['by_state'][state_title]=count
             
 	    cursor.close();
     except:
         raise
 
-    return contributions
+    return contributions.values()
 
 
 def stats_worker_contributions_perfect():

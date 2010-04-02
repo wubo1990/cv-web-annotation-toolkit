@@ -10,9 +10,9 @@ from django.utils.safestring import mark_safe
 
 
 @register.simple_tag
-def std_navigator(paginator,page,template_plain='paginator/plain.html',template_compact='paginator/compact.html'):
+def std_navigator(paginator,page,previous,next,template_plain='paginator/plain.html',template_compact='paginator/compact.html'):
   if paginator.num_pages<10:
-    return render_to_string(template_plain, { 'paginator': paginator })
+    return render_to_string(template_plain, { 'paginator': paginator, 'page':page,'previous':previous,'next':next })
 
   pages=[];
   iP=page;
@@ -37,5 +37,5 @@ def std_navigator(paginator,page,template_plain='paginator/plain.html',template_
   pages_after=pages;
 
 
-  return render_to_string(template_compact, { 'paginator': paginator,'pages_before':pages_before,'pages_after':pages_after,'page':page })
+  return render_to_string(template_compact, { 'paginator': paginator,'page':page,'previous':previous,'next':next,'pages_before':pages_before,'pages_after':pages_after,'page':page })
 

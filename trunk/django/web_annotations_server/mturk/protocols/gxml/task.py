@@ -50,6 +50,35 @@ class GXmlTaskEngine(TaskEngine):
         url=url+"&annotation_url="+urllib.quote(annotation_url)
         return url
 
+
+
+    def get_submission_edit_url(self,submission,submit_to):
+        viewurl=""
+
+        url="/code/task.html?swf=label_generic"
+
+        task=submission.hit;
+        session=task.session;
+
+        url=url+"&extid="+task.ext_hitid;
+        
+        url=url+"&session="+session.code;
+        url=url+"&img_base="+urllib.quote(settings.HOST_NAME_FOR_MTURK) 
+        url=url+"&task_url="+urllib.quote(settings.HOST_NAME_FOR_MTURK+"tasks/"+session.task_def.name+".xml")
+
+        url=url+self.get_frame_part(session,task);
+
+        url=url+"&mode=edit";
+        url=url+"&swf_w=700&swf_h=700";
+        url=url+"&instructions="+urllib.quote(session.task_def.instructions_url);
+        
+        url=url+"&submit_url="+submit_to
+
+        annotation_url=submission.get_persistent_url()
+        
+        url=url+"&annotation_url="+urllib.quote(annotation_url)
+        return url
+
     def get_thumbnail_url(self,submission):
         viewurl=""
 

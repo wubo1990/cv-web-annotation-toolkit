@@ -6,11 +6,19 @@
 
 
 {% block content %}
+<h2>What is this?</h2>
 
-Worker {{worker.worker}}<br/>
+We're trying to add transparency in the approval and rejection
+process. Below, you will see, what we think will happen to your
+submissions and why. 
 
+
+<hr/>
+<h2>Worker ID {{worker.worker}}</h2>
 Total submissions: {{stats.num_submissions}}<br/>
-Invalid submissions: {{stats.num_invalid}}<br/>
+
+
+{%comment %}Invalid submissions: {{stats.num_invalid}}<br/>
 <hr>
 Grading results:<br/>
 <table>
@@ -21,13 +29,34 @@ Grading results:<br/>
 <tr><th>ungraded</th><td>{{stats.total_grades.num_ungraded}}</td>
 </table>
 <hr/>
+{% endcomment %}
 
+<h2>Work quality estimates</h2>
+<table><tr><th>Task title</th><th>GPA</th><th>Number of submissions scored</th></tr>
+{% for info in worker_training_info %}
+<tr><td>{{info.gold_qual.gold_session.task_def.title}}</td>
+    <td>{{info.grade_average}}</td>
+    <td><a href="/mt/worker/view/gold_grade_submissions/{{info.id}}/{{worker.worker}}/">{{info.num_gold_submissions}}</td>
+</tr>
+{% endfor %}
+</table>
+<hr/>
+<h2>Work status</h2>
 
 <table>
-<tr><th>session</th><th>count</th></tr>
+<tr><th>session</th><th>total</th><th>Approved</th><th>Rejected</th><th>Pending approval</th><th>Pending rejection</th><th>Mixed grades</th><th>Ungraded</th></tr>
 {% for contribution in contributions %}
-<tr><td>{{contribution.session}}</td><td>{{contribution.count}}</td>
+{% if not contribution.is_gold %}
+<tr><td>{{contribution.session}}</td><td><a href="/mt/worker/view_w_edit/submissions/{{contribution.session}}/{{worker.worker}}/">{{contribution.count}}</td>
+
+<td><a href="/mt/worker/view_w_edit/by_state/3/submissions/{{contribution.session}}/{{worker.worker}}/">{{contribution.by_state.Approved}}</td>
+<td><a href="/mt/worker/view_w_edit/by_state/4/submissions/{{contribution.session}}/{{worker.worker}}/">{{contribution.by_state.Rejected}}</td>
+<td><a href="/mt/worker/view_w_edit/by_state/5/submissions/{{contribution.session}}/{{worker.worker}}/">{{contribution.by_state.Pending_approval}}</td>
+<td><a href="/mt/worker/view_w_edit/by_state/6/submissions/{{contribution.session}}/{{worker.worker}}/">{{contribution.by_state.Pending_rejection}}</td>
+<td><a href="/mt/worker/view_w_edit/by_state/7/submissions/{{contribution.session}}/{{worker.worker}}/">{{contribution.by_state.Mixed_grades}}</td>
+<td><a href="/mt/worker/view_w_edit/by_state/8/submissions/{{contribution.session}}/{{worker.worker}}/">{{contribution.by_state.Ungraded}}</td>
 </tr>
+{% endif %}
 {% endfor %}
 </table>
 

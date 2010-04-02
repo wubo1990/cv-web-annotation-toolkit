@@ -39,4 +39,6 @@ def worker_dashboard(request,worker_id):
     stats = models_stats.worker_stats(worker)
     worker_contibutions=models_stats.worker_to_session_contributions(worker_id);
 
-    return render_to_response('mturk/dashboard/worker_dashboard.html', {'worker':worker,'stats':stats,'contributions':worker_contibutions})
+    worker_training_info=WorkerTrainingProgress.objects.all().filter(worker=worker);
+
+    return render_to_response('mturk/dashboard/worker_dashboard.html', {'worker':worker,'stats':stats,'contributions':worker_contibutions,'worker_training_info':worker_training_info})

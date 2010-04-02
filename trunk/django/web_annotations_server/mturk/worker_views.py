@@ -38,6 +38,7 @@ from decimal import Decimal
 
 from django.http import HttpResponse,HttpResponseRedirect
 from django.shortcuts import render_to_response,get_object_or_404 
+from django.views.generic.list_detail import object_list
 
 from models import *
 from common import *
@@ -167,6 +168,9 @@ def grade_submission_with_gold(gold_session,submission,worker):
         training_progress.num_passing_submissions += 1
 
     training_progress.save();
+
+def re_grade_submission_with_gold(gold_session,old_submission,worker):
+    raise NotImplemented()
 
 def check_worker_performance(worker,session):
     try:
@@ -366,6 +370,17 @@ def view_submission_page(request,ext_hitid,id):
     return HttpResponseRedirect(view_url);
 
 
+def view_gold_for_workitem(request,ext_hitid):
+    workitem = get_object_or_404(MTHit,ext_hitid=ext_hitid)
+    gold_submissions=SubmittedTask.objects.filter(goldsubmission__workitem=workitem)
+    session = workitem.session
+    protocol=session.task_def.type.name
+
+    extra_context={'nav':{'session':session} } #,'can_edit':can_edit}
+    return object_list(request,queryset=gold_submissions,template_name='protocols/'+protocol+'/show_worker_list.html',extra_context=extra_context);
+
+
+
 
 def get_task_parameters(request,task_name):
     task = get_object_or_404(Task,name=task_name)
@@ -399,4 +414,109 @@ def show_worker_gpa(request,session_code,worker_id):
         last_grade=None
 
     return render_to_response('mturk/gpa/inline_worker_gpa.html',{'progress':progress,'last_grade':last_grade,'qualification':qual})
+
+
+
+def edit_submission(request,submission_id,worker):
+    submission=get_object_or_404(SubmittedTask,id=submission_id,worker=worker)
+    
+    submit_url="/mt/edit/submission/submit/%s/%s/" % (submission_id,worker);
+    edit_url=submission.get_edit_url(submit_url)
+    
+    return HttpResponseRedirect(edit_url);
+
+def submit_edit_submission(request,submission_id,worker):
+    print "SUBMIT RESULTS"
+    old_submission=get_object_or_404(SubmittedTask,id=submission_id,worker=worker)
+    workitem = old_submission.hit;
+
+    session = workitem.session;
+    assignmentId="INTERNAL"
+
+    postS=pickler.dumps((request.GET,request.POST))    
+    submission=SubmittedTask(hit=workitem,session_id=session.id,worker=worker,assignment_id=assignmentId, response=postS);
+    submission.revision=old_submission.revision+1;
+    submission.state=old_submission.state;
+    submission.approval_state=old_submission.approval_state;
+    submission.save();
+    
+    session.task_def.type.get_engine().on_deactivate(old_submission);
+    old_submission.valid=0;
+    old_submission.revision_state=2;
+    old_submission.save();
+
+    session.task_def.type.get_engine().on_submit(submission);
+
+    ros_integration.on_submission(submission)
+
+    (worker,created)=Worker.objects.get_or_create(session=None,worker=worker)
+    if created:
+        worker.save();
+        
+    if session.is_gold:
+        re_grade_submission_with_gold(session,old_submission,submission,worker)
+
+    return render_to_response('mturk/edit_complete.html')
+
+def show_session_submissions_base(request,session_code,worker_id,state_is=None):
+    return HttpResponseRedirect("p1/");
+    
+def show_session_submissions(request,session_code,worker_id,page,state_is=None):
+    worker = get_object_or_404(Worker,session=None,worker=worker_id)
+    session = get_object_or_404(Session,code=session_code)
+    can_edit=1
+
+    protocol=session.task_def.type.name
+
+    #Only results from this worker and only active (i.e. unrevised results)
+    results=session.submittedtask_set.all().filter(worker=worker_id).filter(revision_state=1) 
+    if state_is:
+        results=results.filter(state=state_is)
+
+    extra_context={'nav':{'session':session},'can_edit':can_edit}
+    return object_list(request,queryset=results,paginate_by=10,page=page,template_name='protocols/'+protocol+'/show_worker_list.html',extra_context=extra_context);
+
+
+def show_gold_graded_submissions_base(request,grading_record_id,worker_id):
+    return HttpResponseRedirect("p1/");
+    
+def show_gold_graded_submissions(request,grading_record_id,worker_id,page):
+    worker = get_object_or_404(Worker,session=None,worker=worker_id)
+
+    worker_training_info=get_object_or_404(WorkerTrainingProgress,id=grading_record_id,worker=worker)
+    session = worker_training_info.gold_qual.gold_session
+
+    can_edit=0
+
+    protocol=session.task_def.type.name
+
+    #Only results from this worker and only active (i.e. unrevised results)
+    results=session.submittedtask_set.all().filter(worker=worker_id).filter(revision_state=1) 
+    extra_context={'nav':{'session':session},'can_edit':can_edit}
+    return object_list(request,queryset=results,paginate_by=10,page=page,template_name='protocols/'+protocol+'/show_gold_graded_worker_list.html',extra_context=extra_context);
+
+
+def show_all_comments(request):
+    comments=[]
+    for s in SubmittedTask.objects.all().order_by('-submitted'):
+        comment=s.get_comments()
+        if comment=="":
+            continue
+        comments.append({"when":s.submitted,"comment":comment})
+
+    return render_to_response('mturk/comments.html',{'comments':comments})
+
+
+
+def show_session_comments(request,session_code):
+    session = get_object_or_404(Session,code=session_code)
+    comments=[]
+    for s in session.submittedtask_set.all().order_by('-submitted'):
+        comment=s.get_comments()
+        if comment=="":
+            continue
+        comments.append((s.submitted,comment))
+
+    nav={'session':session} 
+    return render_to_response('mturk/comments.html',{'comments':comments,'nav':nav})
 

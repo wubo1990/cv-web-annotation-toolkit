@@ -56,6 +56,10 @@ var MT_setup = function (){
     }else if(mode_value=="input"){
 	submitURL="/mt/submit/";
     }
+    
+
+
+
     param_submit_url=gup("submit_url");
     if(param_submit_url!="")
 	{
