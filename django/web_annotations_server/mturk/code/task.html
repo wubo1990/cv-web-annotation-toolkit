@@ -225,8 +225,16 @@ if(feedback_url != "")
     new Ajax.Updater('feedback_div',feedback_url);
 }
 
+param_submit_url=gup("submit_url");
+if(param_submit_url!="")
+{
+    $('MT_form').action=param_submit_url;
+}
+else
+{
+    $('MT_form').action=submitURL;
+}
 
-$('MT_form').action=submitURL;
 var now = new Date();
 $('load_time').value=now.toUTCString();
 

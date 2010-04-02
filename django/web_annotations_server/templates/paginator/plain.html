@@ -1,11 +1,11 @@
 page number:
+{{paginator}}
 {% if paginator.has_previous %}
 <a href="../p{{paginator.previous}}/">{{paginator.previous}}</a>
-{% endif %}
-{{paginator.page}}
+{% endif %} {{page}} 
 {% if paginator.has_next %}
 <a href="../p{{paginator.next}}/">{{paginator.next}}</a>
-{% endif %} | {{paginator.num_pages}}
+{% endif %} | of {{paginator.num_pages}}
 <br>
 {% for p in paginator.page_range %}
 <a href="../p{{p}}/">{{p}}</a> 

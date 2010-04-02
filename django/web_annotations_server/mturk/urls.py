@@ -58,7 +58,25 @@ urlpatterns = patterns('',
     (r'^gpa/(?P<session_code>[\w\-]+)/(?P<worker_id>[\w\-]+)/$', 'mturk.worker_views.show_worker_gpa'),
 
     (r'^view_submission/(?P<ext_hitid>[\w\-]+)/(?P<id>[\w\-]+)/$', 'mturk.worker_views.view_submission_page'),
+
+    (r'^edit/submission/show/(?P<submission_id>\d+)/(?P<worker>[\w\-]+)/$', 'mturk.worker_views.edit_submission'),
+    (r'^edit/submission/submit/(?P<submission_id>\d+)/(?P<worker>[\w\-]+)/$', 'mturk.worker_views.submit_edit_submission'),
+
+    (r'^worker/view_w_edit/submissions/(?P<session_code>[\w\-]+)/(?P<worker_id>[\w\-]+)/$', 'mturk.worker_views.show_session_submissions_base'),
+    (r'^worker/view_w_edit/submissions/(?P<session_code>[\w\-]+)/(?P<worker_id>[\w\-]+)/p(?P<page>[0-9]+)/$', 'mturk.worker_views.show_session_submissions'),
+
+    (r'^worker/view_w_edit/by_state/(?P<state_is>[0-9]+)/submissions/(?P<session_code>[\w\-]+)/(?P<worker_id>[\w\-]+)/$', 'mturk.worker_views.show_session_submissions_base'),
+    (r'^worker/view_w_edit/by_state/(?P<state_is>[0-9]+)/submissions/(?P<session_code>[\w\-]+)/(?P<worker_id>[\w\-]+)/p(?P<page>[0-9]+)/$', 'mturk.worker_views.show_session_submissions'),
+
+    (r'^worker/view/gold_grade_submissions/(?P<grading_record_id>[\w\-]+)/(?P<worker_id>[\w\-]+)/$', 'mturk.worker_views.show_gold_graded_submissions_base'),
+    (r'^worker/view/gold_grade_submissions/(?P<grading_record_id>[\w\-]+)/(?P<worker_id>[\w\-]+)/p(?P<page>[0-9]+)/$', 'mturk.worker_views.show_gold_graded_submissions'),
+
+    (r'^show/gold/(?P<ext_hitid>[\w\-]+)/$', 'mturk.worker_views.view_gold_for_workitem'),
+
+    (r'^show/comments/all/$', 'mturk.worker_views.show_all_comments'),
+    (r'^show/comments/session/(?P<session_code>[\w\-]+)/$', 'mturk.worker_views.show_session_comments'),
     #END public                       
+
 
 
     #Parameter access URLs

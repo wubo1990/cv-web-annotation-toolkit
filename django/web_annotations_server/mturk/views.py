@@ -1373,6 +1373,27 @@ def update_session_state(session):
         session.save()
 
 
+def update_submission_states(session):
+    for s in session.submittedtask_set.all().filter(revision_state=1,valid=1,approval_state=1):
+        shall_reject=False
+        shall_approve=False
+        for g in s.manualgraderecord_set.all().filter(valid=1):
+            if g.quality>=5:
+                shall_approve=True
+            elif g.quality<5:
+                shall_reject=True
+
+        if shall_reject and shall_approve:
+            s.state=7;
+        elif shall_approve:
+            s.state=5;
+        elif shall_reject:
+            s.state=6;
+        else:
+            s.state=8;
+        s.save()
+        
+
 
 
 

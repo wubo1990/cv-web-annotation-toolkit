@@ -18,6 +18,9 @@ class TaskEngine:
     def on_deactivate(self,submission):
         return None
 
+    def get_edit_url(self,submission,submit_to=None):
+        return None
+
     def get_submission_xml(self,submission):
         return ""
 

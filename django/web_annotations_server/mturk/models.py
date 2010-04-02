@@ -289,8 +289,10 @@ SUBMISSION_STATE = (
             (2, 'Graded'),
             (3, 'Approved'),
             (4, 'Rejected'),
-            (5, 'Pending approval'),
-            (6, 'Pending rejection'),
+            (5, 'Pending_approval'),
+            (6, 'Pending_rejection'),
+            (7, 'Mixed_grades'),
+            (8, 'Ungraded'),
         )        
 SUBMISSION_STATE_CAN_BE_VALID=[1,2,3,5];
 
@@ -300,6 +302,12 @@ SUBMISSION_APPROVAL_STATE = (
             (3, 'Approved'),
             (4, 'Rejected'),
 	    )
+
+SUBMISSION_REVISION_STATE = (
+            (1, 'Active'),
+            (2, 'Revised'),
+	    )
+
 class SubmittedTask(models.Model):
 	hit = models.ForeignKey(MTHit);
 	session = models.ForeignKey(Session);
@@ -321,6 +329,10 @@ class SubmittedTask(models.Model):
 	state   = models.IntegerField(choices=SUBMISSION_STATE,default=1);
 	approval_state   = models.IntegerField(choices=SUBMISSION_APPROVAL_STATE,default=1);
 
+
+	revision  = models.IntegerField(default=1);
+	revision_state = models.IntegerField(choices=SUBMISSION_REVISION_STATE,default=1);
+
 	class Meta:
 		permissions = (
 			("can_submit_work", "Can post new submissions"),
@@ -335,8 +347,11 @@ class SubmittedTask(models.Model):
 
 
 	def get_comments(self): 
-		v=self.get_parsed();
-		return v.comments
+		try:
+			v=self.get_parsed();
+			return v.comments
+		except:
+			return ""
 
 
 	def get_xml_str(self):
@@ -379,6 +394,11 @@ class SubmittedTask(models.Model):
 	def get_view_url(self):
 		te=self.hit.session.task_def.type.get_engine();
 		return te.get_submission_view_url(self)
+
+	def get_edit_url(self,submit_to):
+		te=self.hit.session.task_def.type.get_engine();
+		return te.get_submission_edit_url(self,submit_to)
+
 	def get_thumbnail_url(self):
 		te=self.hit.session.task_def.type.get_engine();
 		return te.get_thumbnail_url(self)
@@ -400,6 +420,7 @@ class SubmittedTask(models.Model):
 		num_active_grades=self.manualgraderecord_set.filter(valid=True).count();
 		return num_active_grades>0;
 WorkProduct=SubmittedTask
+
 
 
 class Worker(models.Model):
