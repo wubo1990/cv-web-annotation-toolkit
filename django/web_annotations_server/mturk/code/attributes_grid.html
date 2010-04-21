@@ -248,12 +248,25 @@ var annotation_done=0;
 
 var task_header_template = new Template('#{attributes_header}');
 
-var img_task_template = new Template('<tr id=\"task_#{id}\"><td><img src=\"#{src}\"></td>#{attributes_html}</tr>');
+var img_task_template = new Template('<tr id=\"task_#{id}\"><td><img src=\"#{src}\"></td>#{attributes_html}<td id=\"task_{id}_nav\"><a href="#" onclick="go_next();return false;">next</a></td></tr>');
 var video_task_template = new Template('<tr id=\"task_#{id}\"><td>#{flash_str}</td>#{attributes_html}</tr>');
 
 var annotation_show_template = new Template('<td>#{id}:#{grade}</td>');
 
 
+var one_at_a_time=0;
+var num_total=0;
+var current_position=0;
+var click_once=0;
+var can_go_back=0;
+
+
+var go_next=function()
+{
+  $("task_"+current_position).hide();
+  current_position = current_position + 1; 
+  $("task_"+current_position).show();
+}
 
 
 var check_after_load=function()
@@ -277,11 +290,23 @@ var check_after_load=function()
   if(all_done)
     {
 
+      one_at_a_time=int(mt_get_param(parameters_data,"one_at_a_time","0"));
+
+      if(one_at_a_time){
+	 can_go_back=int(mt_get_param(parameters_data,"can_go_back","0"));
+	 click_once=int(mt_get_param(parameters_data,"click_once","0"));
+      } 		 
+
+
       var items=task_data.getElementsByTagName('item');
 
       s= "<table border='1' class='task_table'>"+task_header_template.evaluate({attributes_header:parameters_header_html_str});
 
       attribute_names=get_attribute_names(parameters_data);
+      if(one_at_a_time){
+	 num_total=items.length;
+         current_position=0;
+      }
       for( var iID=0;iID<items.length;iID++)
       {
 	var i=items[iID];
@@ -319,11 +344,25 @@ var check_after_load=function()
       {
 	   attribute_names=get_attribute_names(parameters_data)
 	   set_submission_data(attribute_names,annotation_data);
+           for(var i=0;i<num_tasks;i++){ 
+                 $("task_"+i+"_nav").hide();
+           } 
       }
       if( mode_value == "input" )
       {
 	   attribute_names=get_attribute_names(parameters_data)
 	   set_initial_attribute_values(attribute_names,task_data);
+
+           if(one_at_a_time){
+              for(var i=0;i<num_tasks;i++){ 
+                 $("task_"+i).hide();
+              } 
+              $("task_"+current_position).show();
+           }else{
+              for(var i=0;i<num_tasks;i++){ 
+                 $("task_"+i+"_nav").hide();
+              } 
+           }
       }
    }
 
