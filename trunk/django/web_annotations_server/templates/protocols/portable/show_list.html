@@ -1,10 +1,8 @@
-{% extends 'mturk/public_base_app.html' %}
+{% extends 'mturk/base_app.html' %}
 {% load time_extras %}
-{% load navigator %}
 
 {% block content %}
 
-<hr/>
 page number:
 {% if has_previous %}
 <a href="../p{{previous}}/">{{previous}}</a>
@@ -18,36 +16,23 @@ page number:
 <a href="../p{{p}}/">{{p}}</a> 
 {% endfor %}
 
+
+
 <hr/>
-<table>
 {% for s in object_list %}
-<tr><td>
-Submitted: {{s.submitted|human_date}}  {{s.submitted|relative_using_date}}
 <br>
-<iframe height=800 width=800 src="{{s.get_view_url}}&{{s.hit.parameters}}&annotation_url=/mt/submission_data_xml/{{s.id}}/{{s.hit.ext_hitid}}/"></iframe>
+
+Filename: {{ s.hit.get_filename }}
+<br>
+<iframe height=800 width=800 src="{{s.get_view_url}}"></iframe>
 <br/>
 {% if s.get_parsed.comments %}
-<b>Comment: </b>{{ s.get_parsed.comments }} <br/>
+<b>Comments: </b>{{ s.get_parsed.comments }} <br/>
 {% endif %}
+<a href="/mt/submission_data_xml/{{s.id}}/{{s.hit.ext_hitid}}/">raw</a>;
+<a href="/mt/grading/by_id/{{s.session.code}}/{{s.id}}/">grade</a>;
 <hr/>
-</td>
-<td>
-{% if can_edit %}
-<a href="/mt/edit/submission/show/{{s.id}}/{{s.worker}}/" target="_blank">edit (opens in a new window)</a>
-<br/>
-{% endif %}
-
-{% for g in s.get_grades %}
-{{g.id}}:grade({{g.grade}})<br/>comment:{{g.comment}}<hr/>
 {% endfor %}
-
-{% for g in s.get_gold_grades %}
-Gold performance: {{g.grade}} ({{g.performance}})<br/>
-{% endfor %}
-</td>
-</tr>
-{% endfor %}
-</table>
 
 <noscript>
 Error. Javascript is required.

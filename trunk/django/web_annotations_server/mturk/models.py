@@ -37,9 +37,14 @@ class FundingAccount(models.Model):
         	return self.name
 
 task_engines={};
-
+TASK_TYPE_DATA_FORMAT = (
+	(1, 'XML'),
+	(2, 'JSON'),
+	(3, 'plain'),
+)
 class TaskType(models.Model):
 	name=models.SlugField();
+	data_format=models.IntegerField(choices=TASK_TYPE_DATA_FORMAT,default=1);
 	
 	def get_engine(self):
 		if self.name not in task_engines:
@@ -416,9 +421,17 @@ class SubmittedTask(models.Model):
 	def get_persistent_url2(self):
 		return "/mt/submission_data_xml/"+str(self.id)+"/"+self.hit.ext_hitid+"/";
 
+	def get_persistent_url3(self):
+		return "/mt/submission_data/"+str(self.id)+"/"+self.hit.ext_hitid+"/";
+
 	def is_graded(self):
 		num_active_grades=self.manualgraderecord_set.filter(valid=True).count();
 		return num_active_grades>0;
+	def get_grades(self):
+		return self.manualgraderecord_set.filter(valid=True)
+	def get_gold_grades(self):
+		return self.goldstandardgraderecord_set.all();
+
 WorkProduct=SubmittedTask
 
 
@@ -518,7 +531,9 @@ class ManualGradeRecord(models.Model):
 			'quality':str(self.quality),
 			'feedback':str(self.feedback)};
 
-
+#class WorkMistakes(models.Model):
+#	code = models.SlugField()
+	
 
 
 class GoldStandardQualification(models.Model):

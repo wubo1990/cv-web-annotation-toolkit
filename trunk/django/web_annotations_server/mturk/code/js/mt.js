@@ -222,8 +222,6 @@ var mt_load_task_componentes =function(mode,completion_handler)
 			       onSuccess: mt_onAnnotationXMLLoaded
 			     });
   }
-
-
 }
 
 
