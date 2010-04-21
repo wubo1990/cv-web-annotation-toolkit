@@ -29,6 +29,8 @@ urlpatterns = patterns('',
 
     #Get submission data as an XML document. It's necessary to render the submission in the browser
     (r'^submission_data_xml/(?P<id>\d+)/(?P<ext_hitid>[\w\-]+)/$', 'mturk.worker_views.get_submission_data_xml'),
+    (r'^submission_data/(?P<id>\d+)/(?P<ext_hitid>[\w\-]+)/$', 'mturk.worker_views.get_submission_data'),
+    (r'^submission_data/(?P<id>\d+)/(?P<ext_hitid>[\w\-]+)/(?P<format_override>[\d]+)/$', 'mturk.worker_views.get_submission_data'),
 
 
 

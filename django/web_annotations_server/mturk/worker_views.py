@@ -289,7 +289,7 @@ def submit_result(request):
     except:
         if 'extid' in request.REQUEST:
             task_id=request.REQUEST['extid']
-
+    print request.POST
     workitem = get_object_or_404(MTHit,ext_hitid=task_id)
 
     #The HIT can belong to some other session
@@ -382,16 +382,40 @@ def view_gold_for_workitem(request,ext_hitid):
 
 
 
+def respond_in_format(data,format):
+    if format==1: #XML
+        return HttpResponse(data,mimetype="text/xml");
+    elif format==2: #JSON
+        resp=HttpResponse();
+        resp['X-JSON']=data;
+        return resp
+    elif format==3: #plain
+        return HttpResponse(data,mimetype="text/plain");
+
 def get_task_parameters(request,task_name):
     task = get_object_or_404(Task,name=task_name)
-    return HttpResponse(task.interface_xml,mimetype="text/xml");
+    data=task.interface_xml
+    return respond_in_format(data,task.session.task_def.type.data_format)
 
 def send_hit_parameters(request,ext_id):
     hit = get_object_or_404(MTHit,ext_hitid=ext_id)
+    return respond_in_format(hit.parameters,hit.session.task_def.type.data_format)
+    """
     if hit.parameters.startswith("<?xml"):
         return HttpResponse(hit.parameters,mimetype="text/xml");
     else:
         return HttpResponse(hit.parameters,mimetype="text/plain");
+    """
+
+def get_submission_data(request,id=None,ext_hitid=None,format_override=None):
+    submission = get_object_or_404(SubmittedTask,id=int(id))
+    str_response=submission.get_xml_str();	 # This isn't really XML;
+    if format_override is not None:
+        return respond_in_format(str_response,int(format_override))
+    else:
+        return respond_in_format(str_response,submission.session.task_def.type.data_format)
+
+
 
 def show_worker_gpa(request,session_code,worker_id):
     session = get_object_or_404(Session,code=session_code)

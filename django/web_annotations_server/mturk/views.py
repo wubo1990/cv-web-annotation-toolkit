@@ -1149,15 +1149,25 @@ def add_hit_to_session(session,params):
 
 
 
+def respond_in_format(data,format):
+    if format==1: #XML
+        return HttpResponse(data,mimetype="text/xml");
+    elif format==2: #JSON
+        resp=HttpResponse();
+        resp['X-JSON']=data;
+        return resp
+    elif format==3: #plain
+        return HttpResponse(data,mimetype="text/plain");
 
 
 def dynamic_task(request,path):
-    print path[0:-4]
     objects=Task.objects.filter(name=path[0:-4])
     if len(objects)==0:
         return static_serve( request,path=path,document_root='/var/datasets/tasks/')
     else:
-        return HttpResponse(str(objects[0].interface_xml), mimetype="text/xml");
+        task=objects[0]
+        data=str(task.interface_xml);
+        return respond_in_format(data,task.type.data_format)
 
 
 

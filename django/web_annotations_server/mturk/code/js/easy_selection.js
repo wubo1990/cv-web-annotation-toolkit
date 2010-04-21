@@ -16,6 +16,18 @@ function cycle_class(target_element,class_list){
   return "";
 }
 
+
+function set_active_class_id(target_element,class_list,new_class){
+  for(var i=0;i<class_list.length;i++)
+    {
+      if( $(target_element).hasClassName(class_list[i]))
+	{
+	  $(target_element).removeClassName(class_list[i]);
+	}
+    }
+  $(target_element).addClassName(class_list[new_class]);
+}
+
 function get_active_class_id(target_element,class_list){
   for(var i=0;i<class_list.length;i++)
     {

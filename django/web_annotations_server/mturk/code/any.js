@@ -23,6 +23,7 @@ var any__all_loaded_handler = function()
 	{
 
 	}
+
     var images=active_task_data.getElementsByTagName('img');
     for(var i=0;i<images.length;i++)
 	{
