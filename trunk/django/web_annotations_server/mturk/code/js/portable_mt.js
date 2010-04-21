@@ -24,6 +24,9 @@ var decode= function (strToDecode)
 
 var mt_mode;
 var MT_setup = function (){
+    var now = new Date();
+    $('start_time').value=now.toUTCString();
+
     mode_value=gup('mode');
     mt_mode = mode_value;
 
@@ -117,6 +120,8 @@ var mt_after_load = function()
       if(work_unit_done && parameters_done)
       {
 	all_loaded_handler();
+	var now = new Date();
+	$('load_time').value=now.toUTCString();
       }
     }
   else if(mt_mode=="display" || mt_mode=="edit")
@@ -124,6 +129,8 @@ var mt_after_load = function()
       if(work_unit_done && parameters_done && submission_done)
 	{
 	  all_loaded_handler();
+	  var now = new Date();
+	  $('load_time').value=now.toUTCString();
 	}
 
     }
@@ -132,6 +139,8 @@ var mt_after_load = function()
       if(work_unit_done && parameters_done && gold_done)
 	{
 	  all_loaded_handler();
+	  var now = new Date();
+	  $('load_time').value=now.toUTCString();
 	}
 
     }
