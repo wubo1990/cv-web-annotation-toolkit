@@ -173,6 +173,7 @@ var mt_onParametersXMLLoaded=function(transport)
 var mt_get_param=function (parameters_xml,parameter_name,default_value)
 {
   var param_nodes=parameters_xml.getElementsByTagName(parameter_name);
+
   if(param_nodes.length>0)
   {
     return param_nodes[0].textContent;
