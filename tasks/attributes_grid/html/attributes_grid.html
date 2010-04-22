@@ -1,0 +1,484 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>Collect data attributes</title>
+<script language="javascript">AC_FL_RunContent = 0;</script>
+<script language="javascript" src="js/prototype.js" > </script>
+<script language="javascript" src="js/mt.js" > </script>
+<script src="/code/js/easy_selection.js"></script>
+<script src="js/AC_RunActiveContent.js" language="javascript"></script>
+<script src="/code/js/attributes_grid.js"></script>
+<style>
+.even {background-color:#FFF;}
+.odd {background-color:#BBB;}
+
+.bad {background-color:#F00;}
+.with_errors {background-color:#0F0;}
+.exceptional {background-color:#00F;}
+.grade_msg {background-color:#FFF; }
+
+</style>
+</head>
+
+<body bgcolor="#ffffff">
+
+
+<form id="MT_form" name="MT_form" action="http://www.mturk.com/mturk/externalSubmit" onsubmit="return mt_submit_handler();" method="POST">
+
+IMPORTANT: Read the <a id="a_instructions" href="instructions.html" target="wnd_instructions">instructions</a>!! 
+
+
+
+<div id="rating_div" style="display:none;"></div>
+
+
+
+<div id="task_results_raw"></div>
+
+<div id="task_content">Loading attributes task...</div>
+
+
+
+
+
+<noscript>
+Error. Javascript is required.
+</noscript>
+<hr/>
+Any comments/suggestions/etc: <input type=text name="Comments" id="Comments" value="">
+<hr/>
+
+<div id="submit_div">
+<input type=hidden name="assignmentId" id="assignmentId" value="">
+<input type=hidden name="hitId" id="hitId" value="ignored">
+<input type=hidden name="sites" id="sites" value="">
+<input type=hidden name="extid" id="extid" value="">
+<input type=hidden name="ExtID" id="ExtID" value="">
+<input type=hidden name="session" id="session" value="">
+<input type=hidden name="workerId" id="workerId" value="">
+<input type=hidden name="mode" id="mode" value="">
+
+<input type=hidden name="load_time" id="load_time" value="">
+<input type=hidden name="submit_time" id="submit_time" value="">
+
+
+<input type=submit id="submitButton">
+
+</div>
+
+
+
+</form>
+
+
+<script language="javascript">
+
+//
+// This method Gets URL Parameters (GUP)
+//
+function gup( name )
+{
+  var regexS = "[\\?&]"+name+"=([^&#]*)";
+  var regex = new RegExp( regexS );
+  var tmpURL = window.location.href;
+  var results = regex.exec( tmpURL );
+  if( results == null )
+    return "";
+  else
+    return results[1];
+}
+
+//
+// This method decodes the query parameters that were URL-encoded
+//
+function decode(strToDecode)
+{
+  var encoded = strToDecode;
+  return unescape(encoded.replace(/\+/g,  " "));
+}
+
+
+
+    document.getElementById('assignmentId').value = gup('assignmentId');
+
+
+    //
+    // Check if the worker is PREVIEWING the HIT or if they've ACCEPTED the HIT
+    //
+    mode_value="AmazonMTproduction"
+
+    if (gup('assignmentId') == "ASSIGNMENT_ID_NOT_AVAILABLE")
+    {
+        mode_value=="AmazonMTproduction"
+        // If we're previewing, disable the button and give it a helpful message
+	document.getElementById('submitButton').disabled = true;
+	document.getElementById('submitButton').value = "You must ACCEPT the HIT before you can submit the results.";
+    } else {
+        var form = document.getElementById('MT_form');
+        if (document.referrer && ( document.referrer.indexOf('workersandbox') != -1) ) {
+            form.action = "http://workersandbox.mturk.com/mturk/externalSubmit";
+	    mode_value="AmazonMTsandbox";
+        }
+    }
+
+
+
+query_args=document.location.toString();
+query_args=query_args.split("?")[1];
+args_list=query_args.split("&");
+
+no_mode_in_query=1;
+rating="";
+workerId="";
+for (i = 0; i <= args_list.length; i++)
+{
+	arg=args_list[i];
+	if(arg){
+	arg_pair=arg.split("=");
+	arg_n=arg_pair[0];
+	arg_v=arg_pair[1];
+	if( arg_n=="assignmentId"){
+		$('MT_form')[arg_n].value=arg_v;
+	}else if( arg_n=="hitId"){
+		$('MT_form')[arg_n].value=arg_v;
+	}else if( arg_n=="workerId"){
+	  workerId=arg_v;
+		$('MT_form')[arg_n].value=arg_v;
+	}else if( arg_n=="extid"){
+	        $('MT_form')[arg_n].value=arg_v;
+	}else if( arg_n=="ExtID"){
+	        $('MT_form')[arg_n].value=arg_v;
+	}else if( arg_n=="session"){
+	        $('MT_form')[arg_n].value=arg_v;
+	}else if( arg_n=="mode"){
+	        no_mode_in_query=0;
+		$('MT_form')[arg_n].value=arg_v;
+		mode_value=arg_v;
+	}
+	}
+}
+if( rating!=""){
+    $('rating_div').innerHTML="Current rating: "+rating;
+    $('rating_div').style.display='block';
+}
+
+instructions_URL=unescape(gup("instructions"));
+$('a_instructions').href=instructions_URL;
+
+
+
+if ( no_mode_in_query){
+    query_args=query_args+"&mode="+mode_value
+}
+
+submitURL="";
+if(mode_value=="AmazonMTsandbox"){
+	submitURL="http://workersandbox.mturk.com/mturk/externalSubmit";
+}else if(mode_value=="AmazonMTproduction"){
+	submitURL="http://www.mturk.com/mturk/externalSubmit";
+}else if(mode_value=="MT2"){
+	submitURL="/mt/submit/";
+}else if(mode_value=="sandbox2"){
+	submitURL="/mt/submit/";
+}else if(mode_value=="input"){
+	submitURL="/mt/submit/";
+}
+$('MT_form').action=submitURL;
+
+//$F('extid').value=gup('ExtID');
+
+
+
+
+
+var create_flash=function(id,src,w,h,play)
+{
+	swf='video_display';
+	swf_w=w;
+	swf_h=h;
+	query_args='video_url='+src;
+	if(play=="play"){
+		 query_args+="&video_mode=play";
+        }
+
+	return AC_FL_RunContent2(
+		 'codebase', 'http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0',
+		 'width', swf_w,
+		 'height', swf_h,
+		 'src', swf,
+		 'quality', 'high',
+		 'pluginspage', 'http://www.macromedia.com/go/getflashplayer',
+		 'align', 'middle',
+		 'play', 'true"',
+		 'loop', 'true',
+		 'scale', 'showall',
+		 'wmode', 'window',
+		 'devicefont', 'false',
+		 'id', 'annotation_gui',
+		 'bgcolor', '#ffffff',
+		 'name', 'annotation_gui',
+		 'menu', 'true',
+		 'allowFullScreen', 'false',
+		 'allowScriptAccess','always',
+		 'movie', swf,
+		 'salign', '',
+		 'FlashVars', query_args
+	 ); //end AC code
+ }
+
+
+
+///TASK - specific block
+
+
+
+
+var parameters_data;
+var parameters_display_html_str;
+var parameters_header_html_str;
+
+var task_data;
+var annotation_data;
+
+var parameters_done=0;
+var data_done=0;
+var annotation_done=0;
+
+
+
+var task_header_template = new Template('#{attributes_header}');
+
+var img_task_template = new Template('<tr id=\"task_#{id}\"><td><img src=\"#{src}\"></td>#{attributes_html}<td id=\"task_#{id}_nav\"><a href="#" onclick="go_next();return false;">next</a></td></tr>');
+var video_task_template = new Template('<tr id=\"task_#{id}\"><td>#{flash_str}</td>#{attributes_html}</tr>');
+
+var annotation_show_template = new Template('<td>#{id}:#{grade}</td>');
+
+
+var one_at_a_time=0;
+var num_total=0;
+var current_position=0;
+var click_once=0;
+var can_go_back=0;
+
+var items;
+
+var get_id=function(position){
+  var i=items[position];
+  var id = i.getAttribute("id");
+  return id;		 
+}
+var go_next=function()
+{
+  $("task_"+get_id(current_position)).hide();
+  current_position = current_position + 1; 
+  if(current_position<num_items)
+  {
+    $("task_"+get_id(current_position)).show();
+  }else{
+    $('submit_div').style.display='block';
+  }
+}
+
+
+var check_after_load=function()
+{
+  var all_done = 0;
+  if(mode_value=="input")
+    {
+      if(parameters_done && data_done)
+      {
+        all_done = 1;
+      }
+    }
+  else if(mode_value=="display" || mode_value=="edit" )
+    {
+      if(parameters_done && data_done && annotation_done)
+      {
+        all_done = 1;
+      }
+    } 
+
+  if(all_done)
+    {
+      one_at_a_time=mt_get_param(parameters_data,'one_at_a_time','0');
+      one_at_a_time=(one_at_a_time=="1");
+
+      if(one_at_a_time){
+	 can_go_back="1"==(mt_get_param(parameters_data,"can_go_back","0"));
+	 click_once="1"==(mt_get_param(parameters_data,"click_once","0"));
+      } 		 
+
+
+      items=task_data.getElementsByTagName('item');
+
+      s= "<table border='1' class='task_table'>"+task_header_template.evaluate({attributes_header:parameters_header_html_str});
+
+      attribute_names=get_attribute_names(parameters_data);
+      num_items=items.length;
+      if(one_at_a_time){
+         current_position=0;
+      }
+      for( var iID=0;iID<items.length;iID++)
+      {
+	var i=items[iID];
+	var id = i.getAttribute("id");
+	var obj_type = i.getAttribute("type");
+	var src = i.getAttribute("src");
+
+	objID="A_obj"+id;
+	updated_html = parameters_display_html_str.replace(/ATTR/g,objID).replace("<display_html>","").replace("</display_html>","").replace(/<td>/g,"<td onclick='table_cell_click(event);'>").replace(/<input/g,"<input onclick='stop_bubble(event);'");
+
+
+	var task_template;
+
+	if(obj_type=="image")
+        {
+	  task_template=img_task_template;
+   	  s += task_template.evaluate({id: id, src:src, attributes_html:updated_html  });
+        }else if(obj_type=="video")
+        {
+	  task_template=video_task_template;
+	  flash_str = create_flash(id,src,320,240,"play");
+
+   	  s += task_template.evaluate({id: id, flash_str:flash_str, src:src, attributes_html:updated_html  });
+        }
+
+
+
+      }
+      s += task_header_template.evaluate({attributes_header:parameters_header_html_str});
+      s += "</table>";
+
+      $('task_content').innerHTML = s;
+
+      if( mode_value == "display" || mode_value == "edit" )
+      {
+	   attribute_names=get_attribute_names(parameters_data)
+	   set_submission_data(attribute_names,annotation_data);
+           for(var i=0;i<num_items;i++){ 
+                 $("task_"+get_id(i)+"_nav").hide();
+           } 
+      }
+      if( mode_value == "input" )
+      {
+	   attribute_names=get_attribute_names(parameters_data)
+	   set_initial_attribute_values(attribute_names,task_data);
+
+           if(one_at_a_time){
+              for(var i=0;i<num_items;i++){ 
+ 	         $("task_"+get_id(i)).hide();
+              }
+	      $("task_"+get_id(current_position)).show();
+	      $('submit_div').style.display="none";
+
+           }else{
+              for(var i=0;i<num_items;i++){ 
+                 $("task_"+get_id(i)+"_nav").hide();
+              } 
+           }
+      }
+   }
+
+			  
+};
+
+var onParametersXMLLoaded=function(transport)
+{
+  if (transport.responseXML)
+  {
+    parameters_data = transport.responseXML;
+
+    display_html=parameters_data.getElementsByTagName('display_html')[0];
+    parameters_display_html_str = ( (new XMLSerializer()).serializeToString(display_html));
+
+    header_html=parameters_data.getElementsByTagName('header_html')[0];
+    parameters_header_html_str = ( (new XMLSerializer()).serializeToString(header_html));
+
+
+    parameters_done=1;
+    check_after_load();			 
+  }
+};
+
+
+var onTaskXMLLoaded=function(transport)
+{
+  if (transport.responseXML)
+  {
+    task_data = transport.responseXML;
+
+    data_done=1;
+    check_after_load();
+  }
+
+
+};
+
+
+var onAnnotationXMLLoaded=function(transport)
+{
+  if (transport.responseXML)
+  {
+    annotation_data = transport.responseXML;
+    annotation_done=1;
+    check_after_load();			 
+
+  }
+}
+
+
+
+///// END of task-specific data
+
+var now = new Date();
+$('load_time').value=now.toUTCString();
+
+if(mode_value=="display" || mode_value=="edit")
+  {
+    $('submit_div').style.display="none";
+
+    params_URL=unescape(gup("parameters_url"));
+
+    var upd=new Ajax.Request(params_URL, {
+			       method: 'get',
+			       onSuccess: onParametersXMLLoaded,
+			     });
+
+    tasks_URL=unescape(gup("data_url"));
+
+    var upd=new Ajax.Request(tasks_URL, {
+			       method: 'get',
+			       onSuccess: onTaskXMLLoaded,
+			     });
+
+    var annotation_URL=unescape(gup("annotation_url"));
+    var upd=new Ajax.Request(annotation_URL, {
+			       method: 'get',
+			       onSuccess: onAnnotationXMLLoaded,
+			     });
+  }
+else
+  {
+    params_URL=unescape(gup("parameters_url"));
+
+    var upd1=new Ajax.Request(params_URL, {
+			       method: 'get',
+			       onSuccess: onParametersXMLLoaded,
+			     });
+
+    tasks_URL=unescape(gup("data_url"));
+
+    var upd=new Ajax.Request(tasks_URL, {
+			       method: 'get',
+			       onSuccess: onTaskXMLLoaded,
+			     });
+
+
+  }
+</script>
+
+
+
+
+</body>
+</html>
