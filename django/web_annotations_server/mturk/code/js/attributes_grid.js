@@ -42,6 +42,10 @@ var table_cell_click=function(event)
 		}
 	}
     }
+    if(click_once)
+	{
+	    go_next();
+	}
 }
 
 
