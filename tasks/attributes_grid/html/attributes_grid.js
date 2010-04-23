@@ -30,7 +30,6 @@ var table_cell_click=function(event)
 	    f.focus();
 	    //pass;
 	}else{
-	    alert(f.type);
 	    for( var fID=0;fID<f.length;fID++)
 		{
 		    var field=f[fID];
@@ -153,6 +152,7 @@ var go_next=function()
     if(preview_mode_only)
     {
 	alert('Please accept the HIT before doing any work');
+	return;
     }
     $("task_"+get_id(current_position)).hide();
     current_position = current_position + 1; 
