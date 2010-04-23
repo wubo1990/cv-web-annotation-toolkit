@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<ExternalQuestion xmlns="http://mechanicalturk.amazonaws.com/AWSMechanicalTurkDataSchemas/2006-07-14/ExternalQuestion.xsd">
+
+	<ExternalURL>http://vision.cs.uiuc.edu/~sorokin2/turk/attributes_grid/html/attributes_grid.html?mode=input&amp;parameters_url=../data/tasks/example_attribute_task.xml&amp;data_url=${workUnitUrl}&amp;instructions_url=~/</ExternalURL>
+
+  <FrameHeight>1600</FrameHeight>
+</ExternalQuestion>
+
