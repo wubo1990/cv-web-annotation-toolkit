@@ -150,6 +150,10 @@ var set_initial_attribute_values=function(attribute_names,task_data)
 
 var go_next=function()
 {
+    if(preview_mode_only)
+    {
+	alert('Please accept the HIT before doing any work');
+    }
     $("task_"+get_id(current_position)).hide();
     current_position = current_position + 1; 
     if(current_position<num_items)
