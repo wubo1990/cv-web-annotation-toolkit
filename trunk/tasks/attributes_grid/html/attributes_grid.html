@@ -235,7 +235,7 @@ var annotation_done=0;
 
 var task_header_template = new Template('#{attributes_header}');
 
-var img_task_template = new Template('<tr id=\"task_#{id}\"><td><img src=\"#{src}\"></td>#{attributes_html}<td id=\"task_#{id}_nav\"><a href="#" onclick="go_next();return false;">next</a></td></tr>');
+var img_task_template = new Template('<tr id=\"task_#{id}\"><td><img src=\"#{src}\"></td>#{attributes_html}<td id=\"task_#{id}_nav\"><a href="#" onclick="go_next();return false;">Item #{sequence} of #{num_total}.<br/> Go to the next item</a></td></tr>');
 var video_task_template = new Template('<tr id=\"task_#{id}\"><td>#{flash_str}</td>#{attributes_html}</tr>');
 
 var annotation_show_template = new Template('<td>#{id}:#{grade}</td>');
@@ -254,20 +254,7 @@ var get_id=function(position){
   var id = i.getAttribute("id");
   return id;		 
 }
-var go_next=function()
-{
-  $("task_"+get_id(current_position)).hide();
-  current_position = current_position + 1; 
-  if(current_position<num_items)
-  {
-    $("task_"+get_id(current_position)).show();
-  }else{
- if(preview_mode_only){
-}else{
-    document.getElementById('submitButton').disabled = false;
-}
-  }
-}
+
 
 
 var check_after_load=function()
@@ -324,7 +311,7 @@ var check_after_load=function()
 	if(obj_type=="image")
         {
 	  task_template=img_task_template;
-   	  s += task_template.evaluate({id: id, src:src, attributes_html:updated_html  });
+   	  s += task_template.evaluate({id: id, src:src, attributes_html:updated_html, sequence:iID+1, num_total:num_items  });
         }else if(obj_type=="video")
         {
 	  task_template=video_task_template;

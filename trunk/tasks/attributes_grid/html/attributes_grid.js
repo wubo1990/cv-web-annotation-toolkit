@@ -145,3 +145,22 @@ var set_initial_attribute_values=function(attribute_names,task_data)
 	}
     
 };
+
+
+
+var go_next=function()
+{
+    $("task_"+get_id(current_position)).hide();
+    current_position = current_position + 1; 
+    if(current_position<num_items)
+    {
+	$("task_"+get_id(current_position)).show();
+    }
+
+    if(current_position>=num_items-1){
+	if(preview_mode_only){
+	}else{
+	    document.getElementById('submitButton').disabled = false;
+	}
+    }
+}
