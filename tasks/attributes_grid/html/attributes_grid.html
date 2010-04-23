@@ -57,7 +57,7 @@ Any comments/suggestions/etc: <input type=text name="Comments" id="Comments" val
 <input type=hidden name="submit_time" id="submit_time" value="">
 
 
-<input type=submit id="submitButton">
+<input type=submit id="submitButton" value="Submit">
 
 </div>
 
@@ -96,6 +96,7 @@ function decode(strToDecode)
 
     document.getElementById('assignmentId').value = gup('assignmentId');
 
+var preview_mode_only=false;
 
     //
     // Check if the worker is PREVIEWING the HIT or if they've ACCEPTED the HIT
@@ -108,6 +109,8 @@ function decode(strToDecode)
         // If we're previewing, disable the button and give it a helpful message
 	document.getElementById('submitButton').disabled = true;
 	document.getElementById('submitButton').value = "You must ACCEPT the HIT before you can submit the results.";
+
+	preview_mode_only=true;
     } else {
         var form = document.getElementById('MT_form');
         if (document.referrer && ( document.referrer.indexOf('workersandbox') != -1) ) {
@@ -259,7 +262,10 @@ var go_next=function()
   {
     $("task_"+get_id(current_position)).show();
   }else{
-    $('submit_div').enable();
+ if(preview_mode_only){
+}else{
+    document.getElementById('submitButton').disabled = false;
+}
   }
 }
 
@@ -353,7 +359,7 @@ var check_after_load=function()
  	         $("task_"+get_id(i)).hide();
               }
 	      $("task_"+get_id(current_position)).show();
-	      $('submit_div').style.display="none";
+              document.getElementById('submitButton').disabled = false;
 
            }else{
               for(var i=0;i<num_items;i++){ 
@@ -415,8 +421,10 @@ var now = new Date();
 $('load_time').value=now.toUTCString();
 
 if(mode_value=="display" || mode_value=="edit")
-  {
-    //$('submit_div').style.display="none";
+{
+if(mode_value=="display"){
+$('submit_div').style.display="none";
+}
 
     params_URL=unescape(gup("parameters_url"));
 
