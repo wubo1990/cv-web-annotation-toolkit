@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<task id="000001" type="attributes">
+
+<parameters>
+<one_at_a_time>1</one_at_a_time>
+<can_go_back>0</can_go_back> <!-- 1 is not supported -->
+<click_once>0</click_once>
+</parameters>
+
+
+<attributes>
+ <attribute id="count"/>
+</attributes>
+
+
+<header_html>
+<th>Image</th> 
+<th>Objects of interest</th> 
+<th>None</th> 
+<th>Between 1 and 5</th> 
+<th>Between 6 and 10</th> 
+<th>More than 10</th> 
+
+</header_html>
+
+
+<display_html>
+<td>cars, <br/>people </td>
+<td><input type="radio" name="ATTR_count" value="None"  /> None present</td>
+<td><input type="radio" name="ATTR_count" value="one_five"/>1-5</td>
+<td><input type="radio" name="ATTR_count" value="six_ten"/>6-10</td>
+
+<td><input type="radio" name="ATTR_count" value="more_ten"/>11 and more</td>
+
+</display_html>
+
+
+</task>
