@@ -346,8 +346,7 @@ var check_after_load=function()
  	         $("task_"+get_id(i)).hide();
               }
 	      $("task_"+get_id(current_position)).show();
-              document.getElementById('submitButton').disabled = false;
-
+              document.getElementById('submitButton').disabled = true;
            }else{
               for(var i=0;i<num_items;i++){ 
                  $("task_"+get_id(i)+"_nav").hide();
