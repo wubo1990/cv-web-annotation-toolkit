@@ -111,7 +111,6 @@ function decode(strToDecode)
     } else {
         var form = document.getElementById('MT_form');
         if (document.referrer && ( document.referrer.indexOf('workersandbox') != -1) ) {
-            form.action = "http://workersandbox.mturk.com/mturk/externalSubmit";
 	    mode_value="AmazonMTsandbox";
         }
     }
@@ -166,22 +165,12 @@ if ( no_mode_in_query){
     query_args=query_args+"&mode="+mode_value
 }
 
-submitURL="";
-if(mode_value=="AmazonMTsandbox"){
-	submitURL="http://workersandbox.mturk.com/mturk/externalSubmit";
-}else if(mode_value=="AmazonMTproduction"){
-	submitURL="http://www.mturk.com/mturk/externalSubmit";
-}else if(mode_value=="MT2"){
-	submitURL="/mt/submit/";
-}else if(mode_value=="sandbox2"){
-	submitURL="/mt/submit/";
-}else if(mode_value=="input"){
-	submitURL="/mt/submit/";
-}
+submitURL=gup("submitTo");
+if(submitURL=="")
+{
+  submitURL=gup("turkSubmitTo");	 
+} 
 $('MT_form').action=submitURL;
-
-//$F('extid').value=gup('ExtID');
-
 
 
 
@@ -270,7 +259,7 @@ var go_next=function()
   {
     $("task_"+get_id(current_position)).show();
   }else{
-    $('submit_div').style.display='block';
+    $('submit_div').enable();
   }
 }
 
@@ -427,7 +416,7 @@ $('load_time').value=now.toUTCString();
 
 if(mode_value=="display" || mode_value=="edit")
   {
-    $('submit_div').style.display="none";
+    //$('submit_div').style.display="none";
 
     params_URL=unescape(gup("parameters_url"));
 
