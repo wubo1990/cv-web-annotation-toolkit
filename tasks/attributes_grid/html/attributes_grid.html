@@ -2,21 +2,18 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
 <title>Collect data attributes</title>
+
 <script language="javascript">AC_FL_RunContent = 0;</script>
-<script language="javascript" src="js/prototype.js" > </script>
-<script language="javascript" src="js/mt.js" > </script>
-<script src="/code/js/easy_selection.js"></script>
-<script src="js/AC_RunActiveContent.js" language="javascript"></script>
-<script src="/code/js/attributes_grid.js"></script>
+<script language="javascript" src="../js/prototype.js" > </script>
+<script language="javascript" src="../js/mt.js" > </script>
+<script src="../js/easy_selection.js"></script>
+<script src="../js/AC_RunActiveContent.js" language="javascript"></script>
+
+
+<script src="attributes_grid.js"></script>
 <style>
 .even {background-color:#FFF;}
 .odd {background-color:#BBB;}
-
-.bad {background-color:#F00;}
-.with_errors {background-color:#0F0;}
-.exceptional {background-color:#00F;}
-.grade_msg {background-color:#FFF; }
-
 </style>
 </head>
 
@@ -30,8 +27,6 @@ IMPORTANT: Read the <a id="a_instructions" href="instructions.html" target="wnd_
 
 
 <div id="rating_div" style="display:none;"></div>
-
-
 
 <div id="task_results_raw"></div>
 
@@ -394,7 +389,6 @@ var onParametersXMLLoaded=function(transport)
     header_html=parameters_data.getElementsByTagName('header_html')[0];
     parameters_header_html_str = ( (new XMLSerializer()).serializeToString(header_html));
 
-
     parameters_done=1;
     check_after_load();			 
   }
@@ -403,6 +397,7 @@ var onParametersXMLLoaded=function(transport)
 
 var onTaskXMLLoaded=function(transport)
 {
+
   if (transport.responseXML)
   {
     task_data = transport.responseXML;
@@ -410,8 +405,6 @@ var onTaskXMLLoaded=function(transport)
     data_done=1;
     check_after_load();
   }
-
-
 };
 
 
@@ -422,7 +415,6 @@ var onAnnotationXMLLoaded=function(transport)
     annotation_data = transport.responseXML;
     annotation_done=1;
     check_after_load();			 
-
   }
 }
 
