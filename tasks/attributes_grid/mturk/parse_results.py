@@ -80,7 +80,10 @@ for (iLine,l) in enumerate(lines[1:]):
 
 	continue
 
-yaml.dump(attributes,fResults)
+#yaml.dump(
+#attributes,fResults)
+print >>fResults,attributes
+
 fResults.close();
 fComments.close();
 	
