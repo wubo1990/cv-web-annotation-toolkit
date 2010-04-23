@@ -171,8 +171,9 @@ if ( no_mode_in_query){
 submitURL=gup("submitTo");
 if(submitURL=="")
 {
-  submitURL=gup("turkSubmitTo");	 
+  submitURL=decode(gup("turkSubmitTo"))+"/mturk/externalSubmit";	 
 } 
+alert(submitURL);
 $('MT_form').action=submitURL;
 
 
