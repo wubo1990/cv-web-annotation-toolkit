@@ -233,10 +233,12 @@ var annotation_done=0;
 
 
 
-var task_header_template = new Template('#{attributes_header}');
+var task_header_template = new Template('<tr>#{attributes_header}</tr>');
 
 var img_task_template = new Template('<tr id=\"task_#{id}\"><td><img src=\"#{src}\"></td>#{attributes_html}<td id=\"task_#{id}_nav\"><a href="#" onclick="go_next();return false;">Item #{sequence} of #{num_total}.<br/> Go to the next item</a></td></tr>');
-var video_task_template = new Template('<tr id=\"task_#{id}\"><td>#{flash_str}</td>#{attributes_html}</tr>');
+var video_task_template = new
+                 Template('<tr id=\"task_#{id}\"><td>#{flash_str}</td>#{attributes_html}<td id=\"task_#{id}_nav\"><a href="#" onclick="go_next();return false;">Item #{sequence} of #{num_total}.<br/> Go to the next item</a></td></tr>');
+
 
 var annotation_show_template = new Template('<td>#{id}:#{grade}</td>');
 
@@ -317,7 +319,7 @@ var check_after_load=function()
 	  task_template=video_task_template;
 	  flash_str = create_flash(id,src,320,240,"play");
 
-   	  s += task_template.evaluate({id: id, flash_str:flash_str, src:src, attributes_html:updated_html  });
+   	  s += task_template.evaluate({id: id, flash_str:flash_str, src:src, attributes_html:updated_html,sequence:iID+1, num_total:num_items  });
         }
 
 
@@ -368,7 +370,7 @@ var onParametersXMLLoaded=function(transport)
     parameters_display_html_str = ( (new XMLSerializer()).serializeToString(display_html));
 
     header_html=parameters_data.getElementsByTagName('header_html')[0];
-    parameters_header_html_str = ( (new XMLSerializer()).serializeToString(header_html));
+    parameters_header_html_str = ( (new XMLSerializer()).serializeToString(header_html)).replace("<header_html>","").replace("</header_html>","");
 
     parameters_done=1;
     check_after_load();			 
