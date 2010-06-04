@@ -1,6 +1,5 @@
 function l = loss_for_opt(x)
 
-
 global opt_ctx
 
 q_i=x(opt_ctx.q_i_from:opt_ctx.q_i_to);
